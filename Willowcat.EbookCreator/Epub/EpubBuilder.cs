@@ -5,8 +5,10 @@ using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Willowcat.EbookCreator.Models;
+using Willowcat.EbookCreator.Utilities;
 
 namespace Willowcat.EbookCreator.Epub
 {
@@ -103,6 +105,23 @@ namespace Willowcat.EbookCreator.Epub
 
         #region Methods...
 
+        #region CalculateTimeToRead
+        private TimeSpan CalculateTimeToRead(string sourceLocation, int wordsPerMinute)
+        {
+            var allHtmlFiles = _TableOfContents.ChapterFiles
+                .Union(_TableOfContents.OtherFiles)
+                .Where(file => file.MediaType == MediaType.HtmlXml && file.RelativeFilePath.EndsWith("html"));
+            var wordCount = 0;
+            foreach (var file in allHtmlFiles)
+            {
+                var filePath = Path.Combine(sourceLocation, file.RelativeFilePath);
+                wordCount += EpubUtilities.CountWordsInHtml(File.ReadAllText(filePath));
+            }
+            var minutes = wordCount / wordsPerMinute;
+            return new TimeSpan(minutes / 60, minutes % 60, 0);
+        }
+        #endregion CalculateTimeToRead
+
         #region Create
         public void Create(BookModel bookModel, string sourceLocation, string outputFilePath)
         {
@@ -123,6 +142,11 @@ namespace Willowcat.EbookCreator.Epub
             ContentsFileGenerator.Cover = CoverGenerator.CreateCover(_Bibliography, _TableOfContents.CoverFileName);
             ContentsFileGenerator.TableOfContentsPage = TableOfContentsGenerator.CreateTableOfContents(_Bibliography, _TableOfContents);
             ContentsFileGenerator.TitlePage = TitlePageGenerator.CreateTitlePageFile(_Bibliography);
+
+            if (bookModel.WordsReadPerMinute.HasValue && bookModel.WordsReadPerMinute.Value > 0)
+            {
+                ContentsFileGenerator.TimeToRead = CalculateTimeToRead(sourceLocation, bookModel.WordsReadPerMinute.Value);
+            }
 
             //Create package.opf file
             FileItemModel contentsFile = ContentsFileGenerator.CreateContentsFile(_Bibliography);

@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 using Willowcat.EbookCreator.Models;
+using Willowcat.EbookCreator.Utilities;
 
 namespace Willowcat.EbookCreator.Epub
 {
@@ -36,6 +38,7 @@ namespace Willowcat.EbookCreator.Epub
         public FileItemModel TitlePage { get; set; }
         public List<FileItemModel> ChapterFiles { get; private set; } = new List<FileItemModel>();
         public List<FileItemModel> OtherFiles { get; private set; } = new List<FileItemModel>();
+        public TimeSpan? TimeToRead { get; set; }
 
         #endregion Properties...
 
@@ -184,6 +187,14 @@ namespace Willowcat.EbookCreator.Epub
                 MetadataElements.Add(new XElement(opfNamespace + "meta",
                     new XAttribute("name", "cover"),
                     new XAttribute("content", Cover.CoverImage.Id)
+                ));
+            }
+
+            if (TimeToRead.HasValue)
+            {
+                MetadataElements.Add(new XElement(opfNamespace + "meta",
+                    new XAttribute("name", "calibre:user_metadata:#readtime"),
+                    new XAttribute("content", CalibreUtilities.GenerateCustomTimeReadMetadata(TimeToRead.Value))
                 ));
             }
 

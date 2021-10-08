@@ -16,6 +16,10 @@ namespace Willowcat.EbookCreator.Models
         public TableOfContentsModel TableOfContents { get; set; }
         #endregion TableOfContents
 
+        #region WordsReadPerMinute
+        public int? WordsReadPerMinute { get; set; }
+        #endregion WordsReadPerMinute
+
         #endregion Properties...
     }
 }

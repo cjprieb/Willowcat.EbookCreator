@@ -20,7 +20,7 @@ namespace Willowcat.EbookCreator.Engines
         protected readonly ILogger<MergeBooksPublicationEngine> _Logger;
 
         private readonly EpubBuilder _EpubBuilder;
-        private readonly bool _OverwriteOriginalFiles;
+        private readonly EpubOptions _Options;
         #endregion Member Variables...
 
         #region Properties...
@@ -34,11 +34,14 @@ namespace Willowcat.EbookCreator.Engines
         #region Constructors...
 
         #region MergeBooksPublicationEngine
-        public MergeBooksPublicationEngine(ILogger<MergeBooksPublicationEngine> logger, EpubBuilder epubBuilder, bool overwriteOriginalFiles = true)
+        public MergeBooksPublicationEngine(ILogger<MergeBooksPublicationEngine> logger, EpubBuilder epubBuilder, EpubOptions options)
         {
             _Logger = logger ?? new NullLogger<MergeBooksPublicationEngine>();
             _EpubBuilder = epubBuilder;
-            _OverwriteOriginalFiles = overwriteOriginalFiles;
+            _Options = options ?? new EpubOptions()
+            {
+                OverwriteOriginalFiles = true
+            };
         }
         #endregion MergeBooksPublicationEngine
 
@@ -252,11 +255,12 @@ namespace Willowcat.EbookCreator.Engines
             Series = series;
             if (Series == null) throw new NullReferenceException(nameof(Series));
 
-            if (!string.IsNullOrEmpty(Series.SeriesUrl) && _OverwriteOriginalFiles)
+            if (!string.IsNullOrEmpty(Series.SeriesUrl) && _Options.OverwriteOriginalFiles)
             {
                 await DownloadOriginalEbooks(filePaths.SourceDirectory, Series.SeriesUrl);
             }
             var bookItemData = CreateBookItemData(filePaths.SourceDirectory, filePaths.StagingDirectory);
+            bookItemData.WordsReadPerMinute = _Options.WordsReadPerMinute;
             _EpubBuilder.Create(bookItemData, filePaths.StagingDirectory, filePaths.EpubFilePath);
         }
         #endregion PublishAsync

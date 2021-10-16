@@ -44,7 +44,7 @@ namespace Willowcat.EbookCreatorTests.Utilities
 
         [TestMethod()]
         public void AddOrSetMetadataElementInStreamTest_ExistingCustom()
-            => AreEqual(Properties.Resources.contents_customfields, RunTest(Properties.Resources.contents_customfields_notime, new TimeSpan(3, 45, 0)));
+            => AreEqual(Properties.Resources.contents_customfields_2, RunTest(Properties.Resources.contents_customfields_notime, new TimeSpan(3, 45, 0)));
 
         [TestMethod()]
         public void AddOrSetMetadataElementInStreamTest_NoCustom()
@@ -53,5 +53,9 @@ namespace Willowcat.EbookCreatorTests.Utilities
         [TestMethod()]
         public void AddOrSetMetadataElementInStreamTest_OldFormat()
             => AreEqual(Properties.Resources.contents_customfields_2, RunTest(Properties.Resources.contents_oldformat, new TimeSpan(3, 45, 0)));
+
+        [TestMethod]
+        public void AddOrSetMetadataElementInStreamTest_Version2()
+            => AreEqual(Properties.Resources.contents_version2_withtime, RunTest(Properties.Resources.contents_version2, new TimeSpan(2, 36, 0)));
     }
 }

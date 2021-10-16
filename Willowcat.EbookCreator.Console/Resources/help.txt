@@ -1,0 +1,9 @@
+Usage:
+  readtime -f <filepath> -w <wordsPerMinute>
+
+Options:
+  -h --help	Show this screen.
+  readtime	Calculate the time it takes to read epub
+    -f <filepath>   (Req) set file path
+    -w <words>      Number of words read in a minute [default: 250]
+    -t <format>     Display format for time [default: hh\h mm\m]

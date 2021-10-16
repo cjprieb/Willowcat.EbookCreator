@@ -189,5 +189,33 @@ namespace Willowcat.EbookCreatorTests.Properties {
                 return ResourceManager.GetString("contents_timeread", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot;  encoding=&quot;UTF-8&quot;?&gt;
+        ///&lt;package xmlns=&quot;http://www.idpf.org/2007/opf&quot; unique-identifier=&quot;uuid_id&quot; version=&quot;2.0&quot;&gt;
+        ///  &lt;metadata xmlns:calibre=&quot;http://calibre.kovidgoyal.net/2009/metadata&quot; xmlns:dc=&quot;http://purl.org/dc/elements/1.1/&quot; xmlns:dcterms=&quot;http://purl.org/dc/terms/&quot; xmlns:opf=&quot;http://www.idpf.org/2007/opf&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;&gt;
+        ///    &lt;dc:title&gt;Title&lt;/dc:title&gt;
+        ///    &lt;dc:creator opf:role=&quot;aut&quot; opf:file-as=&quot;leletha&quot;&gt;Creator Name&lt;/dc:creator&gt;
+        ///    &lt;dc:publis [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string contents_version2 {
+            get {
+                return ResourceManager.GetString("contents_version2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;?xml version=&apos;1.0&apos; encoding=&apos;utf-8&apos;?&gt;
+        ///&lt;package xmlns=&quot;http://www.idpf.org/2007/opf&quot; unique-identifier=&quot;uuid_id&quot; version=&quot;2.0&quot;&gt;
+        ///  &lt;metadata xmlns:calibre=&quot;http://calibre.kovidgoyal.net/2009/metadata&quot; xmlns:dc=&quot;http://purl.org/dc/elements/1.1/&quot; xmlns:dcterms=&quot;http://purl.org/dc/terms/&quot; xmlns:opf=&quot;http://www.idpf.org/2007/opf&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;&gt;
+        ///    &lt;dc:title&gt;Title&lt;/dc:title&gt;
+        ///    &lt;dc:creator opf:role=&quot;aut&quot; opf:file-as=&quot;leletha&quot;&gt;Creator Name&lt;/dc:creator&gt;
+        ///    &lt;dc:publish [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string contents_version2_withtime {
+            get {
+                return ResourceManager.GetString("contents_version2_withtime", resourceCulture);
+            }
+        }
     }
 }

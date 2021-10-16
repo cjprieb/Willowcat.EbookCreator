@@ -42,11 +42,11 @@ namespace Willowcat.EbookCreator.Utilities
         {
             var timeToReadField = CalibreCustomFields.CreateTimeToReadField(timeToRead);
             var editor = new ContentFileCustomMetadataEditor(xmlString);
-            if (editor.Version == "3.0")
+            if (editor.Version == "3.0" || editor.Version == "2.0")
             {
                 editor.RemoveCustomFieldValue("#readtime");
                 editor.SetCustomFieldValue(timeToReadField);
-                return "<?xml version='1.0' encoding='utf-8'?>\n" + editor.RootElement.ToString();
+                return editor.BuildXmlString();
             }
             else
             {

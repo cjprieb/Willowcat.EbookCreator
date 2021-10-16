@@ -56,7 +56,7 @@ namespace Willowcat.EbookCreator.Engines
         #region ExtractFile
         private static string ExtractFile(ZipEntry e, string outputDirectory)
         {
-            string outputFilePath = Path.Combine(outputDirectory, e.FileName.Replace("/", "\\"));
+            string outputFilePath = Path.Combine(outputDirectory, e.FileName.Replace("/", "\\").Trim());
             if (File.Exists(outputFilePath))
             {
                 File.Delete(outputFilePath);
@@ -70,7 +70,7 @@ namespace Willowcat.EbookCreator.Engines
         private static string GetTempoaryOutputDirectory(string epubPath)
         {
             string epubParentDirectory = Path.GetDirectoryName(epubPath);
-            string epubFileName = Path.GetFileNameWithoutExtension(epubPath);
+            string epubFileName = Path.GetFileNameWithoutExtension(epubPath).Trim();
             return Path.Combine(epubParentDirectory, epubFileName);
         }
         #endregion GetTempoaryOutputDirectory

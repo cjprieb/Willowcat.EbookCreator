@@ -159,14 +159,17 @@ namespace Willowcat.EbookCreator.Engines
                 foreach (var work in works)
                 {
                     string fileName = Path.Combine(sourceDirectory, $"{work.Index:D2}-{work.Title.Replace(":", "")}.epub");
-                    Console.WriteLine($"  Downloading \"{work.EpubUrl}\" to {fileName}...");
-
-                    using (var fileStream = new FileStream(fileName, FileMode.Create, FileAccess.Write))
-                    using (var webStream = client.GetStreamAsync(work.EpubUrl).Result)
+                    if (!File.Exists(fileName))
                     {
-                        webStream.CopyTo(fileStream);
+                        Console.WriteLine($"  Downloading \"{work.EpubUrl}\" to {fileName}...");
+
+                        using (var fileStream = new FileStream(fileName, FileMode.Create, FileAccess.Write))
+                        using (var webStream = client.GetStreamAsync(work.EpubUrl).Result)
+                        {
+                            webStream.CopyTo(fileStream);
+                        }
+                        Console.WriteLine($"  \"{fileName}\" downloaded");
                     }
-                    Console.WriteLine($"  \"{fileName}\" downloaded");
                 }
             }
         }

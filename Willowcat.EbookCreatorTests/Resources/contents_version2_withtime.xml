@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='utf-8'?>
+<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="uuid_id" version="2.0">
+  <metadata xmlns:calibre="http://calibre.kovidgoyal.net/2009/metadata" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:opf="http://www.idpf.org/2007/opf" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <dc:title>Title</dc:title>
+    <dc:creator opf:role="aut" opf:file-as="leletha">Creator Name</dc:creator>
+    <dc:publisher>The publisher</dc:publisher>
+    <dc:description>adescription</dc:description>
+    <dc:date>2014-08-13T00:00:00+00:00</dc:date>
+    <dc:identifier id="uuid_id" opf:scheme="uuid">0db516a6-8116-46ee-a9ae-86a7f63d11da</dc:identifier>
+    <dc:language>en</dc:language>
+    <dc:identifier opf:scheme="calibre">0db516a6-8116-46ee-a9ae-86a7f63d11da</dc:identifier>
+    <meta name="calibre:series" content="Title for Display"/>
+    <meta name="calibre:timestamp" content="2021-09-17T02:20:13.019321+00:00"/>
+    <meta name="calibre:title_sort" content="Title for Sorting"/>
+    <meta name="calibre:series_index" content="1.0"/>
+    <meta name="calibre:rating" content="6"/>
+    <meta name="cover" content="cover"/>
+    <meta name="calibre:user_metadata:#read_time" content="{&quot;#value#&quot;: &quot;02:36:00&quot;, &quot;kind&quot;: &quot;field&quot;, &quot;is_csp&quot;: false, &quot;column&quot;: &quot;value&quot;, &quot;is_category&quot;: false, &quot;search_terms&quot;: [&quot;#read_time&quot;], &quot;#extra#&quot;: null, &quot;link_column&quot;: &quot;value&quot;, &quot;colnum&quot;: 9, &quot;display&quot;: {&quot;interpret_as&quot;: &quot;short-text&quot;, &quot;heading_position&quot;: &quot;side&quot;, &quot;description&quot;: &quot;Length of time to read book&quot;}, &quot;is_custom&quot;: true, &quot;label&quot;: &quot;read_time&quot;, &quot;table&quot;: &quot;custom_column_9&quot;, &quot;is_editable&quot;: true, &quot;name&quot;: &quot;Time To Read&quot;, &quot;datatype&quot;: &quot;comments&quot;, &quot;is_multiple2&quot;: {}, &quot;is_multiple&quot;: null, &quot;category_sort&quot;: &quot;value&quot;, &quot;rec_index&quot;: 27}"/>
+    <meta name="calibre:user_metadata:#date_read" content="{&quot;#value#&quot;: {&quot;__value__&quot;: &quot;2021-09-21T01:19:00+00:00&quot;, &quot;__class__&quot;: &quot;datetime.datetime&quot;}, &quot;kind&quot;: &quot;field&quot;, &quot;is_csp&quot;: false, &quot;column&quot;: &quot;value&quot;, &quot;is_category&quot;: false, &quot;search_terms&quot;: [&quot;#date_read&quot;], &quot;#extra#&quot;: null, &quot;link_column&quot;: &quot;value&quot;, &quot;colnum&quot;: 3, &quot;display&quot;: {&quot;date_format&quot;: null, &quot;description&quot;: &quot;&quot;}, &quot;is_custom&quot;: true, &quot;label&quot;: &quot;date_read&quot;, &quot;table&quot;: &quot;custom_column_3&quot;, &quot;is_editable&quot;: true, &quot;name&quot;: &quot;Date Read&quot;, &quot;datatype&quot;: &quot;datetime&quot;, &quot;is_multiple2&quot;: {}, &quot;is_multiple&quot;: null, &quot;category_sort&quot;: &quot;value&quot;, &quot;rec_index&quot;: 22}"/>
+    <meta name="calibre:user_metadata:#is_read" content="{&quot;#value#&quot;: true, &quot;kind&quot;: &quot;field&quot;, &quot;is_csp&quot;: false, &quot;column&quot;: &quot;value&quot;, &quot;is_category&quot;: false, &quot;search_terms&quot;: [&quot;#is_read&quot;], &quot;#extra#&quot;: null, &quot;link_column&quot;: &quot;value&quot;, &quot;colnum&quot;: 2, &quot;display&quot;: {&quot;description&quot;: &quot;&quot;}, &quot;is_custom&quot;: true, &quot;label&quot;: &quot;is_read&quot;, &quot;table&quot;: &quot;custom_column_2&quot;, &quot;is_editable&quot;: true, &quot;name&quot;: &quot;Read&quot;, &quot;datatype&quot;: &quot;bool&quot;, &quot;is_multiple2&quot;: {}, &quot;is_multiple&quot;: null, &quot;category_sort&quot;: &quot;value&quot;, &quot;rec_index&quot;: 25}"/>
+  </metadata>
+  <manifest>
+    <item href="split_016.xhtml" id="html8" media-type="application/xhtml+xml"/>
+    <item href="split_017.xhtml" id="html7" media-type="application/xhtml+xml"/>
+    <item href="split_018.xhtml" id="html6" media-type="application/xhtml+xml"/>
+    <item href="split_019.xhtml" id="html5" media-type="application/xhtml+xml"/>
+    <item href="split_020.xhtml" id="html4" media-type="application/xhtml+xml"/>
+    <item href="split_021.xhtml" id="html3" media-type="application/xhtml+xml"/>
+    <item href="split_022.xhtml" id="html2" media-type="application/xhtml+xml"/>
+    <item href="split_023.xhtml" id="html1" media-type="application/xhtml+xml"/>
+    <item href="toc.ncx" id="ncx" media-type="application/x-dtbncx+xml"/>
+    <item href="page_styles.css" id="page_css" media-type="text/css"/>
+    <item href="stylesheet.css" id="css" media-type="text/css"/>
+    <item href="cover.jpg" id="cover" media-type="image/jpeg"/>
+  </manifest>
+  <spine toc="ncx">
+    <itemref idref="html8"/>
+    <itemref idref="html7"/>
+    <itemref idref="html6"/>
+    <itemref idref="html5"/>
+    <itemref idref="html4"/>
+    <itemref idref="html3"/>
+    <itemref idref="html2"/>
+    <itemref idref="html1"/>
+  </spine>
+  <guide/>
+</package>

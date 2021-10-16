@@ -118,40 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="contents_basic" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\contents_basic.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
-  </data>
-  <data name="contents_customfields" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\contents_customfields.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
-  </data>
-  <data name="contents_customfields_2" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\contents_customfields_2.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
-  </data>
-  <data name="contents_customfields_notime" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\contents_customfields_notime.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
-  </data>
-  <data name="contents_language" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\contents_language.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
-  </data>
-  <data name="contents_oldformat" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\contents_oldformat.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
-  </data>
-  <data name="contents_proofreader" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\contents_proofreader.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
-  </data>
-  <data name="contents_series" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\contents_series.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
-  </data>
-  <data name="contents_tags" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\contents_tags.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
-  </data>
-  <data name="contents_timeread" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\contents_timeread.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
-  </data>
-  <data name="contents_version2" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\contents_version2.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
-  </data>
-  <data name="contents_version2_withtime" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\contents_version2_withtime.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  <data name="help" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\help.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
 </root>

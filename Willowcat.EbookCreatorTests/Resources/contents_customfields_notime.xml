@@ -17,8 +17,8 @@
     "column": "value", 
     "datatype": "datetime", 
     "display": {
-      "date_format": null, 
-      "description": ""
+      "description": "", 
+      "date_format": null
     }, 
     "is_category": false, 
     "is_csp": false, 

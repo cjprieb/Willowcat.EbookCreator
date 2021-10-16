@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='utf-8'?>
+<package xmlns="http://www.idpf.org/2007/opf" version="3.0" xml:lang="en-US" unique-identifier="uid">
+  <metadata xmlns:calibre="http://calibre.kovidgoyal.net/2009/metadata" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <dc:identifier id="uid" p7:scheme="uuid" xmlns:p7="http://www.idpf.org/2007/opf">1ed2e6a5-acde-4492-9bee-62d0df446cc1</dc:identifier>
+    <dc:title>the title</dc:title>
+    <dc:language></dc:language>
+    <dc:creator p7:role="aut" p7:file-as="creator name" xmlns:p7="http://www.idpf.org/2007/opf">name of creator</dc:creator>
+    <dc:publisher>a publishing co</dc:publisher>
+    <dc:description>&lt;p&gt;a description of the book with &lt;b&gt;formatting&lt;/b&gt;.&lt;/p&gt;</dc:description>
+    <dc:date p7:event="published" xmlns:p7="http://www.idpf.org/2007/opf">2015-03-05</dc:date>
+    <dc:subject>action</dc:subject>
+    <dc:subject>fantasy</dc:subject>
+    <meta name="cover" content="cover" />
+  </metadata>
+  <manifest>
+    <item href="titlepage.html" id="titlepage" media-type="application/xhtml+xml" />
+    <item href="toc.ncx" id="toc" media-type="application/x-dtbncx+xml" />
+    <item href="cover.html" id="cover" media-type="application/xhtml+xml" />
+    <item href="chapter0.html" id="chapter0" media-type="application/xhtml+xml" />
+    <item href="chapter1.html" id="chapter1" media-type="application/xhtml+xml" />
+    <item href="chapter2.html" id="chapter2" media-type="application/xhtml+xml" />
+    <item href="chapter3.html" id="chapter3" media-type="application/xhtml+xml" />
+    <item href="chapter4.html" id="chapter4" media-type="application/xhtml+xml" />
+    <item href="cover.png" id="cover" media-type="image/png" />
+    <item href="styles.css" id="styles" media-type="" />
+  </manifest>
+  <spine toc="toc">
+    <itemref idref="cover" />
+    <itemref idref="chapter0" />
+    <itemref idref="chapter1" />
+    <itemref idref="chapter2" />
+    <itemref idref="chapter3" />
+    <itemref idref="chapter4" />
+  </spine>
+  <guide>
+    <reference type="cover" title="Cover" href="cover.html" />
+    <reference type="toc" title="Table of Contents" href="toc.ncx" />
+  </guide>
+</package>

@@ -31,5 +31,15 @@ namespace Willowcat.EbookCreator.Models
         public string Series { get; set; } = "";
 
         public int? SeriesIndex { get; set; }
+        public CalibreCustomFields CustomFields { get; set; }
+
+        public void AddCustomField(string name, CalibreCustomFieldModel value)
+        {
+            if (CustomFields == null)
+            {
+                CustomFields = new CalibreCustomFields();
+            }
+            CustomFields[name] = value;
+        }
     }
 }

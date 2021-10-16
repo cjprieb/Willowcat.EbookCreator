@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Xml.Linq;
 using Willowcat.EbookCreator.Models;
 using Willowcat.EbookCreator.Utilities;
@@ -27,18 +28,16 @@ namespace Willowcat.EbookCreator.Epub
 
         private const string xsiNamespaceUrl = "http://www.w3.org/2001/XMLSchema-instance";
         private static XNamespace xsiNamespace = xsiNamespaceUrl;
+
         private BibliographyModel _Bibliography;
+        private ContentsFileModel _ContentsModel;
 
         #endregion Member Variables...
 
         #region Properties...
 
-        public CoverModel Cover { get; set; }
-        public FileItemModel TableOfContentsPage { get; set; }
-        public FileItemModel TitlePage { get; set; }
-        public List<FileItemModel> ChapterFiles { get; private set; } = new List<FileItemModel>();
-        public List<FileItemModel> OtherFiles { get; private set; } = new List<FileItemModel>();
-        public TimeSpan? TimeToRead { get; set; }
+        private CoverModel Cover => _ContentsModel.Cover;
+        private FileItemModel TableOfContentsPage => _ContentsModel.TableOfContentsPage;
 
         #endregion Properties...
 
@@ -49,14 +48,15 @@ namespace Willowcat.EbookCreator.Epub
         #region Methods...
 
         #region CreateContentsFile
-        public virtual FileItemModel CreateContentsFile(BibliographyModel bibliography)
+        public virtual FileItemModel CreateContentsFile(BibliographyModel bibliography, ContentsFileModel contentsModel)
         {
             _Bibliography = bibliography;
+            _ContentsModel = contentsModel;
 
             var referenceElements = GetReferenceElements();
             var metadataElements = GetMetadataElements();
-            var manifestList = GetManifestList();
-            var spineList = GetSpineList();
+            var manifestList = _ContentsModel.GetManifestList();
+            var spineList = _ContentsModel.GetSpineList();
 
             var doc = new XElement(opfNamespace + "package",
                 new XAttribute("xmlns", opfNamespaceUrl),
@@ -149,32 +149,6 @@ namespace Willowcat.EbookCreator.Epub
         }
         #endregion GetBibliographyElements
 
-        #region GetManifestList
-        private IEnumerable<FileItemModel> GetManifestList()
-        {
-            List<FileItemModel> items = new List<FileItemModel>();
-            if (TitlePage != null)
-            {
-                items.Add(TitlePage);
-            }
-            if (TableOfContentsPage != null)
-            {
-                items.Add(TableOfContentsPage);
-            }
-            if (Cover?.CoverHtmlPage != null)
-            {
-                items.Add(Cover?.CoverHtmlPage);
-            }
-            items.AddRange(ChapterFiles);
-            if (Cover?.CoverImage != null)
-            {
-                items.Add(Cover?.CoverImage);
-            }
-            items.AddRange(OtherFiles);
-            return items;
-        }
-        #endregion GetManifestList
-
         #region GetMetadataElements
         private List<XElement> GetMetadataElements()
         {
@@ -182,19 +156,19 @@ namespace Willowcat.EbookCreator.Epub
 
             MetadataElements.AddRange(GetBibliographyElements());
 
+            if (_Bibliography.CustomFields != null)
+            {
+                MetadataElements.Add(new XElement(opfNamespace + "meta",
+                    new XAttribute("property", "calibre:user_metadata"),
+                    _Bibliography.CustomFields.SerializeToJson()
+                ));
+            }
+
             if (Cover != null && !string.IsNullOrEmpty(Cover.CoverImage.Id))
             {
                 MetadataElements.Add(new XElement(opfNamespace + "meta",
                     new XAttribute("name", "cover"),
                     new XAttribute("content", Cover.CoverImage.Id)
-                ));
-            }
-
-            if (TimeToRead.HasValue)
-            {
-                MetadataElements.Add(new XElement(opfNamespace + "meta",
-                    new XAttribute("name", "calibre:user_metadata:#readtime"),
-                    new XAttribute("content", CalibreUtilities.GenerateCustomTimeReadMetadata(TimeToRead.Value))
                 ));
             }
 
@@ -252,19 +226,6 @@ namespace Willowcat.EbookCreator.Epub
             }
         }
         #endregion GetSeriesBibliographyElements
-
-        #region GetSpineList
-        public IEnumerable<FileItemModel> GetSpineList()
-        {
-            List<FileItemModel> items = new List<FileItemModel>();
-            if (Cover?.CoverHtmlPage != null)
-            {
-                items.Add(Cover?.CoverHtmlPage);
-            }
-            items.AddRange(ChapterFiles);
-            return items;
-        }
-        #endregion GetSpineList
 
         #endregion Methods...
     }

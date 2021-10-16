@@ -133,29 +133,33 @@ namespace Willowcat.EbookCreator.Epub
             if (_Bibliography == null) throw new ArgumentNullException($"A {nameof(_Bibliography)} file is need to build an epub file.", nameof(_Bibliography));
             if (_TableOfContents == null) throw new ArgumentNullException($"A {nameof(_TableOfContents)} file is need to build an epub file.", nameof(_TableOfContents));
 
-            ContentsFileGenerator.ChapterFiles.Clear();
-            ContentsFileGenerator.ChapterFiles.AddRange(_TableOfContents.ChapterFiles);
+            var contentsFileModel = new ContentsFileModel()
+            {
+                Cover = CoverGenerator.CreateCover(_Bibliography, _TableOfContents.CoverFileName),
+                TableOfContentsPage = TableOfContentsGenerator.CreateTableOfContents(_Bibliography, _TableOfContents),
+                TitlePage = TitlePageGenerator.CreateTitlePageFile(_Bibliography)
+            };
+            contentsFileModel.ChapterFiles.AddRange(_TableOfContents.ChapterFiles);
+            contentsFileModel.OtherFiles.AddRange(_TableOfContents.OtherFiles);
 
-            ContentsFileGenerator.OtherFiles.Clear();
-            ContentsFileGenerator.OtherFiles.AddRange(_TableOfContents.OtherFiles);
-
-            ContentsFileGenerator.Cover = CoverGenerator.CreateCover(_Bibliography, _TableOfContents.CoverFileName);
-            ContentsFileGenerator.TableOfContentsPage = TableOfContentsGenerator.CreateTableOfContents(_Bibliography, _TableOfContents);
-            ContentsFileGenerator.TitlePage = TitlePageGenerator.CreateTitlePageFile(_Bibliography);
+            CalibreCustomFieldModel syncBookField = CalibreCustomFields.CreateSyncBookField(true);
+            _Bibliography.AddCustomField(syncBookField.PropertyName, syncBookField);
 
             if (bookModel.WordsReadPerMinute.HasValue && bookModel.WordsReadPerMinute.Value > 0)
             {
-                ContentsFileGenerator.TimeToRead = CalculateTimeToRead(sourceLocation, bookModel.WordsReadPerMinute.Value);
+                var timeToRead = CalculateTimeToRead(sourceLocation, bookModel.WordsReadPerMinute.Value);
+                CalibreCustomFieldModel timeToReadField = CalibreCustomFields.CreateTimeToReadField(timeToRead);
+                _Bibliography.AddCustomField(timeToReadField.PropertyName, timeToReadField);
             }
 
             //Create package.opf file
-            FileItemModel contentsFile = ContentsFileGenerator.CreateContentsFile(_Bibliography);
+            contentsFileModel.ContentsFile = ContentsFileGenerator.CreateContentsFile(_Bibliography, contentsFileModel);
 
             //Create META-INF file
             var metafile = Path.Combine(sourceLocation, _METADATA);
             WriteFileContents(metafile, Properties.Resources.MetafileTemplate);
 
-            WriteFilesToSourceLocation(sourceLocation, contentsFile);
+            WriteFilesToSourceLocation(sourceLocation, contentsFileModel);
 
             Zip(sourceLocation, outputFilePath, metafile);
         }
@@ -169,17 +173,9 @@ namespace Willowcat.EbookCreator.Epub
         #endregion SetTableOfContentsModel
 
         #region WriteFilesToSourceLocation
-        private void WriteFilesToSourceLocation(string sourceLocation, FileItemModel contentsFile)
+        private void WriteFilesToSourceLocation(string sourceLocation, ContentsFileModel contentsFileModel)
         {
-            var fileItems = new List<FileItemModel>() {
-                ContentsFileGenerator.Cover?.CoverHtmlPage,
-                //ContentsFileGenerator.Cover?.CoverImage, // not a textfile
-                ContentsFileGenerator.TableOfContentsPage,
-                ContentsFileGenerator.TitlePage,
-                contentsFile
-            };
-
-            foreach (var file in fileItems)
+            foreach (var file in contentsFileModel.GetGeneratedFiles())
             {
                 if (file != null)
                 {

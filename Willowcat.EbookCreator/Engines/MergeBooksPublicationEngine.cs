@@ -34,6 +34,13 @@ namespace Willowcat.EbookCreator.Engines
         #region Constructors...
 
         #region MergeBooksPublicationEngine
+        public MergeBooksPublicationEngine(EpubBuilder epubBuilder, EpubOptions options)
+            : this(null, epubBuilder, options)
+        {
+        }
+        #endregion MergeBooksPublicationEngine
+
+        #region MergeBooksPublicationEngine
         public MergeBooksPublicationEngine(ILogger<MergeBooksPublicationEngine> logger, EpubBuilder epubBuilder, EpubOptions options)
         {
             _Logger = logger ?? new NullLogger<MergeBooksPublicationEngine>();

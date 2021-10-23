@@ -13,7 +13,7 @@ namespace Willowcat.EbookCreator.Models
         #endregion Bibliography
 
         #region TableOfContents
-        public TableOfContentsModel TableOfContents { get; set; }
+        public TableOfContentsModel TableOfContents { get; set; } = new TableOfContentsModel();
         #endregion TableOfContents
 
         #region WordsReadPerMinute

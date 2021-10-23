@@ -94,6 +94,12 @@ namespace Willowcat.EbookCreator.Epub
         #region Constructors...
 
         #region EpubBuilder
+        public EpubBuilder() : this(null)
+        {
+        }
+        #endregion EpubBuilder
+
+        #region EpubBuilder
         public EpubBuilder(ILogger<EpubBuilder> logger)
         {
             _Logger = logger ?? new NullLogger<EpubBuilder>();

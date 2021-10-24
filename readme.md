@@ -10,7 +10,7 @@ a "Time to Read" field when adding a book to Calibre.
 
 * .NET Standard 2.0 or higher
 * (For the console program) .NET Core 3.1 or higher
-* (For the plugins) Calibre 3.47 or higher
+* (For the plugins) Calibre 5.00 or higher
 
 ## Configuration
 

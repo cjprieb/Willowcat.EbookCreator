@@ -6,10 +6,10 @@ class Willowcat(FileTypePlugin):
     description         = 'Sets how long it takes to read a book based on a file'
     supported_platforms = ['windows'] # Platforms this plugin will run on
     author              = 'Willowcat' # The author of this plugin
-    version             = (1, 0, 3)   # The version number of this plugin
+    version             = (1, 1, 5)   # The version number of this plugin
     file_types          = set(['epub']) # The file types that this plugin will be applied to
-    # on_postprocess      = True # Run this plugin after conversion is complete
-    on_import           = True # Run this plugin when books are added to the database
+    on_postprocess      = True # Run this plugin after conversion is complete
+    # on_import           = True # Run this plugin when books are added to the database
     on_postimport       = True # Run after books added to the database; postimport/postadd methods are called
     minimum_calibre_version = (0, 7, 53)
 
@@ -17,15 +17,15 @@ class Willowcat(FileTypePlugin):
     _ebookConsoleAppPath = 'D:\\Users\\Crystal\\Programming\\repos\\Willowcat.EbookCreator\\Willowcat.EbookCreator.Console\\bin\\Debug\\netcoreapp3.1\\Willowcat.EbookCreator.Console.exe'
 
     def run(self, path_to_ebook):
-        self.log("running for book " + path_to_ebook)
+        self.log("running for book {0}".format(path_to_ebook))
+        timeToRead = self.getTimeToRead(path_to_ebook)
+        self.log("time to read: {0}".format(timeToRead))
         return path_to_ebook
 
     def postadd(self, book_id, fmt_map, db):
-        import string
-
         description = db.get_field(book_id, "comments", index_is_id=True)
         publisher = db.get_field(book_id, "publisher", index_is_id=True)
-        if string.find(description, "<p><b>Tags: </b>") < 0:
+        if description.find("<p><b>Tags: </b>") < 0:
             tags = db.get_field(book_id, "tags", index_is_id=True)
 
             tagDescription = self.getTagDescription(tags)
@@ -51,12 +51,11 @@ class Willowcat(FileTypePlugin):
         command = [self._ebookConsoleAppPath, 'readtime', "-f", path_to_ebook, "-w", self._wordsPerMinute]
         p = subprocess.Popen(command, stdout=subprocess.PIPE)
         text = p.stdout.read()
-        self.log("result: " + text)
+        self.log("result: {0}".format(text))
         return text
 
     def log(self, message):
         print("Willowcat ", self.version, ": ", message)
 
     def getTagDescription(self, tags):
-        import string
-        return "<p><b>Tags: </b>" + string.join(tags, ', ') + "</p>"
+        return "<p><b>Tags: </b>" + ", ".join(tags) + "</p>"

@@ -11,7 +11,3 @@ will add a "Fanfiction" tag if the publisher is "Archive of our Own"
 ```
 calibre-customize -b .; calibre-debug -g
 ```
-
-- use `calibre-debug -g` to `print` debug statements to the command line 
-```
-calibre-customize -b .; calibre-debug -g

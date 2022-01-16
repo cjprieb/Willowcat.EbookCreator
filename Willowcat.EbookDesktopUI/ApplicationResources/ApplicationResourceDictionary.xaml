@@ -3,6 +3,10 @@
                     xmlns:local="clr-namespace:Willowcat.EbookDesktopUI.ApplicationResources">
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="/Willowcat.EbookDesktopUI;component/ApplicationResources/DefaultStylesDictionary.xaml" />
+        <ResourceDictionary Source="/Willowcat.EbookDesktopUI;component/ApplicationResources/FilterStylesDictionary.xaml" />
+        <ResourceDictionary Source="/Willowcat.EbookDesktopUI;component/ApplicationResources/EpubSearchStylesDictionary.xaml" />
+        <ResourceDictionary Source="/Willowcat.EbookDesktopUI;component/ApplicationResources/RatingTemplates/DataTemplateDictionary.xaml" />
+        
         <ResourceDictionary Source="pack://application:,,,/Willowcat.Common.UI;component/TaskProgress/TemplateSelectors/DataTemplatesDictionary.xaml" />
     </ResourceDictionary.MergedDictionaries>    
 </ResourceDictionary>

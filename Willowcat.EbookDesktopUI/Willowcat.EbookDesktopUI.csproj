@@ -32,4 +32,15 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Page Update="ApplicationResources\EpubSearchStylesDictionary.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="ApplicationResources\FilterStylesDictionary.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+
 </Project>

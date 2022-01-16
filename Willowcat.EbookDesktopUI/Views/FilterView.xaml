@@ -55,7 +55,7 @@
                     DataContext="{Binding ExcludedTagsViewModel}" />
 
                 <Label 
-                    Style="{StaticResource TagListHeaderStyle}"
+                    Style="{StaticResource FilterTagListHeaderStyle}"
                     Content="Fandoms" />
 
                 <ListView

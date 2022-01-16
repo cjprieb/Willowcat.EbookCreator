@@ -120,7 +120,7 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         #region Methods...
 
         #region ExecuteApplyFilter
-        public void ExecuteApplyFilter()
+        private void ExecuteApplyFilter()
         {
             var filterModel = new FilterModel();
             filterModel.ExcludedTags.AddAll(ExcludedTagsViewModel.SelectedTags.Select(tag => tag.Name));
@@ -139,6 +139,7 @@ namespace Willowcat.EbookDesktopUI.ViewModels
             {
                 Fandoms.Add(new TagViewModel(fandom));
             }
+            ExecuteApplyFilter();
         }
         #endregion LoadAsync
 

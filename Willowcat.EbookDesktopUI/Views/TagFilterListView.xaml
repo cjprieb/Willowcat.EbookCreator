@@ -16,12 +16,12 @@
 
         <Label 
             Grid.Row="0"
-            Style="{StaticResource TagListHeaderStyle}"
+            Style="{StaticResource FilterTagListHeaderStyle}"
             Content="{Binding Label}" />
 
         <Grid
             Grid.Row="1"
-            Style="{StaticResource AddTagControlStyle}">
+            Style="{StaticResource FilterAddTagControlStyle}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />

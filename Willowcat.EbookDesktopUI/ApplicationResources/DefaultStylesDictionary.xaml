@@ -54,37 +54,4 @@
         <Setter Property="Width" Value="16"/>
         <Setter Property="Height" Value="16"/>
     </Style>
-
-    <Style TargetType="Label" x:Key="TagListHeaderStyle">
-        <Setter Property="Margin" Value="0 4 0 0"/>
-        <Setter Property="FontWeight" Value="Bold"/>
-    </Style>
-    <Style TargetType="ListView" x:Key="FilterTagListViewStyle" BasedOn="{StaticResource DefaultListView}">
-        <Setter Property="Margin" Value="20 0 0 0" />
-        <Setter Property="SelectionMode" Value="Single" />
-        <Setter Property="VerticalAlignment" Value="Top" />
-        <Setter Property="Background" Value="Transparent" />
-        <Setter Property="BorderThickness" Value="0"/>
-    </Style>
-    <Style TargetType="ListViewItem" x:Key="FilterTagItemViewStyle">
-        <Setter Property="Background" Value="LightBlue" />
-        <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="Margin" Value="0 0 0 4" />
-        <Setter Property="Padding" Value="4" />
-    </Style>
-    <Style TargetType="Button" x:Key="FilterTagButtonStyle">
-        <Setter Property="Padding" Value="4"/>
-    </Style>
-    <Style TargetType="TextBlock" x:Key="FilterTagLabelStyle">
-        <Setter Property="Padding" Value="4 5 0 0"/>
-    </Style>
-    <Style TargetType="Grid" x:Key="AddTagControlStyle">
-        <Setter Property="Margin" Value="20 0 0 4" />
-    </Style>
-    <Style TargetType="Border" x:Key="FilterBoxBorderStyle">
-        <Setter Property="Background" Value="GhostWhite"/>
-        <Setter Property="BorderBrush" Value="LightSlateGray"/>
-        <Setter Property="BorderThickness" Value="2"/>
-        <Setter Property="Padding" Value="4 4 6 4"/>
-    </Style>
 </ResourceDictionary>

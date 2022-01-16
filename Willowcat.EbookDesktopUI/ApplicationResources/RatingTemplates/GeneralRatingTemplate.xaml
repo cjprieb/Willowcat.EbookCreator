@@ -1,0 +1,8 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:fa="http://schemas.fontawesome.io/icons/"
+                    xmlns:local="clr-namespace:Willowcat.EbookDesktopUI.ApplicationResources.RatingTemplates">
+    <DataTemplate x:Key="GeneralRatingTemplate">
+        <Border Background="DarkGreen" />
+    </DataTemplate>    
+</ResourceDictionary>

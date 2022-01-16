@@ -69,8 +69,13 @@ namespace Willowcat.EbookDesktopUI.ViewModels
                 try
                 {
                     FilterViewModel.SearchTaskStatus = TaskProgressType.Running;
-                    //EpubListViewModel.Books.Clear();
-                    await Task.Delay(5000);
+                    EpubListViewModel.Books.Clear();
+                    //await Task.Delay(5000);
+                    var filteredWorks = await _EbookFileService.GetFilteredResultsAsync(FilterViewModel.FilterModel);
+                    foreach (var item in filteredWorks)
+                    {
+                        EpubListViewModel.Books.Add(new EpubListItemViewModel(item));
+                    }
                 }
                 finally
                 {
@@ -84,7 +89,6 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         public async Task LoadAsync()
         {
             await FilterViewModel.LoadAsync();
-            await ApplyFilterAsync();
         }
         #endregion LoadAsync
 

@@ -10,11 +10,18 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
+        <Label 
+            Grid.Row="0"
+            Style="{StaticResource TagListHeaderStyle}"
+            Content="{Binding Label}" />
+
         <Grid
-            Grid.Row="0">
+            Grid.Row="1"
+            Style="{StaticResource AddTagControlStyle}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
@@ -29,7 +36,7 @@
                 Command="{Binding AddTagCommand}">
                 <Button.Content>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <fa:ImageAwesome Icon="Plus" Style="{StaticResource ButtonIcon}" />
+                        <fa:ImageAwesome Icon="Plus" Style="{StaticResource CenterButtonIcon}" />
                     </StackPanel>
                 </Button.Content>
             </Button>
@@ -37,24 +44,13 @@
         </Grid>
 
         <ListView
-            Grid.Row="1"
+            Grid.Row="2"
             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-            VerticalAlignment="Top"
             ItemsSource="{Binding SelectedTags}"
-            HorizontalContentAlignment="Stretch"
-            SelectionMode="Single">
-            <!--<ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem" BasedOn="{StaticResource WorkListViewItemStyle}">
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding HasError}" Value="True">
-                            <Setter Property="Background" Value="Pink"/>
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding HasUnreadChapters}" Value="True">
-                            <Setter Property="Background" Value="LightYellow"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </ListView.ItemContainerStyle>-->
+            Style="{StaticResource FilterTagListViewStyle}">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem" BasedOn="{StaticResource FilterTagItemViewStyle}" />
+            </ListView.ItemContainerStyle>
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <Grid>
@@ -64,14 +60,16 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock 
                             Grid.Column="0"
+                            Style="{StaticResource FilterTagLabelStyle}"
                             Text="{Binding Name}" />
                         <Button
                             Grid.Column="1"
                             Command="{Binding Path=DataContext.RemoveTagCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                            CommandParameter="{Binding Name}">
+                            CommandParameter="{Binding Name}"
+                            Style="{StaticResource FilterTagButtonStyle}">
                             <Button.Content>
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <fa:ImageAwesome Icon="Trash" Style="{StaticResource ButtonIcon}" />
+                                    <fa:ImageAwesome Icon="Trash" Style="{StaticResource CenterButtonIcon}"/>
                                 </StackPanel>
                             </Button.Content>
                         </Button>

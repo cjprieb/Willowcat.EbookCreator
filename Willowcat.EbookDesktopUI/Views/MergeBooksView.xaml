@@ -1,0 +1,211 @@
+﻿<UserControl x:Class="Willowcat.EbookDesktopUI.Views.MergeBooksView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Willowcat.EbookDesktopUI.Views"
+             xmlns:fa="http://schemas.fontawesome.io/icons/"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="400"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Label 
+            Grid.Row="0"
+            Grid.Column="0"
+            Content="Folder Name" />
+
+        <TextBox 
+            Grid.Row="0"
+            Grid.Column="1"
+            Style="{StaticResource DefaultTextboxStyle}"
+            Text="{Binding FolderName}" />
+
+        <Label 
+            Grid.Row="1"
+            Grid.Column="0"
+            Content="Series Url" />
+
+        <TextBox 
+            Grid.Row="1"
+            Grid.Column="1"
+            Style="{StaticResource DefaultTextboxStyle}"
+            Text="{Binding SeriesUrl}" />
+
+        <Label 
+            Grid.Row="2"
+            Grid.Column="0"
+            Content="Book Title" />
+
+        <TextBox 
+            Grid.Row="2"
+            Grid.Column="1"
+            Style="{StaticResource DefaultTextboxStyle}"
+            Text="{Binding OverrideBookTitle}" />
+
+        <Label 
+            Grid.Row="3"
+            Grid.Column="0"
+            Content="Series Name" />
+
+        <TextBox 
+            Grid.Row="3"
+            Grid.Column="1"
+            Style="{StaticResource DefaultTextboxStyle}"
+            Text="{Binding SeriesName}" />
+
+        <Label 
+            Grid.Row="4"
+            Grid.Column="0"
+            Content="Series Index" />
+
+        <TextBox 
+            Grid.Row="4"
+            Grid.Column="1"
+            Style="{StaticResource DefaultTextboxStyle}"
+            Text="{Binding SeriesIndex}" />
+
+        <Label 
+            Grid.Row="5"
+            Grid.Column="0"
+            Content="Indexes To Include" />
+
+        <TextBox 
+            Grid.Row="5"
+            Grid.Column="1"
+            Style="{StaticResource DefaultTextboxStyle}"
+            Text="{Binding IncludeIndxes}" />
+
+        <Label 
+            Grid.Row="6"
+            Grid.Column="0"
+            Content="Work Urls" />
+
+        <TextBox 
+            Grid.Row="6"
+            Grid.Column="1"
+            Style="{StaticResource DefaultTextboxStyle}"
+            Text="{Binding WorkUrls}"
+            TextWrapping="Wrap" />
+
+        <CheckBox
+            Grid.Row="7"
+            Grid.Column="0"
+            Grid.ColumnSpan="2"
+            Content="Overwrite Original Files"
+            IsChecked="{Binding OverwriteOriginalFiles}" />
+
+        <Grid
+            Grid.Row="8"
+            Grid.Column="0"
+            Grid.ColumnSpan="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Button
+                Grid.Column="1"
+                Command="{Binding ClearFieldsCommand}"
+                Style="{StaticResource ToolbarButtonStyle}">
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <fa:ImageAwesome Icon="Eraser" Style="{StaticResource ButtonIcon}" />
+                        <TextBlock Text="Clear"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+
+            <Button
+                Grid.Column="2"
+                Command="{Binding GenerateBookCommand}"
+                Style="{StaticResource ToolbarButtonStyle}">
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <fa:ImageAwesome Icon="ObjectGroup" Style="{StaticResource ButtonIcon}" />
+                        <TextBlock Text="Merge Books"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+
+        </Grid>
+
+        <ListView 
+            Grid.Row="0"
+            Grid.Column="2"
+            Grid.RowSpan="8" 
+            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+            VerticalAlignment="Top"
+            ItemsSource="{Binding Logs}"
+            SelectionMode="Single">
+            <!--<ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem" BasedOn="{StaticResource WorkListViewItemStyle}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding HasError}" Value="True">
+                            <Setter Property="Background" Value="Pink"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding HasUnreadChapters}" Value="True">
+                            <Setter Property="Background" Value="LightYellow"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ListView.ItemContainerStyle>-->
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <!--<TextBlock Text="{Binding LogLevel}" />
+                        <TextBlock Text=" - " />-->
+                        <TextBox 
+                            TextWrapping="Wrap"
+                            IsReadOnly="True"
+                            Text="{Binding Message,Mode=OneWay}" />
+                    </StackPanel>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+
+        <Grid
+            Grid.Row="8"
+            Grid.Column="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Button
+                Grid.Column="2"
+                Click="OpenDirectoryButton_Click"
+                IsEnabled="{Binding DoesDirectoryExist}"
+                ToolTip="{Binding OutputDirectory}"
+                Style="{StaticResource ToolbarButtonStyle}">
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <fa:ImageAwesome Icon="FolderOpen" Style="{StaticResource ButtonIcon}" />
+                        <TextBlock Text="Open Directory"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+
+        </Grid>
+
+    </Grid>
+</UserControl>

@@ -1,14 +1,15 @@
 ﻿using Prism.Commands;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Willowcat.Common.UI.ViewModel;
+using Willowcat.Common.Utilities;
+using Willowcat.EbookDesktopUI.Events;
 using Willowcat.EbookDesktopUI.Models;
 using Willowcat.EbookDesktopUI.Services;
-using Willowcat.EbookCreator.Utilities;
-using System.Text;
-using Willowcat.Common.Utilities;
 
 namespace Willowcat.EbookDesktopUI.ViewModels
 {
@@ -18,6 +19,7 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         private readonly EbookFileService _EbookFileService;
 
         private FilterModel _FilterModel;
+        private TaskProgressType _SearchTaskStatus = TaskProgressType.None;
         #endregion Member Variables...
 
         #region Properties...
@@ -25,6 +27,13 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         #region ApplyFilterCommand
         public ICommand ApplyFilterCommand { get; private set; }
         #endregion ApplyFilterCommand
+
+        #region CanApplyFilterCommand
+        public bool CanApplyFilterCommand
+        {
+            get => (SearchTaskStatus != TaskProgressType.Running);
+        }
+        #endregion CanApplyFilterCommand
 
         #region ExcludedTagsViewModel
         public TagFilterListViewModel ExcludedTagsViewModel { get; private set; } = new TagFilterListViewModel("Exclude:");
@@ -68,7 +77,24 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         }
         #endregion FilterString
 
+        #region SearchTaskStatus
+        public TaskProgressType SearchTaskStatus
+        {
+            get => _SearchTaskStatus;
+            set
+            {
+                _SearchTaskStatus = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CanApplyFilterCommand));
+            }
+        }
+        #endregion SearchTaskStatus
+
         #endregion Properties...
+
+        #region Events...
+        public event EventHandler<FilterUpdatedEventArgs> FilterUpdated;
+        #endregion Events...
 
         #region Constructors...
 
@@ -86,13 +112,14 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         #region Methods...
 
         #region ExecuteApplyFilter
-        private void ExecuteApplyFilter()
+        public void ExecuteApplyFilter()
         {
             var filterModel = new FilterModel();
             filterModel.ExcludedTags.AddAll(ExcludedTagsViewModel.SelectedTags.Select(tag => tag.Name));
             filterModel.IncludedTags.AddAll(IncludedTagsViewModel.SelectedTags.Select(tag => tag.Name));
             filterModel.Fandoms.AddRange(Fandoms.Where(tag => tag.IsSelected).Select(tag => tag.Name));
             FilterModel = filterModel;
+            FilterUpdated?.Invoke(this, new FilterUpdatedEventArgs(filterModel));
         }
         #endregion ExecuteApplyFilter
 

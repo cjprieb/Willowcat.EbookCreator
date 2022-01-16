@@ -8,31 +8,68 @@ namespace Willowcat.EbookDesktopUI.ViewModels
     public class MainViewModel : ViewModelBase
     {
         #region Member Variables...
-        private readonly EbookFileService _EbookFileService;
-
+        private EpubSearchViewModel _EpubSearchViewModel = null;
+        private MergeBooksViewModel _MergeBooksViewModel = null;
         #endregion Member Variables...
 
         #region Properties...
 
-        #region FilterViewModel
-        public FilterViewModel FilterViewModel { get; private set; }
-        #endregion FilterViewModel
+        #region EpubSearchViewModel
+        public EpubSearchViewModel EpubSearchViewModel
+        {
+            get => _EpubSearchViewModel;
+            set
+            {
+                _EpubSearchViewModel = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(ShowEpubSearchViewModel));
+            }
+        }
+        #endregion EpubSearchViewModel
+
+        #region MergeBooksViewModel
+        public MergeBooksViewModel MergeBooksViewModel
+        {
+            get => _MergeBooksViewModel;
+            set
+            {
+                _MergeBooksViewModel = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(ShowMergeBooksViewModel));
+            }
+        }
+        #endregion MergeBooksViewModel
 
         #region Settings
-        public SettingsModel Settings { get; private set; } = new SettingsModel();
+        public SettingsModel Settings { get; private set; }
         #endregion Settings
+
+        #region ShowEpubSearchViewModel
+        public bool ShowEpubSearchViewModel
+        {
+            get => EpubSearchViewModel != null;
+        }
+        #endregion ShowEpubSearchViewModel
+
+        #region ShowMergeBooksViewModel
+        public bool ShowMergeBooksViewModel
+        {
+            get => MergeBooksViewModel != null;
+        }
+        #endregion ShowMergeBooksViewModel
 
         #endregion Properties...
 
         #region Constructors...
 
-        #region MainWindowViewModel
+        #region MainViewModel
         public MainViewModel(EbookFileService ebookFileService)
         {
-            _EbookFileService = ebookFileService;
-            FilterViewModel = new FilterViewModel(_EbookFileService);
+            Settings = new SettingsModel();
+            EpubSearchViewModel = new EpubSearchViewModel(ebookFileService, Settings);
+            MergeBooksViewModel = new MergeBooksViewModel(Settings);
         }
-        #endregion MainWindowViewModel
+        #endregion MainViewModel
 
         #endregion Constructors...
 
@@ -42,7 +79,16 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         public async Task LoadAsync()
         {
             Settings.LoadFromProperties();
-            await FilterViewModel.LoadAsync();
+
+            if (EpubSearchViewModel != null)
+            {
+                await EpubSearchViewModel.LoadAsync();
+            }
+
+            if (MergeBooksViewModel != null)
+            {
+                await MergeBooksViewModel.LoadAsync();
+            }
         }
         #endregion LoadAsync
 

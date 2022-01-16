@@ -278,16 +278,19 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         }
         #endregion GetWorkUrls
 
-        #region Load
-        public void Load()
+        #region LoadAsync
+        public Task LoadAsync()
         {
-            BookTitle = Properties.Settings.Default.LastBookTitle;
-            FolderName = Properties.Settings.Default.LastFolderName;
-            SeriesUrl = Properties.Settings.Default.LastSeriesUrl;
-            SeriesName = Properties.Settings.Default.LastSeriesName;
-            OverwriteOriginalFiles = Properties.Settings.Default.OverwriteOriginalFiles;
+            return Task.Run(() =>
+            {
+                BookTitle = Properties.Settings.Default.LastBookTitle;
+                FolderName = Properties.Settings.Default.LastFolderName;
+                SeriesUrl = Properties.Settings.Default.LastSeriesUrl;
+                SeriesName = Properties.Settings.Default.LastSeriesName;
+                OverwriteOriginalFiles = Properties.Settings.Default.OverwriteOriginalFiles;
+            });
         }
-        #endregion Load
+        #endregion LoadAsync
 
         #region ParseSeriesIndex
         private int? ParseSeriesIndex()

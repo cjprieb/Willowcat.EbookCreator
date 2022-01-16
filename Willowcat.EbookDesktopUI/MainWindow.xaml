@@ -8,20 +8,18 @@
         mc:Ignorable="d"
         Loaded="Window_Loaded"
         WindowStartupLocation="CenterScreen"
-        Title="Ebook Manager" Height="450" Width="800">
+        Title="Ebook Manager" Height="600" Width="800">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-
-
         <StackPanel
             Grid.Row="0" 
             Orientation="Horizontal">
 
-            <Button 
+            <!--<Button 
                 Click="CreateSeriesButton_Click"
                 Style="{StaticResource ToolbarButtonStyle}">
                 <Button.Content>
@@ -30,7 +28,7 @@
                         <TextBlock Text="Create Series"/>
                     </StackPanel>
                 </Button.Content>
-            </Button>
+            </Button>-->
 
             <Button 
                 Click="SettingsButton_Click"
@@ -44,23 +42,15 @@
             </Button>
 
         </StackPanel>
-
-        <Grid 
-            Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="200" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <local:FilterView 
-                Grid.Column="0"
-                DataContext="{Binding FilterViewModel}" />
-
-            <TextBlock
-                Grid.Column="1"
-                TextWrapping="Wrap"
-                Text="{Binding FilterViewModel.FilterString}" />
-        </Grid>
-
+        
+        <TabControl Grid.Row="1">
+            <TabItem Header="Search">
+                <local:EpubSearchView DataContext="{Binding EpubSearchViewModel}" />
+            </TabItem>
+            <TabItem Header="Merge">
+                <local:MergeBooksView DataContext="{Binding MergeBooksViewModel}" />
+            </TabItem>
+        </TabControl>
+        
     </Grid>
 </Window>

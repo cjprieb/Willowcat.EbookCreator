@@ -4,9 +4,14 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Willowcat.EbookDesktopUI.Views"
+             xmlns:selectors="clr-namespace:Willowcat.Common.UI.TaskProgress.TemplateSelectors;assembly=Willowcat.Common.UI"
              xmlns:fa="http://schemas.fontawesome.io/icons/"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <selectors:TaskStatusDataTemplateSelector x:Key="taskStatusDataTemplateSelector" />
+    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -22,7 +27,15 @@
             <Button.Content>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock Text="Apply Filter"/>
-                    <fa:ImageAwesome Icon="Filter" Style="{StaticResource RightButtonIcon}" />
+                    <ContentControl 
+                        Style="{StaticResource TaskStatusIconStyle}"
+                        Content="{Binding SearchTaskStatus, Mode=OneWay}"
+                        Visibility="{Binding IsSearching, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        ContentTemplateSelector="{StaticResource taskStatusDataTemplateSelector}" />
+                    <fa:ImageAwesome
+                        Icon="Filter"
+                        Visibility="{Binding CanApplyFilterCommand, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        Style="{StaticResource RightButtonIcon}" />
                 </StackPanel>
             </Button.Content>
         </Button>

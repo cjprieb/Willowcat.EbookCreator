@@ -77,6 +77,13 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         }
         #endregion FilterString
 
+        #region IsSearching
+        public bool IsSearching
+        {
+            get => (SearchTaskStatus == TaskProgressType.Running);
+        }
+        #endregion IsSearching
+
         #region SearchTaskStatus
         public TaskProgressType SearchTaskStatus
         {
@@ -86,6 +93,7 @@ namespace Willowcat.EbookDesktopUI.ViewModels
                 _SearchTaskStatus = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(CanApplyFilterCommand));
+                OnPropertyChanged(nameof(IsSearching));
             }
         }
         #endregion SearchTaskStatus

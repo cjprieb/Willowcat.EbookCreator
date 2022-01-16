@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Willowcat.Common.UI.ViewModel;
 using Willowcat.Common.Utilities;
 using Willowcat.EbookDesktopUI.Models;
@@ -11,8 +12,6 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         #region Member Variables...
         private readonly EbookFileService _EbookFileService;
         private readonly SettingsModel _Settings = null;
-
-        private EpubListViewModel _EpubListViewModel = null;
 
         #endregion Member Variables...
 
@@ -74,8 +73,9 @@ namespace Willowcat.EbookDesktopUI.ViewModels
                     var filteredWorks = await _EbookFileService.GetFilteredResultsAsync(FilterViewModel.FilterModel);
                     foreach (var item in filteredWorks)
                     {
-                        EpubListViewModel.Books.Add(new EpubListItemViewModel(item));
+                        EpubListViewModel.Books.Add(new EpubItemViewModel(FilterViewModel, item));
                     }
+                    EpubListViewModel.SelectedEpubItemViewModel = EpubListViewModel.Books.FirstOrDefault();
                 }
                 finally
                 {

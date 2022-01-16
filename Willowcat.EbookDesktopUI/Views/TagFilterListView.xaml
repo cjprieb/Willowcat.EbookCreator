@@ -53,27 +53,29 @@
             </ListView.ItemContainerStyle>
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <TextBlock 
-                            Grid.Column="0"
-                            Style="{StaticResource FilterTagLabelStyle}"
-                            Text="{Binding Name}" />
-                        <Button
-                            Grid.Column="1"
-                            Command="{Binding Path=DataContext.RemoveTagCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                            CommandParameter="{Binding Name}"
-                            Style="{StaticResource FilterTagButtonStyle}">
-                            <Button.Content>
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <fa:ImageAwesome Icon="Trash" Style="{StaticResource CenterButtonIcon}"/>
-                                </StackPanel>
-                            </Button.Content>
-                        </Button>
-                    </Grid>
+                    <Border Style="{StaticResource FilterTagItemBorderStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock 
+                                Grid.Column="0"
+                                Style="{StaticResource FilterTagLabelStyle}"
+                                Text="{Binding Name}" />
+                            <Button
+                                Grid.Column="1"
+                                Command="{Binding Path=DataContext.RemoveTagCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding Name}"
+                                Style="{StaticResource FilterTagButtonStyle}">
+                                <Button.Content>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <fa:ImageAwesome Icon="Trash" Style="{StaticResource CenterButtonIcon}"/>
+                                    </StackPanel>
+                                </Button.Content>
+                            </Button>
+                        </Grid>
+                    </Border>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>

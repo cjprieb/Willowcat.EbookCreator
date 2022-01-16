@@ -3,6 +3,25 @@
              xmlns:fa="http://schemas.fontawesome.io/icons/"
                     xmlns:local="clr-namespace:Willowcat.EbookDesktopUI.ApplicationResources.RatingTemplates">
     <DataTemplate x:Key="GeneralRatingTemplate">
-        <Border Background="DarkGreen" />
+        <Border Background="DarkGreen">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <TextBlock 
+                    Grid.Row="1"
+                    Grid.Column="1"
+                    FontWeight="Bold"
+                    Foreground="YellowGreen"
+                    Text="G"/>
+            </Grid>
+        </Border>
     </DataTemplate>    
 </ResourceDictionary>

@@ -30,22 +30,41 @@
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" Text="{Binding DisplayModel.Title}" Style="{StaticResource EpubSearchTitleStyle}" />
-            <TextBlock Grid.Column="1" Style="{StaticResource EpubSearchWorkUrlStyle}">
+            <TextBlock Grid.Column="0" Style="{StaticResource EpubSearchWorkUrlStyle}">
                 <Hyperlink 
+                    TextDecorations="None" 
                     NavigateUri="{Binding DisplayModel.WorkUrl}"
                     RequestNavigate="Hyperlink_RequestNavigate"
                     ToolTip="{Binding DisplayModel.WorkUrl}">
-                    <Run Text="Link"/>
-                    
+                    <!--<Run Text="Link"/>-->
+                    <fa:FontAwesome Icon="ExternalLink" />                    
                 </Hyperlink>
             </TextBlock>
+            <StackPanel Grid.Column="1" Orientation="Vertical">
+                <TextBox Text="{Binding DisplayModel.Title}" Style="{StaticResource EpubSearchTitleStyle}" />
+                <Button 
+                    Command="{Binding FilterByAuthorCommand}"
+                    Style="{StaticResource EpubTagStyle}">
+                    <Button.ToolTip>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Filter by author &quot;" />
+                            <TextBlock Text="{Binding DisplayModel.Author}"/>
+                            <TextBlock Text="&quot;" />
+                        </StackPanel>
+                    </Button.ToolTip>
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="by " />
+                            <TextBlock Text="{Binding DisplayModel.Author}" />
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+            </StackPanel>
             <ContentControl 
-                Grid.Column="3"
+                Grid.Column="2"
                 Style="{StaticResource EpubRatingDisplayStyle}"
                 Content="{Binding DisplayModel.Rating, Mode=OneWay}"
                 ContentTemplateSelector="{StaticResource ratingDataTemplateSelector}" />
@@ -128,10 +147,9 @@
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock>
                                         <Hyperlink 
-                                            NavigateUri="{Binding DisplayModel.Url}"
+                                            NavigateUri="{Binding Url}"
                                             RequestNavigate="Hyperlink_RequestNavigate"
-                                            ToolTip="{Binding DisplayModel.Url}">
-                                            <TextBlock Text="test"></TextBlock>
+                                            ToolTip="{Binding Url}">
                                             <TextBlock Text="Part "/>
                                             <TextBlock Text="{Binding Index}"/>
                                             <TextBlock Text=" of "/>
@@ -140,7 +158,7 @@
                                     </TextBlock>
                                     <Button
                                         Click="MergeSeriesButton_Click"
-                                        Margin="4 0" Style="{StaticResource ToolbarButtonStyle}">
+                                        Style="{StaticResource EpubIconButtonStyle}">
                                         <Button.Content>
                                             <fa:FontAwesome Icon="ObjectGroup" />
                                         </Button.Content>

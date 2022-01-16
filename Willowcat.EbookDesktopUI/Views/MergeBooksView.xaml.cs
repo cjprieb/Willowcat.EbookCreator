@@ -2,6 +2,7 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using Willowcat.EbookDesktopUI.Common;
 using Willowcat.EbookDesktopUI.ViewModels;
 
 namespace Willowcat.EbookDesktopUI.Views
@@ -20,11 +21,7 @@ namespace Willowcat.EbookDesktopUI.Views
         {
             if (DataContext != null && DataContext is MergeBooksViewModel viewModel)
             {
-                string OutputDirectory = viewModel.OutputDirectory;
-                if (!string.IsNullOrEmpty(OutputDirectory) && Directory.Exists(OutputDirectory))
-                {
-                    Process.Start("explorer.exe", OutputDirectory);
-                }
+                PathExtensions.ExploreToDirectory(viewModel.OutputDirectory);
             }
         }
     }

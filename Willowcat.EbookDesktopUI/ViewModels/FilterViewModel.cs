@@ -19,6 +19,7 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         private readonly EbookFileService _EbookFileService;
 
         private FilterModel _FilterModel;
+        private string _Author = null;
         private TaskProgressType _SearchTaskStatus = TaskProgressType.None;
         #endregion Member Variables...
 
@@ -28,12 +29,28 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         public ICommand ApplyFilterCommand { get; private set; }
         #endregion ApplyFilterCommand
 
+        #region Author
+        public string Author
+        {
+            get => _Author;
+            set
+            {
+                _Author = value;
+                OnPropertyChanged();
+            }
+        }
+        #endregion Author
+
         #region CanApplyFilterCommand
         public bool CanApplyFilterCommand
         {
             get => (SearchTaskStatus != TaskProgressType.Running);
         }
         #endregion CanApplyFilterCommand
+
+        #region ClearAuthorCommand
+        public ICommand ClearAuthorCommand { get; private set; }
+        #endregion ClearAuthorCommand
 
         #region ExcludedTagsViewModel
         public TagFilterListViewModel ExcludedTagsViewModel { get; private set; } = new TagFilterListViewModel("Exclude:");
@@ -112,6 +129,7 @@ namespace Willowcat.EbookDesktopUI.ViewModels
             _EbookFileService = ebookFileService;
 
             ApplyFilterCommand = new DelegateCommand(ExecuteApplyFilter);
+            ClearAuthorCommand = new DelegateCommand(ExecuteClearAuthor);
         }
         #endregion FilterViewModel
 
@@ -119,10 +137,19 @@ namespace Willowcat.EbookDesktopUI.ViewModels
 
         #region Methods...
 
+        #region AddAuthorToFilter
+        public void AddAuthorToFilter(string author)
+        {
+            Author = author;
+            ExecuteApplyFilter();
+        }
+        #endregion AddAuthorToFilter
+
         #region ExecuteApplyFilter
         private void ExecuteApplyFilter()
         {
             var filterModel = new FilterModel();
+            filterModel.Author = Author;
             filterModel.ExcludedTags.AddAll(ExcludedTagsViewModel.SelectedTags.Select(tag => tag.Name));
             filterModel.IncludedTags.AddAll(IncludedTagsViewModel.SelectedTags.Select(tag => tag.Name));
             filterModel.Fandoms.AddRange(Fandoms.Where(tag => tag.IsSelected).Select(tag => tag.Name));
@@ -130,6 +157,31 @@ namespace Willowcat.EbookDesktopUI.ViewModels
             FilterUpdated?.Invoke(this, new FilterUpdatedEventArgs(filterModel));
         }
         #endregion ExecuteApplyFilter
+
+        #region ExecuteClearAuthor
+        private void ExecuteClearAuthor()
+        {
+            Author = null;
+            ExecuteApplyFilter();
+        }
+        #endregion ExecuteClearAuthor
+
+        #region IncludeTagInFilter
+        public void IncludeTagInFilter(string tagName)
+        {
+            ExcludedTagsViewModel.RemoveTag(tagName);
+            var matchingFandomTag = Fandoms.FirstOrDefault(tag => tag.Name == tagName);
+            if (matchingFandomTag != null)
+            {
+                matchingFandomTag.IsSelected = true;
+            }
+            else
+            {
+                IncludedTagsViewModel.AddTag(tagName);
+            }
+            ExecuteApplyFilter();
+        }
+        #endregion IncludeTagInFilter
 
         #region LoadAsync
         public async Task LoadAsync()
@@ -142,6 +194,19 @@ namespace Willowcat.EbookDesktopUI.ViewModels
             ExecuteApplyFilter();
         }
         #endregion LoadAsync
+
+        #region ExcludeTagFromFilter
+        public void ExcludeTagFromFilter(string tagName)
+        {
+            IncludedTagsViewModel.RemoveTag(tagName);
+            ExcludedTagsViewModel.AddTag(tagName);
+            var matchingFandomTag = Fandoms.FirstOrDefault(tag => tag.Name == tagName);
+            if (matchingFandomTag != null)
+            {
+                matchingFandomTag.IsSelected = false;
+            }
+        }
+        #endregion ExcludeTagFromFilter
 
         #endregion Methods...
     }

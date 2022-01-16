@@ -12,13 +12,26 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         private readonly EbookFileService _EbookFileService;
         private readonly SettingsModel _Settings = null;
 
+        private EpubItemViewModel _SelectedEpubItemViewModel = null;
         #endregion Member Variables...
 
         #region Properties...
 
         #region Books
-        public ObservableCollection<EpubListItemViewModel> Books { get; set; } = new ObservableCollection<EpubListItemViewModel>();
+        public ObservableCollection<EpubItemViewModel> Books { get; set; } = new ObservableCollection<EpubItemViewModel>();
         #endregion Books
+
+        #region SelectedEpubItemViewModel
+        public EpubItemViewModel SelectedEpubItemViewModel
+        {
+            get => _SelectedEpubItemViewModel;
+            set
+            {
+                _SelectedEpubItemViewModel = value;
+                OnPropertyChanged();
+            }
+        }
+        #endregion SelectedEpubItemViewModel
 
         #endregion Properties...
 

@@ -5,19 +5,29 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Willowcat.EbookDesktopUI.Views"
              xmlns:fa="http://schemas.fontawesome.io/icons/"
+             xmlns:converters="clr-namespace:Willowcat.EbookDesktopUI.ApplicationResources.Converters"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="600" d:DesignWidth="1000">
+    <UserControl.Resources>
+        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+    </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200" />
             <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="300" />
         </Grid.ColumnDefinitions>
         <local:FilterView 
             Grid.Column="0"
             DataContext="{Binding FilterViewModel}" />
 
         <local:EpubListView
-                Grid.Column="1"
-                DataContext="{Binding EpubListViewModel}" />
+            Grid.Column="1"
+            DataContext="{Binding EpubListViewModel}" />
+
+        <local:EpubDetailsView
+            Grid.Column="2"
+            DataContext="{Binding EpubListViewModel.SelectedEpubItemViewModel}"
+            Visibility="{Binding EpubListViewModel.SelectedEpubItemViewModel,Converter={StaticResource NullToVisibilityConverter}}" />
     </Grid>
 </UserControl>

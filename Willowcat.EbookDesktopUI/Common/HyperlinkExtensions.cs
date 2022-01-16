@@ -32,7 +32,6 @@ namespace Willowcat.EbookDesktopUI.Common
                 };
                 Process.Start(startInfo);
             }
-
         }
         #endregion Navigate
 

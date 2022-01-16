@@ -14,9 +14,34 @@
         </ItemsControl.ItemsPanel>
         <ItemsControl.ItemTemplate>
             <DataTemplate>
-                <Border Style="{StaticResource EpubTagStyle}">
+                <Button 
+                    Command="{Binding Path=DataContext.IncludeTagCommand, RelativeSource={RelativeSource AncestorType=local:EpubListItemView}}"
+                    CommandParameter="{Binding .}"
+                    Style="{StaticResource EpubTagStyle}">
+                    <Button.ToolTip>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Add tag &quot;" />
+                            <TextBlock Text="{Binding .}"/>
+                            <TextBlock Text="&quot; to filter" />
+                        </StackPanel>
+                    </Button.ToolTip>
+                    <!--<Button.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem 
+                                Command="{Binding Path=DataContext.ExcludeTagCommand, RelativeSource={RelativeSource AncestorType=local:EpubListItemView}}"
+                                CommandParameter="{Binding Path=.}">
+                                <MenuItem.Header>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="Remove tag &quot;" />
+                                        <TextBlock Text="{Binding .}"/>
+                                        <TextBlock Text="&quot;" />
+                                    </StackPanel>
+                                </MenuItem.Header>
+                            </MenuItem>
+                        </ContextMenu>
+                    </Button.ContextMenu>-->
                     <TextBlock Text="{Binding .}"/>
-                </Border>
+                </Button>
             </DataTemplate>
         </ItemsControl.ItemTemplate>
     </ItemsControl>

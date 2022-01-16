@@ -68,16 +68,39 @@ namespace Willowcat.EbookDesktopUI.ViewModels
 
         #region Methods...
 
+        #region AddTag
+        public void AddTag(string tagName)
+        {
+            if (!string.IsNullOrEmpty(tagName))
+            {
+                if (!SelectedTags.Any(tag => tag.Name == tagName))
+                {
+                    SelectedTags.Add(new TagViewModel(tagName, true));
+                }
+            }
+        }
+        #endregion AddTag
+
         #region ExecuteAddTag
         private void ExecuteAddTag()
         {
-            SelectedTags.Add(new TagViewModel(NewTagName, true));
-            NewTagName = string.Empty;
+            if (!string.IsNullOrEmpty(NewTagName))
+            {
+                AddTag(NewTagName);
+                NewTagName = string.Empty;
+            }
         }
         #endregion ExecuteAddTag
 
         #region ExecuteRemoveTag
         private void ExecuteRemoveTag(string tagName)
+        {
+            RemoveTag(tagName);
+        }
+        #endregion ExecuteRemoveTag
+
+        #region RemoveTag
+        public void RemoveTag(string tagName)
         {
             if (!string.IsNullOrEmpty(tagName))
             {
@@ -88,7 +111,7 @@ namespace Willowcat.EbookDesktopUI.ViewModels
                 }
             }
         }
-        #endregion ExecuteRemoveTag
+        #endregion RemoveTag
 
         #endregion Methods...
     }

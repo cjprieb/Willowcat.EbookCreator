@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Willowcat.EbookDesktopUI.Models;
@@ -9,6 +10,7 @@ namespace Willowcat.EbookDesktopUI.Services
     public class EbookFileService
     {
         #region Member Variables...
+        private readonly string _InCalibreTagName = "process.in calibre";
         private IEnumerable<string> _CachedFandomList = null;
         #endregion Member Variables...
 
@@ -109,6 +111,38 @@ namespace Willowcat.EbookDesktopUI.Services
             return Task.FromResult(result);
         }
         #endregion GetFilteredResultsAsync
+
+        #region MarkAddToCalibreAsync
+        public Task<EpubDisplayModel> MarkAddToCalibreAsync(string calibreDirectory, EpubDisplayModel displayModel)
+        {
+            if (displayModel == null) return Task.FromResult(displayModel);
+
+            if (!displayModel.AdditionalTags.Contains(_InCalibreTagName))
+            {
+                List<string> tags = new List<string>(displayModel.AdditionalTags);
+                tags.Add(_InCalibreTagName);
+                displayModel.AdditionalTags = tags.ToArray();
+            }
+
+            if (!string.IsNullOrEmpty(calibreDirectory) && 
+                !string.IsNullOrEmpty(displayModel.LocalFilePath) && 
+                File.Exists(displayModel.LocalFilePath))
+            {
+                if (!Directory.Exists(calibreDirectory))
+                {
+                    Directory.CreateDirectory(calibreDirectory);
+                }
+
+                string newFilePath = Path.Combine(calibreDirectory, Path.GetFileName(displayModel.LocalFilePath));
+                if (!File.Exists(newFilePath))
+                {
+                    File.Copy(displayModel.LocalFilePath, newFilePath);
+                }
+            }
+
+            return Task.FromResult(displayModel);
+        }
+        #endregion MarkAddToCalibreAsync
 
         #endregion Methods...
     }

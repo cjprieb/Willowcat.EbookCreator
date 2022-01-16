@@ -25,13 +25,6 @@
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0" />
     </Style>
-    <Style TargetType="Button" x:Key="EpubSearchAuthorStyle">
-        <Setter Property="HorizontalAlignment" Value="Left" />
-        <Setter Property="Padding" Value="4 0" />
-        <Setter Property="Background" Value="Lavender"/>
-        <Setter Property="BorderBrush" Value="SlateBlue" />
-        <Setter Property="BorderThickness" Value="1" />
-    </Style>
     <Style TargetType="TextBlock" x:Key="EpubSearchWorkUrlStyle">
         <Setter Property="Margin" Value="0 5 4 0"/>
     </Style>

@@ -10,8 +10,24 @@ namespace Willowcat.EbookDesktopUI.Models
         /// <summary>
         /// The directory to create the merged book in
         /// </summary>
-        public string BaseDirectory { get; set; }
+        public string BaseMergeDirectory { get; set; }
         #endregion BaseDirectory
+
+        #region BaseCatalogDirectory
+        /// <summary>
+        /// The directory to search for epub books in
+        /// </summary>
+        public string BaseCatalogDirectory { get; set; }
+        #endregion BaseCatalogDirectory
+
+        #region MoveToCalibreDirectory
+        /// <summary>
+        /// The directory to copy epub files to when selecting the 
+        /// "move to calibre" option. It won't actually add to the
+        /// calibre database.
+        /// </summary>
+        public string MoveToCalibreDirectory { get; set; }
+        #endregion MoveToCalibreDirectory
 
         #region WordsReadPerMinute
         /// <summary>
@@ -34,8 +50,10 @@ namespace Willowcat.EbookDesktopUI.Models
         {
             return new SettingsModel() 
             { 
-                BaseDirectory = BaseDirectory,
-                WordsReadPerMinute  = WordsReadPerMinute
+                BaseMergeDirectory = BaseMergeDirectory,
+                MoveToCalibreDirectory = MoveToCalibreDirectory,
+                WordsReadPerMinute  = WordsReadPerMinute,
+                BaseCatalogDirectory = BaseCatalogDirectory
             };
         }
         #endregion Clone
@@ -43,19 +61,34 @@ namespace Willowcat.EbookDesktopUI.Models
         #region CopyFrom
         public void CopyFrom(SettingsModel source)
         {
-            BaseDirectory = source.BaseDirectory;
+            BaseMergeDirectory = source.BaseMergeDirectory;
+            MoveToCalibreDirectory = source.MoveToCalibreDirectory;
             WordsReadPerMinute = source.WordsReadPerMinute;
+            BaseCatalogDirectory = source.BaseCatalogDirectory;
         }
         #endregion CopyFrom
 
         #region LoadFromProperties
         public void LoadFromProperties()
         {
-            BaseDirectory = Properties.Settings.Default.MergeBooksBaseDirectory;
-            if (string.IsNullOrEmpty(BaseDirectory))
+            BaseMergeDirectory = Properties.Settings.Default.MergeBooksBaseDirectory;
+            if (string.IsNullOrEmpty(BaseMergeDirectory))
             {
-                BaseDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                BaseMergeDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             }
+
+            MoveToCalibreDirectory = Properties.Settings.Default.MoveToCalibreDirectory;
+            if (string.IsNullOrEmpty(MoveToCalibreDirectory))
+            {
+                MoveToCalibreDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            }
+
+            BaseCatalogDirectory = Properties.Settings.Default.BaseCatalogDirectory;
+            if (string.IsNullOrEmpty(BaseCatalogDirectory))
+            {
+                BaseCatalogDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            }
+
             if (Properties.Settings.Default.WordsPerMinute > 0)
             {
                 WordsReadPerMinute = Properties.Settings.Default.WordsPerMinute;
@@ -66,7 +99,9 @@ namespace Willowcat.EbookDesktopUI.Models
         #region Save
         public void Save()
         {
-            Properties.Settings.Default.MergeBooksBaseDirectory = BaseDirectory;
+            Properties.Settings.Default.MergeBooksBaseDirectory = BaseMergeDirectory;
+            Properties.Settings.Default.MoveToCalibreDirectory = MoveToCalibreDirectory;
+            Properties.Settings.Default.BaseCatalogDirectory = BaseCatalogDirectory;
             if (WordsReadPerMinute.HasValue)
             {
                 Properties.Settings.Default.WordsPerMinute = WordsReadPerMinute.Value;

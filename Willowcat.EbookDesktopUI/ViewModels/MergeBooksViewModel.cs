@@ -249,7 +249,7 @@ namespace Willowcat.EbookDesktopUI.ViewModels
             series.SetWorkIndexesFromString(IncludeIndexes);
 
             string folderName = !string.IsNullOrEmpty(FolderName) ? FolderName : null;
-            var paths = new EbookPathsModel(_Settings.BaseDirectory, string.IsNullOrEmpty(folderName) ? series.SeriesName : folderName);
+            var paths = new EbookPathsModel(_Settings.BaseMergeDirectory, string.IsNullOrEmpty(folderName) ? series.SeriesName : folderName);
             OutputDirectory = Path.GetDirectoryName(paths.EpubFilePath);
 
             var epubBuilder = new EpubBuilder(new MergeLoggingService<EpubBuilder>(this));

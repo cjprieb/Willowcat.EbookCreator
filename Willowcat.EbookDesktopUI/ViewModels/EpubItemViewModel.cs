@@ -2,6 +2,7 @@
 using System.Windows.Input;
 using Willowcat.Common.UI.ViewModel;
 using Willowcat.EbookDesktopUI.Models;
+using Willowcat.EbookDesktopUI.Services;
 
 namespace Willowcat.EbookDesktopUI.ViewModels
 {
@@ -9,6 +10,8 @@ namespace Willowcat.EbookDesktopUI.ViewModels
     {
         #region Member Variables...
         private readonly FilterViewModel _FilterViewModel = null;
+        private readonly EbookFileService _EbookFileService = null;
+        private readonly SettingsModel _Settings = null;
 
         private EpubDisplayModel _DisplayModel = null;
         #endregion Member Variables...
@@ -27,6 +30,10 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         }
         #endregion DisplayModel
 
+        #region AddToCalibreCommand
+        public ICommand AddToCalibreCommand { get; private set; }
+        #endregion AddToCalibreCommand
+
         #region ExcludeTagCommand
         public ICommand ExcludeTagCommand { get; private set; }
         #endregion ExcludeTagCommand
@@ -44,11 +51,14 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         #region Constructors...
 
         #region EpubListItemViewModel
-        public EpubItemViewModel(FilterViewModel filterViewModel, EpubDisplayModel item)
+        public EpubItemViewModel(EbookFileService ebookFileService, FilterViewModel filterViewModel, EpubDisplayModel item, SettingsModel settings)
         {
+            _EbookFileService = ebookFileService;
             _FilterViewModel = filterViewModel;
             _DisplayModel = item;
+            _Settings = settings;
 
+            AddToCalibreCommand = new DelegateCommand(ExecuteAddToCalibre);
             ExcludeTagCommand = new DelegateCommand<string>(ExecuteExcludeTagFromFilter);
             IncludeTagCommand = new DelegateCommand<string>(ExecuteIncludeTagInFilter);
             FilterByAuthorCommand = new DelegateCommand(ExecuteFilterByAuthor);
@@ -58,6 +68,16 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         #endregion Constructors...
 
         #region Methods...
+
+        #region ExecuteAddToCalibre
+        private async void ExecuteAddToCalibre()
+        {
+            if (!string.IsNullOrEmpty(_Settings.MoveToCalibreDirectory))
+            {
+                DisplayModel = await _EbookFileService.MarkAddToCalibreAsync(_Settings.MoveToCalibreDirectory, DisplayModel);
+            }
+        }
+        #endregion ExecuteAddToCalibre
 
         #region ExecuteFilterByAuthor
         private void ExecuteFilterByAuthor()

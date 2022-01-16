@@ -12,17 +12,41 @@ namespace Willowcat.EbookDesktopUI.ViewModels
 
         #region Properties...
 
-        #region BaseDirectory
-        public string BaseDirectory
+        #region BaseMergeDirectory
+        public string BaseMergeDirectory
         {
-            get => _EditedSettings.BaseDirectory;
+            get => _EditedSettings.BaseMergeDirectory;
             set
             {
-                _EditedSettings.BaseDirectory = value;
+                _EditedSettings.BaseMergeDirectory = value;
                 OnPropertyChanged();
             }
         }
-        #endregion BaseDirectory
+        #endregion BaseMergeDirectory
+
+        #region BaseCatalogDirectory
+        public string BaseCatalogDirectory
+        {
+            get => _EditedSettings.BaseCatalogDirectory;
+            set
+            {
+                _EditedSettings.BaseCatalogDirectory = value;
+                OnPropertyChanged();
+            }
+        }
+        #endregion BaseCatalogDirectory
+
+        #region MoveToCalibreDirectory
+        public string MoveToCalibreDirectory
+        {
+            get => _EditedSettings.MoveToCalibreDirectory;
+            set
+            {
+                _EditedSettings.MoveToCalibreDirectory = value;
+                OnPropertyChanged();
+            }
+        }
+        #endregion MoveToCalibreDirectory
 
         #region WordsReadPerMinute
         public string WordsReadPerMinute

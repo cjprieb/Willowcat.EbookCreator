@@ -106,5 +106,29 @@ namespace Willowcat.EbookDesktopUI.Properties {
                 this["LastSeriesName"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string MoveToCalibreDirectory {
+            get {
+                return ((string)(this["MoveToCalibreDirectory"]));
+            }
+            set {
+                this["MoveToCalibreDirectory"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string BaseCatalogDirectory {
+            get {
+                return ((string)(this["BaseCatalogDirectory"]));
+            }
+            set {
+                this["BaseCatalogDirectory"] = value;
+            }
+        }
     }
 }

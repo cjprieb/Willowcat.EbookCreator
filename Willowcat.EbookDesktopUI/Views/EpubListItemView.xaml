@@ -32,6 +32,7 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Column="0" Style="{StaticResource EpubSearchWorkUrlStyle}">
                 <Hyperlink 
@@ -63,11 +64,25 @@
                     </Button.Content>
                 </Button>
             </StackPanel>
-            <ContentControl 
+            <StackPanel 
                 Grid.Column="2"
-                Style="{StaticResource EpubRatingDisplayStyle}"
-                Content="{Binding DisplayModel.Rating, Mode=OneWay}"
-                ContentTemplateSelector="{StaticResource ratingDataTemplateSelector}" />
+                Orientation="Horizontal">
+                <Button 
+                    Grid.Column="2"
+                    Height="20"
+                    Padding="4 0"
+                    Command="{Binding AddToCalibreCommand}"
+                    Style="{StaticResource EpubIconButtonStyle}">
+                    <Button.Content>
+                        <TextBlock Text="Add to Calibre" />
+                    </Button.Content>
+                </Button>
+                <ContentControl 
+                    Grid.Column="3"
+                    Style="{StaticResource EpubRatingDisplayStyle}"
+                    Content="{Binding DisplayModel.Rating, Mode=OneWay}"
+                    ContentTemplateSelector="{StaticResource ratingDataTemplateSelector}" />
+            </StackPanel>
         </Grid>
 
         <Border Grid.Row="1" Style="{StaticResource EpubTagSection}">

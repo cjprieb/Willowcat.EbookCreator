@@ -73,7 +73,7 @@ namespace Willowcat.EbookDesktopUI.ViewModels
                     var filteredWorks = await _EbookFileService.GetFilteredResultsAsync(FilterViewModel.FilterModel);
                     foreach (var item in filteredWorks)
                     {
-                        EpubListViewModel.Books.Add(new EpubItemViewModel(FilterViewModel, item));
+                        EpubListViewModel.Books.Add(new EpubItemViewModel(_EbookFileService, FilterViewModel, item, _Settings));
                     }
                     EpubListViewModel.SelectedEpubItemViewModel = EpubListViewModel.Books.FirstOrDefault();
                 }

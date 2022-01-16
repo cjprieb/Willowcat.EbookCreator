@@ -6,11 +6,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Willowcat.EbookCreator.Epub;
 using Willowcat.EbookCreator.EPub;
 using Willowcat.EbookCreator.Models;
+using Willowcat.EbookCreator.Utilities;
 
 namespace Willowcat.EbookCreator.Engines
 {
@@ -81,6 +83,10 @@ namespace Willowcat.EbookCreator.Engines
             var parser = new BookChapterParser(filePath);
             var chapterTitle = parser.GetChapterTitle();
             var fileName = Path.GetFileName(filePath);
+            if (chapterTitle == "Preface" || chapterTitle == "Afterword")
+            {
+                return null;
+            }
             return new TableOfContentsLinkModel(chapterTitle ?? "Title Page", new FileItemModel(fileName, MediaType.HtmlXml));
         }
         #endregion BuildChapterEntry
@@ -91,14 +97,18 @@ namespace Willowcat.EbookCreator.Engines
             List<TableOfContentsLinkModel> chapterEntries = new List<TableOfContentsLinkModel>();
             foreach (var filePath in bookFiles.ChaptersFilePaths)
             {
-                chapterEntries.Add(BuildChapterEntry(filePath));
+                var entry = BuildChapterEntry(filePath);
+                if (entry != null)
+                {
+                    chapterEntries.Add(entry);
+                }
             }
 
-            var lastChapter = chapterEntries.Last();
-            if (lastChapter.Name == "Afterword")
-            {
-                chapterEntries.Remove(lastChapter);
-            }
+            //var lastChapter = chapterEntries.Last();
+            //if (lastChapter.Name == "Afterword")
+            //{
+            //    chapterEntries.Remove(lastChapter);
+            //}
 
             string bookTitle = GetBookTitle(bookFiles.ContentFilePath);
             AdjustChapterTitles(bookTitle, chapterEntries);
@@ -110,13 +120,31 @@ namespace Willowcat.EbookCreator.Engines
         #endregion BuildEntryFromBookFiles
 
         #region CreateBibliography
-        private BibliographyModel CreateBibliography(string contentFilePath)
+        private BibliographyModel CreateBibliography(List<ExtractedEpubFilesModel> combinedEbooks)
         {
-            CalibreContentParser parser = new CalibreContentParser(contentFilePath);
-            BibliographyModel bibliography = parser.ParseForBibliography();
-            bibliography.Series = Series.SeriesName;
-            bibliography.SeriesIndex = Series.SeriesIndex;
-            return bibliography;
+            BibliographyModel masterBibliography = null;
+            List<BibliographyModel> childBibliographies = new List<BibliographyModel>();
+            foreach (var ebook in combinedEbooks)
+            {
+                CalibreContentParser parser = new CalibreContentParser(ebook.ContentFilePath);
+                var bibliography = parser.ParseForBibliography();
+                if (masterBibliography == null)
+                {
+                    masterBibliography = bibliography;
+                }
+                childBibliographies.Add(bibliography);
+            }
+            MergeBibliographies(masterBibliography, childBibliographies);
+            if (masterBibliography != null)
+            {
+                masterBibliography.Series = Series.SeriesName;
+                masterBibliography.SeriesIndex = Series.SeriesIndex;
+                if (!string.IsNullOrEmpty(Series.OverrideBookTitle))
+                {
+                    masterBibliography.Title = Series.OverrideBookTitle;
+                }
+            }
+            return masterBibliography;
         }
         #endregion CreateBibliography
 
@@ -143,7 +171,7 @@ namespace Willowcat.EbookCreator.Engines
                     result.TableOfContents.ChapterFiles.AddRange(bookFiles.GetChapterFiles());
                     result.TableOfContents.Entries.Add(BuildEntryFromBookFiles(bookFiles));
                 }
-                result.Bibliography = CreateBibliography(listOfBookFiles.First().ContentFilePath);
+                result.Bibliography = CreateBibliography(listOfBookFiles);
             }
 
             return result;
@@ -151,31 +179,43 @@ namespace Willowcat.EbookCreator.Engines
         #endregion CreateBookItemData
 
         #region DownloadOriginalEbooks
-        private async Task DownloadOriginalEbooks(string sourceDirectory, string url)
+        private async Task DownloadOriginalEbooks(string sourceDirectory)
         {
-            Console.WriteLine($"  Getting ebook links from \"{url}\"...");
             Directory.CreateDirectory(sourceDirectory);
 
             using (HttpClient client = new HttpClient())
             {
-                HttpResponseMessage response = await client.GetAsync(url);
-                string content = await response.Content.ReadAsStringAsync();
-
-                IEnumerable<WorkModel> works = Series.FilterWorksToInclude(ParseForBookUrls(content));
+                IEnumerable<WorkModel> works = null;
+                if (Series.WorkUrls != null && Series.WorkUrls.Any())
+                {
+                    _Logger.Log(LogLevel.Information, $"  Getting ebook links from work urls...");
+                    works = Series.GetWorksToInclude();
+                }
+                else if (!string.IsNullOrEmpty(Series.SeriesUrl))
+                {
+                    _Logger.Log(LogLevel.Information, $"  Getting ebook links from \"{Series.SeriesUrl}\"...");
+                    HttpResponseMessage response = await client.GetAsync(Series.SeriesUrl);
+                    string content = await response.Content.ReadAsStringAsync();
+                    works = Series.FilterWorksToInclude(ParseForBookUrls(content));
+                }
+                else
+                {
+                    throw new ApplicationException("No series url or work urls to download");
+                }
 
                 foreach (var work in works)
                 {
-                    string fileName = Path.Combine(sourceDirectory, $"{work.Index:D2}-{work.Title.Replace(":", "")}.epub");
-                    if (!File.Exists(fileName))
+                    string fileName = Path.Combine(sourceDirectory, PathExtensions.FormatAsEPubFileName(work.Index, work.Title));
+                    if (!File.Exists(fileName) || _Options.OverwriteOriginalFiles)
                     {
-                        Console.WriteLine($"  Downloading \"{work.EpubUrl}\" to {fileName}...");
+                        _Logger.Log(LogLevel.Information, $"  Downloading \"{work.EpubUrl}\" to {fileName}...");
 
                         using (var fileStream = new FileStream(fileName, FileMode.Create, FileAccess.Write))
                         using (var webStream = client.GetStreamAsync(work.EpubUrl).Result)
                         {
                             webStream.CopyTo(fileStream);
                         }
-                        Console.WriteLine($"  \"{fileName}\" downloaded");
+                        _Logger.Log(LogLevel.Information, $"  \"{fileName}\" downloaded");
                     }
                 }
             }
@@ -197,11 +237,18 @@ namespace Willowcat.EbookCreator.Engines
                 var seriesIndex = 1;
                 foreach (var file in files)
                 {
-                    var bookFiles = unzipper.ExtractFilesFromBook(file, seriesIndex);
-                    if (bookFiles != null)
+                    try
                     {
-                        bookfiles.Add(bookFiles);// BuildEntryFromBookFiles(Path.GetFileNameWithoutExtension(file), chapters));
-                        seriesIndex++;
+                        var bookFiles = unzipper.ExtractFilesFromBook(file, seriesIndex);
+                        if (bookFiles != null)
+                        {
+                            bookfiles.Add(bookFiles);// BuildEntryFromBookFiles(Path.GetFileNameWithoutExtension(file), chapters));
+                            seriesIndex++;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new ApplicationException($"Error extracting files from {file}", ex);
                     }
                 }
             }
@@ -217,6 +264,39 @@ namespace Willowcat.EbookCreator.Engines
             return bibliography.Title;
         }
         #endregion GetBookTitle
+
+        #region MergeBibliographies
+        private void MergeBibliographies(BibliographyModel masterBibliography, List<BibliographyModel> childBibliographies)
+        {
+            List<string> creators = new List<string>();
+            List<string> tags = new List<string>();
+            StringBuilder descriptionBuilder = new StringBuilder();
+            descriptionBuilder.Append(masterBibliography.Description);
+            descriptionBuilder.AppendLine("<p><strong>Also Includes:</strong></p><ol>");
+            foreach (var bibliography in childBibliographies)
+            {
+                if (!creators.Contains(bibliography.Creator))
+                {
+                    creators.Add(bibliography.Creator);
+                }
+                foreach (var tag in bibliography.Tags)
+                {
+                    if (!tags.Contains(tag))
+                    {
+                        tags.Add(tag);
+                    }
+                }
+                descriptionBuilder.AppendLine($"<li>{bibliography.Title}</li>");
+            }
+            descriptionBuilder.AppendLine("</ol>");
+
+            masterBibliography.Description = descriptionBuilder.ToString();
+            masterBibliography.Tags.Clear();
+            masterBibliography.Tags.AddRange(tags);
+            masterBibliography.Creator = string.Join(", ", creators);
+            masterBibliography.CreatorSort = masterBibliography.Creator.ToLower();
+        }
+        #endregion MergeBibliographies
 
         #region ParseForBookUrls
         private List<WorkModel> ParseForBookUrls(string content)
@@ -242,7 +322,7 @@ namespace Willowcat.EbookCreator.Engines
                     {
                         workTitle = workTitle.Substring(0, 20);
                     }
-                    var encodedWorkTitle = Uri.EscapeDataString(workTitle);
+                    var encodedWorkTitle = Uri.EscapeDataString(workTitle.Replace("?", "").Replace(":", "").Trim());
                     //https://archiveofourown.org/downloads/21982333/Anchor%20Point.epub
                     works.Add(new WorkModel()
                     {
@@ -265,10 +345,7 @@ namespace Willowcat.EbookCreator.Engines
             Series = series;
             if (Series == null) throw new NullReferenceException(nameof(Series));
 
-            if (!string.IsNullOrEmpty(Series.SeriesUrl) && _Options.OverwriteOriginalFiles)
-            {
-                await DownloadOriginalEbooks(filePaths.SourceDirectory, Series.SeriesUrl);
-            }
+            await DownloadOriginalEbooks(filePaths.SourceDirectory);
             var bookItemData = CreateBookItemData(filePaths.SourceDirectory, filePaths.StagingDirectory);
             bookItemData.WordsReadPerMinute = _Options.WordsReadPerMinute;
             _EpubBuilder.Create(bookItemData, filePaths.StagingDirectory, filePaths.EpubFilePath);

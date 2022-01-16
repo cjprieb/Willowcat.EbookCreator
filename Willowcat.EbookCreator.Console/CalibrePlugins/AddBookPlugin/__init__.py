@@ -7,7 +7,7 @@ class TimeToReadAddedFile(FileTypePlugin):
     description         = 'Sets how long it takes to read a book based on a file'
     supported_platforms = ['windows'] # Platforms this plugin will run on
     author              = 'Willowcat' # The author of this plugin
-    version             = (1, 2, 0)   # The version number of this plugin
+    version             = (1, 3, 1)   # The version number of this plugin
     file_types          = set(['epub']) # The file types that this plugin will be applied to
     on_postprocess      = True # Run this plugin after conversion is complete
     # on_import           = True # Run this plugin when books are added to the database
@@ -27,22 +27,30 @@ class TimeToReadAddedFile(FileTypePlugin):
         description = db.get_field(book_id, "comments", index_is_id=True)
         publisher = db.get_field(book_id, "publisher", index_is_id=True)
         if description.find("<p><b>Tags: </b>") < 0:
-            tags = db.get_field(book_id, "tags", index_is_id=True)
+            fanfiction_tags = db.get_field(book_id, "tags", index_is_id=True)
 
-            tagDescription = self.getTagDescription(tags)
+            tagDescription = self.getTagDescription(fanfiction_tags)
             newDescription = description + "\n" + tagDescription
             db.new_api.set_field("comments", {book_id: newDescription})
             self.log("updated description: " + newDescription)
             
-            tags = []
+            new_tags = []
             format_custom_field = prefs['format_custom_field_name']
-            if publisher == "Archive of Our Own" and format_custom_field != "": 
-                db.set_custom(book_id, "Fan Fiction", label=format_custom_field)
-                tags = [u"Fan Fiction"]
-            db.set_tags(book_id, tags)
+            fanfiction_tags_custom_field = prefs['fanfiction_tags_custom_field_name']
+            if publisher == "Archive of Our Own": 
+                if format_custom_field != None and format_custom_field != "":
+                    db.set_custom(book_id, "Fan Fiction", label=format_custom_field)
+                    # new_tags = [u"Fan Fiction"]
+                from calibre_plugins.willowcat_add_book.tags import TagHelper
+                new_tags = TagHelper().process_tags(fanfiction_tags, new_tags)
+                self.log("new tags: {0}".format(new_tags))
+                # self.log("fanfiction tags: {0}".format(fanfiction_tags))
+                # db.set_custom(book_id, fanfiction_tags, label=fanfiction_tags_custom_field)
+            db.set_tags(book_id, new_tags)
+            
 
         self.log(fmt_map)
-        read_time_custom_field = prefs['time_to_read_custom_field_name']
+        read_time_custom_field = prefs['time_to_read_custom_field_name']        
         if "epub" in fmt_map and read_time_custom_field != "":
             path_to_ebook = fmt_map["epub"]
             timeToRead = self.getTimeToRead(path_to_ebook)

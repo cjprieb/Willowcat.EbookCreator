@@ -24,6 +24,17 @@ namespace Willowcat.EbookCreator.Console
                     System.Console.WriteLine(Format(timeToReadBook, options.ReadTimeOptions));
                 }
             }
+            else if (options.DoCleanup)
+            {
+                //    string[] calibrePath = new string[]
+                //    {
+                //        //@"D:\Users\Crystal\Sync\eBooks\Calibre\LanternWisp\Nests and Cages (705)\Nests and Cages - LanternWisp.epub",
+                //        //@"D:\Users\Crystal\Sync\eBooks\Calibre\hoye\he's a killer queen, sunflower, gui (688)\he's a killer queen, sunflower, - hoye.epub",
+                //        @"D:\Users\Crystal\Sync\eBooks\Calibre\mysterycyclone\Dark Matter (666)\Dark Matter - mysterycyclone.epub",
+                //    };
+                string calibrePath = @"D:\Users\Crystal\Sync\eBooks\Calibre\";
+                EpubUtilities.Cleanup(calibrePath);
+            }
         }
         
         private static CommandLineOptions ParseArguments(string[] args)
@@ -108,6 +119,10 @@ namespace Willowcat.EbookCreator.Console
             {
                 ReadTimeOptions = new ReadTimeOptions(argumentDictionary);
             }
+            else if (command.ToLower() == "cleanup")
+            {
+                DoCleanup = true;
+            }
 
             if (argumentDictionary.ContainsKey("-h") || argumentDictionary.ContainsKey("--help"))
             {
@@ -120,6 +135,7 @@ namespace Willowcat.EbookCreator.Console
             }
         }
 
+        public bool DoCleanup { get; set; }
         public string EBookPath { get; set; }
         public ReadTimeOptions ReadTimeOptions { get; set; }
         public bool ShowHelp { get; set; }

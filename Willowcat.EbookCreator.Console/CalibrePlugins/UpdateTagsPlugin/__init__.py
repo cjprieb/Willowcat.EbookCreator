@@ -4,16 +4,16 @@
 from calibre.customize import InterfaceActionBase
 
 
-class TimeToReadBookInterfacePlugin(InterfaceActionBase):
+class SetTagsOnBookInterfacePlugin(InterfaceActionBase):
 
-    name = 'Compute Time To Read Book' # Name of the plugin
-    version = (1, 0, 1)
+    name = 'Set custom tags from description' # Name of the plugin
+    version = (1, 0, 0)
     author = 'Willowcat' # The author of this plugin
     supported_platforms = ['windows'] # Platforms this plugin will run on
-    description = 'Sets how long it takes to read the selected book based on a file'
+    description = 'Parses tags from description and sets them as custom tags'
     minimum_calibre_version = (5, 30, 0)
     
-    actual_plugin       = 'calibre_plugins.willowcat_update_book.ui:InterfacePlugin'
+    actual_plugin       = 'calibre_plugins.willowcat_update_tags.ui:InterfacePlugin'
 
     def is_customizable(self):
         '''

@@ -31,10 +31,10 @@ namespace Willowcat.EbookCreator.Models.Tests
             }
         }
 
-        private List<WorkModel> GetSampleWorks()
+        private List<WorkModel> GetSampleWorks(int max = 10)
         {
             List<WorkModel> result = new List<WorkModel>();
-            for (int i = 1; i <= 10; i++)
+            for (int i = 1; i <= max; i++)
             {
                 result.Add(new WorkModel() { Index = i, Title = $"test {i}" });
             }
@@ -110,6 +110,115 @@ namespace Willowcat.EbookCreator.Models.Tests
             };
 
             model.WorkIndexes = new int[] { 2, 4, 6 };
+            AssertEqual(expectedWorks, model.FilterWorksToInclude(sampleWorks));
+        }
+
+        [TestMethod()]
+        public void SetWorkIndexesFromStringTest_10_and_12_to_15()
+        {
+            var sampleWorks = GetSampleWorks(20);
+            var model = new SeriesModel();
+            var expectedWorks = new WorkModel[]
+            {
+                sampleWorks[9],sampleWorks[11],sampleWorks[12],sampleWorks[13],sampleWorks[14]
+            };
+
+            model.SetWorkIndexesFromString("10, 12 - 15");
+            AssertEqual(expectedWorks, model.FilterWorksToInclude(sampleWorks));
+        }
+
+        [TestMethod()]
+        public void SetWorkIndexesFromStringTest_3_to_7_spaces()
+        {
+            var sampleWorks = GetSampleWorks();
+            var model = new SeriesModel();
+            var expectedWorks = new WorkModel[]
+            {
+                sampleWorks[2],sampleWorks[3],sampleWorks[4],sampleWorks[5],sampleWorks[6]
+            };
+
+            model.SetWorkIndexesFromString("3 - 7");
+            AssertEqual(expectedWorks, model.FilterWorksToInclude(sampleWorks));
+        }
+
+        [TestMethod()]
+        public void SetWorkIndexesFromStringTest_3_to_7_nospace()
+        {
+            var sampleWorks = GetSampleWorks();
+            var model = new SeriesModel();
+            var expectedWorks = new WorkModel[]
+            {
+                sampleWorks[2],sampleWorks[3],sampleWorks[4],sampleWorks[5],sampleWorks[6]
+            };
+
+            model.SetWorkIndexesFromString("3-7");
+            AssertEqual(expectedWorks, model.FilterWorksToInclude(sampleWorks));
+        }
+
+        [TestMethod()]
+        public void SetWorkIndexesFromStringTest_3_and_7_spaces()
+        {
+            var sampleWorks = GetSampleWorks();
+            var model = new SeriesModel();
+            var expectedWorks = new WorkModel[]
+            {
+                sampleWorks[2],sampleWorks[6]
+            };
+
+            model.SetWorkIndexesFromString(" 3, 7");
+            AssertEqual(expectedWorks, model.FilterWorksToInclude(sampleWorks));
+        }
+
+        [TestMethod()]
+        public void SetWorkIndexesFromStringTest_3_and_7_nospace()
+        {
+            var sampleWorks = GetSampleWorks();
+            var model = new SeriesModel();
+            var expectedWorks = new WorkModel[]
+            {
+                sampleWorks[2],sampleWorks[6]
+            };
+
+            model.SetWorkIndexesFromString("3,7");
+            AssertEqual(expectedWorks, model.FilterWorksToInclude(sampleWorks));
+        }
+
+        [TestMethod()]
+        public void SetWorkIndexesFromStringTest_7_and_3()
+        {
+            var sampleWorks = GetSampleWorks();
+            var model = new SeriesModel();
+            var expectedWorks = new WorkModel[]
+            {
+                sampleWorks[6],sampleWorks[2]
+            };
+
+            model.SetWorkIndexesFromString("7,3");
+            AssertEqual(expectedWorks, model.FilterWorksToInclude(sampleWorks));
+        }
+
+        [TestMethod()]
+        public void SetWorkIndexesFromStringTest_7_and_3_to_5()
+        {
+            var sampleWorks = GetSampleWorks();
+            var model = new SeriesModel();
+            var expectedWorks = new WorkModel[]
+            {
+                sampleWorks[6],sampleWorks[2],sampleWorks[3],sampleWorks[4]
+            };
+
+            model.SetWorkIndexesFromString("7, 3 - 5");
+            AssertEqual(expectedWorks, model.FilterWorksToInclude(sampleWorks));
+        }
+
+        [TestMethod()]
+        public void SetWorkIndexesFromStringTest_none()
+        {
+            var sampleWorks = GetSampleWorks();
+            var model = new SeriesModel();
+            var expectedWorks = sampleWorks.ToArray();
+
+            model.SetWorkIndexesFromString("none");
             AssertEqual(expectedWorks, model.FilterWorksToInclude(sampleWorks));
         }
     }

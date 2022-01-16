@@ -1,7 +1,8 @@
 {
   "profiles": {
     "Willowcat.EbookCreator.Console": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "cleanup"
     }
   }
 }

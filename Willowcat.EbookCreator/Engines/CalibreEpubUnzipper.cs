@@ -1,6 +1,7 @@
 ﻿using Ionic.Zip;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Willowcat.EbookCreator.Models;
 
 namespace Willowcat.EbookCreator.Engines
@@ -19,10 +20,11 @@ namespace Willowcat.EbookCreator.Engines
         #region ExtractFilesFromBook
         public ExtractedEpubFilesModel ExtractFilesFromBook(string epubPath, int? seriesIndex = null)
         {
-            List<string> chapters = new List<string>();
+            List<string> chapterOutputPaths = new List<string>();
+            List<ZipEntry> chapterEntries = new List<ZipEntry>();
             Dictionary<string, string> stylesheets = new Dictionary<string, string>();
             string contentFilePath = null;
-            string temporaryDirectory = GetTempoaryOutputDirectory(epubPath);
+            //string temporaryDirectory = GetTempoaryOutputDirectory(epubPath);
 
             using (ZipFile zip = ZipFile.Read(epubPath))
             {
@@ -43,25 +45,31 @@ namespace Willowcat.EbookCreator.Engines
                     }
                     else if (IsChapterFile(e))
                     {
-                        if (NumberOfChapterFilesToInclude.HasValue && chapters.Count >= NumberOfChapterFilesToInclude)
-                        {
-                            // skip;
-                        }
-                        else
-                        {
-                            chapters.Add(ExtractFile(e, _OutputDirectory));
-                        }
+                        chapterEntries.Add(e);
                     }
                     else if (IsContentFile(e))
                     {
-                        contentFilePath = ExtractFile(e, temporaryDirectory);
+                        contentFilePath = ExtractFile(e, _OutputDirectory);
+                    }
+                }
+
+                chapterEntries = chapterEntries.OrderBy(x => x.FileName).ToList();
+                foreach (var e in chapterEntries)
+                {
+                    if (NumberOfChapterFilesToInclude.HasValue && chapterOutputPaths.Count >= NumberOfChapterFilesToInclude)
+                    {
+                        // skip;
+                    }
+                    else
+                    {
+                        chapterOutputPaths.Add(ExtractFile(e, _OutputDirectory));
                     }
                 }
             }
-            chapters.Sort();
+            chapterOutputPaths.Sort();
             return new ExtractedEpubFilesModel()
             {
-                ChaptersFilePaths = chapters,
+                ChaptersFilePaths = chapterOutputPaths,
                 Stylesheets = stylesheets,
                 OriginalEpubFileName = epubPath,
                 ContentFilePath = contentFilePath

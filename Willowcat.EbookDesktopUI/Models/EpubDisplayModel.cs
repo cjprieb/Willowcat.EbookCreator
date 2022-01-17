@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Willowcat.EbookCreator.Engines;
 using Willowcat.EbookCreator.Models;
 
 namespace Willowcat.EbookDesktopUI.Models
@@ -23,25 +24,6 @@ namespace Willowcat.EbookDesktopUI.Models
         public string LocalFilePath { get; set; }
         public string Description { get; set; }
         public string Author { get; set; }
-
-
-        public void InitializeFrom(BibliographyModel bibliography)
-        {
-            Author = bibliography.Creator;
-            Title = bibliography.Title;
-            if (!string.IsNullOrEmpty(bibliography.Series))
-            {
-                Series = new EpubSeriesModel[]
-                {
-                    new EpubSeriesModel()
-                    {
-                        Title = bibliography.Series,
-                        Index = bibliography.SeriesIndex.Value
-                    }
-                };
-            }
-            AdditionalTags = bibliography.Tags;
-        }
     }
 
     public class EpubSeriesModel

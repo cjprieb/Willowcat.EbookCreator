@@ -14,9 +14,6 @@
         <ratings:RatingDataTemplateSelector x:Key="ratingDataTemplateSelector" />
     </UserControl.Resources>
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -107,42 +104,42 @@
         </Border>
 
         <Border Grid.Row="2" Style="{StaticResource EpubTagSection}">
-            <StackPanel Orientation="Horizontal">
-                <Label Content="Fandom: " Style="{StaticResource EpubLabelStyle}"/>
+            <DockPanel>
+                <Label DockPanel.Dock="Left" Content="Fandom: " Style="{StaticResource EpubLabelStyle}"/>
                 <local:EpubTagItemsView DataContext="{Binding DisplayModel.FandomTags}"/>
-            </StackPanel>
+            </DockPanel>
         </Border>
 
         <Border Grid.Row="3" Style="{StaticResource EpubTagSection}"
                 Visibility="{Binding DisplayModel.WarningTags, Converter={StaticResource EnumerableToVisibilityConverter}}">
-            <StackPanel Orientation="Horizontal">
-                <Label Content="Warnings: " Style="{StaticResource EpubLabelStyle}"/>
+            <DockPanel>
+                <Label DockPanel.Dock="Left" Content="Warnings: " Style="{StaticResource EpubLabelStyle}"/>
                 <local:EpubTagItemsView DataContext="{Binding DisplayModel.WarningTags}"/>
-            </StackPanel>
+            </DockPanel>
         </Border>
 
         <Border Grid.Row="4" Style="{StaticResource EpubTagSection}"
                 Visibility="{Binding DisplayModel.CharacterTags, Converter={StaticResource EnumerableToVisibilityConverter}}">
-            <StackPanel Orientation="Horizontal">
-                <Label Content="Characters: " Style="{StaticResource EpubLabelStyle}"/>
+            <DockPanel>
+                <Label DockPanel.Dock="Left" Content="Characters: " Style="{StaticResource EpubLabelStyle}"/>
                 <local:EpubTagItemsView DataContext="{Binding DisplayModel.CharacterTags}"/>
-            </StackPanel>
+            </DockPanel>
         </Border>
 
         <Border Grid.Row="5" Style="{StaticResource EpubTagSection}"
                 Visibility="{Binding DisplayModel.RelationshipTags, Converter={StaticResource EnumerableToVisibilityConverter}}">
-            <StackPanel Orientation="Horizontal">
-                <Label Content="Relationship: " Style="{StaticResource EpubLabelStyle}"/>
+            <DockPanel>
+                <Label DockPanel.Dock="Left" Content="Relationship: " Style="{StaticResource EpubLabelStyle}"/>
                 <local:EpubTagItemsView DataContext="{Binding DisplayModel.RelationshipTags}"/>
-            </StackPanel>
+            </DockPanel>
         </Border>
 
         <Border Grid.Row="6" Style="{StaticResource EpubTagSection}"
                 Visibility="{Binding DisplayModel.AdditionalTags, Converter={StaticResource EnumerableToVisibilityConverter}}">
-            <StackPanel Orientation="Horizontal">
-                <Label Content="Other: " Style="{StaticResource EpubLabelStyle}"/>
+            <DockPanel>
+                <Label DockPanel.Dock="Left" Content="Other: " Style="{StaticResource EpubLabelStyle}"/>
                 <local:EpubTagItemsView DataContext="{Binding DisplayModel.AdditionalTags}"/>
-            </StackPanel>
+            </DockPanel>
         </Border>
 
         <Border Grid.Row="7" Style="{StaticResource EpubTagSection}"

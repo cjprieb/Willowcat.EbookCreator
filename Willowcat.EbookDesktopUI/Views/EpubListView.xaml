@@ -20,6 +20,7 @@
         </ScrollViewer>-->
         <ListView 
             ItemsSource="{Binding Books}" 
+            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
             SelectedItem="{Binding SelectedEpubItemViewModel}"
             Style="{StaticResource EpubSearchListViewStyle}">
             <ListView.ItemContainerStyle>
@@ -34,7 +35,7 @@
                         <local:EpubListItemView />
                     </Border>
                 </DataTemplate>
-            </ListView.ItemTemplate>            
+            </ListView.ItemTemplate>
         </ListView>
     </Grid>
 </UserControl>

@@ -17,10 +17,8 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Button 
             Grid.Row="0"
@@ -38,15 +36,21 @@
                     <fa:ImageAwesome
                         Icon="Filter"
                         Visibility="{Binding CanApplyFilterCommand, Converter={StaticResource BooleanToVisibilityConverter}}"
-                        Style="{StaticResource RightButtonIcon}" />
+                        Style="{StaticResource RightButtonIcon}" />                    
                 </StackPanel>
             </Button.Content>
         </Button>
 
         <Border
-            Grid.Row="2"
+            Grid.Row="1"
             Style="{StaticResource FilterBoxBorderStyle}" >
-            <StackPanel Orientation="Vertical">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0" Orientation="Vertical">
 
                 <Grid Visibility="{Binding Author, Converter={StaticResource NullToVisibilityConverter}}">
                     <Grid.ColumnDefinitions>
@@ -84,19 +88,22 @@
 
                     </Grid>
 
-                <local:TagFilterListView 
-                    Grid.Row="0"
-                    DataContext="{Binding IncludedTagsViewModel}" />
+                    <local:TagFilterListView 
+                        Grid.Row="0"
+                        DataContext="{Binding IncludedTagsViewModel}" />
 
-                <local:TagFilterListView 
-                    Grid.Row="1"
-                    DataContext="{Binding ExcludedTagsViewModel}" />
+                    <local:TagFilterListView 
+                        Grid.Row="1"
+                        DataContext="{Binding ExcludedTagsViewModel}" />
+                </StackPanel>
 
                 <Label 
+                    Grid.Row="1"
                     Style="{StaticResource FilterTagListHeaderStyle}"
                     Content="Fandoms" />
 
                 <ListView
+                    Grid.Row="2"
                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                     ItemsSource="{Binding Fandoms}"
                     Style="{StaticResource FilterTagListViewStyle}">
@@ -118,11 +125,11 @@
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
-            </StackPanel>
+            </Grid>
         </Border>
 
         <Button 
-            Grid.Row="3"
+            Grid.Row="2"
             IsEnabled="{Binding CanApplyFilterCommand}"
             Command="{Binding ApplyFilterCommand}" 
             Style="{StaticResource ToolbarButtonStyle}">

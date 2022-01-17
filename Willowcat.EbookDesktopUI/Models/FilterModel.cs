@@ -31,7 +31,7 @@ namespace Willowcat.EbookDesktopUI.Models
 
             if (IncludedTags != null && IncludedTags.Any())
             {
-                if (HasMatch(allPubTags, IncludedTags, matchAll: true)) return false;
+                if (!HasMatch(allPubTags, IncludedTags, matchAll: true)) return false;
             }
 
             if (Fandoms != null && Fandoms.Any())

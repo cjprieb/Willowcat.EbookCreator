@@ -58,7 +58,7 @@ namespace Willowcat.EbookDesktopUI.Services
                     }
                 }
 
-                _CachedFandomList = fandomTags;
+                _CachedFandomList = fandomTags.OrderBy(tag => tag).ToList();
 
                 //_CachedFandomList = new List<string>()
                 //{
@@ -76,10 +76,9 @@ namespace Willowcat.EbookDesktopUI.Services
         {
             return Task.Run(() =>
             {
-                var result = new EpubDisplayModel()
-                {
-                    LocalFilePath = filePath
-                };
+                EpubDisplayModel result = null;
+
+                var builder = new EpubDisplayModelBuilder();
                 var tempDirectory = Path.Combine(_Settings.BaseMergeDirectory, "temp");
                 var unzipper = new CalibreEpubUnzipper(tempDirectory)
                 {
@@ -90,8 +89,22 @@ namespace Willowcat.EbookDesktopUI.Services
                     var ebook = unzipper.ExtractFilesFromBook(filePath);
                     var parser = new CalibreContentParser(ebook.ContentFilePath);
                     var bibliography = parser.ParseForBibliography();
-                    result.InitializeFrom(bibliography);
-                    // TODO: add description and tags from first chapter
+                    builder.SetBibliography(bibliography);
+
+                    if (ebook.ChaptersFilePaths.Count >= 1)
+                    {
+                        var metadata = new BookPrefaceParser(ebook.ChaptersFilePaths[0]);
+                        builder.SetMetadata(metadata.GetMetadataElements());
+                    }
+
+                    if (ebook.ChaptersFilePaths.Count >= 2)
+                    {
+                        var chapter = new BookChapterParser(ebook.ChaptersFilePaths[1]);
+                        builder.SetDescription(chapter.GetDescription());
+                    }
+
+                    result = builder.Build();
+                    result.LocalFilePath = filePath;
                 }
                 catch (Exception ex)
                 {

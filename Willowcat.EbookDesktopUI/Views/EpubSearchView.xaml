@@ -10,22 +10,49 @@
              d:DesignHeight="600" d:DesignWidth="1000">
     <UserControl.Resources>
         <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     </UserControl.Resources>
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />            
+        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200" />
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="300" />
         </Grid.ColumnDefinitions>
+        <Grid 
+            Grid.Row="0"
+            Grid.ColumnSpan="3"
+            Visibility="{Binding ShowProgressBar, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <ProgressBar Minimum="0"
+                    Maximum="{Binding TotalWorks}"
+                    Value="{Binding WorksProcessedCount}"
+                    Name="ProgressStatusBar"/>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock 
+                    Margin="6 3"
+                    Text="{Binding PercentComplete, StringFormat={}{0:0}%, Mode=OneWay}"/>
+                <TextBlock 
+                    Margin="0 3"
+                    Text=" - "
+                    Visibility="{Binding ShowProgressBar, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+            </StackPanel>
+        </Grid>
+
         <local:FilterView 
+            Grid.Row="1"
             Grid.Column="0"
             DataContext="{Binding FilterViewModel}" />
 
         <local:EpubListView
+            Grid.Row="1"
             Grid.Column="1"
             DataContext="{Binding EpubListViewModel}" />
 
         <local:EpubDetailsView
+            Grid.Row="1"
             Grid.Column="2"
             DataContext="{Binding EpubListViewModel.SelectedEpubItemViewModel}"
             Visibility="{Binding EpubListViewModel.SelectedEpubItemViewModel,Converter={StaticResource NullToVisibilityConverter}}" />

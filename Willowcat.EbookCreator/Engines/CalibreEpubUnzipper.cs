@@ -5,9 +5,11 @@ using Willowcat.EbookCreator.Models;
 
 namespace Willowcat.EbookCreator.Engines
 {
-    internal class CalibreEpubUnzipper
+    public class CalibreEpubUnzipper
     {
         private readonly string _OutputDirectory;
+
+        public int? NumberOfChapterFilesToInclude { get; set; } = null;
 
         public CalibreEpubUnzipper(string outputDirectory)
         {
@@ -15,7 +17,7 @@ namespace Willowcat.EbookCreator.Engines
         }
 
         #region ExtractFilesFromBook
-        internal ExtractedEpubFilesModel ExtractFilesFromBook(string epubPath, int seriesIndex)
+        public ExtractedEpubFilesModel ExtractFilesFromBook(string epubPath, int? seriesIndex = null)
         {
             List<string> chapters = new List<string>();
             Dictionary<string, string> stylesheets = new Dictionary<string, string>();
@@ -29,12 +31,26 @@ namespace Willowcat.EbookCreator.Engines
                     if (IsStyleSheet(e))
                     {
                         string stylesheetPath = ExtractFile(e, _OutputDirectory);
-                        (string oldName, string newPath) = RenameStylesheet(stylesheetPath, seriesIndex);
-                        stylesheets[oldName] = newPath;
+                        if (seriesIndex.HasValue)
+                        {
+                            (string oldName, string newPath) = RenameStylesheet(stylesheetPath, seriesIndex.Value);
+                            stylesheets[oldName] = newPath;
+                        }
+                        else
+                        {
+                            stylesheets[stylesheetPath] = stylesheetPath;
+                        }
                     }
                     else if (IsChapterFile(e))
                     {
-                        chapters.Add(ExtractFile(e, _OutputDirectory));
+                        if (NumberOfChapterFilesToInclude.HasValue && chapters.Count >= NumberOfChapterFilesToInclude)
+                        {
+                            // skip;
+                        }
+                        else
+                        {
+                            chapters.Add(ExtractFile(e, _OutputDirectory));
+                        }
                     }
                     else if (IsContentFile(e))
                     {

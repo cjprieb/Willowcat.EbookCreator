@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Willowcat.Common.UI.ViewModel;
 using Willowcat.Common.Utilities;
@@ -7,12 +8,15 @@ using Willowcat.EbookDesktopUI.Services;
 
 namespace Willowcat.EbookDesktopUI.ViewModels
 {
-    public class EpubSearchViewModel : ViewModelBase
+    public class EpubSearchViewModel : ViewModelBase, IProgress<LoadProgressModel>
     {
         #region Member Variables...
         private readonly EbookFileService _EbookFileService;
         private readonly SettingsModel _Settings = null;
 
+        private bool _ShowProgressBar = true;
+        private int _TotalWorks = 0;
+        private int _WorksProcessedCount = 0;
         #endregion Member Variables...
 
         #region Properties...
@@ -25,6 +29,51 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         public FilterViewModel FilterViewModel { get; private set; }
         #endregion FilterViewModel
 
+        #region PercentComplete
+        public decimal PercentComplete
+        {
+            get => TotalWorks != 0 ? ((decimal)WorksProcessedCount / TotalWorks * 100) : 0;
+        }
+        #endregion PercentComplete
+
+        #region ShowProgressBar
+        public bool ShowProgressBar
+        {
+            get => _ShowProgressBar;
+            set
+            {
+                _ShowProgressBar = value;
+                OnPropertyChanged();
+            }
+        }
+        #endregion ShowProgressBar
+
+        #region TotalWorks
+        public int TotalWorks
+        {
+            get => _TotalWorks;
+            set
+            {
+                _TotalWorks = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(PercentComplete));
+            }
+        }
+        #endregion TotalWorks
+
+        #region WorksProcessedCount
+        public int WorksProcessedCount
+        {
+            get => _WorksProcessedCount;
+            set
+            {
+                _WorksProcessedCount = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(PercentComplete));
+            }
+        }
+        #endregion WorksProcessedCount
+
         #endregion Properties...
 
         #region Constructors...
@@ -34,6 +83,7 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         {
             _Settings = settings;
             _EbookFileService = ebookFileService;
+            _EbookFileService.LoadingProgress = this;
 
             FilterViewModel = new FilterViewModel(_EbookFileService);
             FilterViewModel.FilterUpdated += FilterViewModel_FilterUpdated;
@@ -91,6 +141,18 @@ namespace Willowcat.EbookDesktopUI.ViewModels
             await FilterViewModel.LoadAsync();
         }
         #endregion LoadAsync
+
+        #region Report
+        public void Report(LoadProgressModel value)
+        {
+            WorksProcessedCount = value.CurrentCount;
+            TotalWorks = value.TotalCount;
+            if (value.CurrentCount == value.TotalCount)
+            {
+                ShowProgressBar = false;
+            }
+        }
+        #endregion Report
 
         #endregion Methods...
     }

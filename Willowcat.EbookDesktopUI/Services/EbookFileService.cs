@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Willowcat.Common.Utilities;
+using Willowcat.EbookCreator.Engines;
 using Willowcat.EbookDesktopUI.Models;
 
 namespace Willowcat.EbookDesktopUI.Services
@@ -10,19 +12,25 @@ namespace Willowcat.EbookDesktopUI.Services
     public class EbookFileService
     {
         #region Member Variables...
-        private readonly string _InCalibreTagName = "process.in calibre";
+        private const string _InCalibreTagName = "process.in calibre";
+        private readonly SettingsModel _Settings = null;
+
         private IEnumerable<string> _CachedFandomList = null;
+        private IEnumerable<EpubDisplayModel> _CachedPublications = null;
         #endregion Member Variables...
 
         #region Properties...
+
+        public IProgress<LoadProgressModel> LoadingProgress { get; set; }
 
         #endregion Properties...
 
         #region Constructors...
 
         #region EbookFileService
-        public EbookFileService()
+        public EbookFileService(SettingsModel settings)
         {
+            _Settings = settings;
         }
         #endregion EbookFileService
 
@@ -31,23 +39,148 @@ namespace Willowcat.EbookDesktopUI.Services
         #region Methods...
 
         #region LoadFandomsAsync
-        public Task<IEnumerable<string>> LoadFandomsAsync()
+        public async Task<IEnumerable<string>> LoadFandomsAsync()
         {
             if (_CachedFandomList == null)
             {
-                _CachedFandomList = new List<string>()
+                if (_CachedPublications == null)
                 {
-                    "One",
-                    "Two",
-                    "Three"
-                };
+                    _CachedPublications = await LoadPublicationsFromCatalogDirectoryAsync(_Settings.BaseCatalogDirectory);
+                }
+
+                var fandomTags = new HashSet<string>();
+
+                foreach (var pub in _CachedPublications)
+                {
+                    if (pub.FandomTags != null)
+                    {
+                        fandomTags.AddAll(pub.FandomTags);
+                    }
+                }
+
+                _CachedFandomList = fandomTags;
+
+                //_CachedFandomList = new List<string>()
+                //{
+                //    "One",
+                //    "Two",
+                //    "Three"
+                //};
             }
-            return Task.FromResult(_CachedFandomList);
+            return _CachedFandomList;
         }
         #endregion LoadFandomsAsync
 
+        #region LoadPublicationAsync
+        private Task<EpubDisplayModel> LoadPublicationAsync(string filePath)
+        {
+            return Task.Run(() =>
+            {
+                var result = new EpubDisplayModel()
+                {
+                    LocalFilePath = filePath
+                };
+                var tempDirectory = Path.Combine(_Settings.BaseMergeDirectory, "temp");
+                var unzipper = new CalibreEpubUnzipper(tempDirectory)
+                {
+                    NumberOfChapterFilesToInclude = 2
+                };
+                try
+                {
+                    var ebook = unzipper.ExtractFilesFromBook(filePath);
+                    var parser = new CalibreContentParser(ebook.ContentFilePath);
+                    var bibliography = parser.ParseForBibliography();
+                    result.InitializeFrom(bibliography);
+                    // TODO: add description and tags from first chapter
+                }
+                catch (Exception ex)
+                {
+                    throw new ApplicationException($"Error extracting files from {filePath}", ex);
+                }
+
+                return result;
+            });
+        }
+        #endregion LoadPublicationAsync
+
+        #region GetAllPublicationFilePaths
+        private async Task<IEnumerable<string>> GetAllPublicationFilePaths(string directory)
+        {
+            var result = new List<string>();
+
+            foreach (var file in Directory.GetFiles(directory, "*.epub"))
+            {
+                result.Add(file);
+            }
+
+            foreach (var childDirectory in Directory.GetDirectories(directory))
+            {
+                result.AddRange(await GetAllPublicationFilePaths(childDirectory));
+            }
+
+            return result;
+        }
+        #endregion GetAllPublicationFilePaths
+
+        #region LoadPublicationsFromCatalogDirectoryAsync
+        private async Task<IEnumerable<EpubDisplayModel>> LoadPublicationsFromCatalogDirectoryAsync(string directory)
+        {
+            var result = new List<EpubDisplayModel>();
+            var filePaths = await GetAllPublicationFilePaths(directory);
+            var totalCount = filePaths.Count();
+
+            LoadingProgress?.Report(new LoadProgressModel()
+            {
+                TotalCount = totalCount
+            });
+
+            int currentCount = 0;
+            foreach (var file in filePaths)
+            {
+                result.Add(await LoadPublicationAsync(file));
+
+                currentCount++;
+                LoadingProgress?.Report(new LoadProgressModel()
+                {
+                    CurrentCount = currentCount,
+                    TotalCount = totalCount
+                });
+            }
+
+            LoadingProgress?.Report(new LoadProgressModel()
+            {
+                CurrentCount = totalCount,
+                TotalCount = totalCount
+            });
+
+            return result;
+        }
+        #endregion LoadPublicationsFromCatalogDirectoryAsync
+
         #region GetFilteredResultsAsync
-        public Task<IEnumerable<EpubDisplayModel>> GetFilteredResultsAsync(FilterModel model)
+        public async Task<IEnumerable<EpubDisplayModel>> GetFilteredResultsAsync(FilterModel filter)
+        {
+            if (_CachedPublications == null)
+            {
+                _CachedPublications = await LoadPublicationsFromCatalogDirectoryAsync(_Settings.BaseCatalogDirectory);
+            }
+
+            List<EpubDisplayModel> filteredPublications = new List<EpubDisplayModel>();
+
+            foreach (var pub in _CachedPublications)
+            {
+                if (filter.IsMatch(pub))
+                {
+                    filteredPublications.Add(pub);
+                }
+            }
+
+            return filteredPublications;
+        }
+        #endregion GetFilteredResultsAsync
+
+        #region GetSampleFilteredResultsAsync
+        public Task<IEnumerable<EpubDisplayModel>> GetSampleFilteredResultsAsync(FilterModel model)
         {
             IEnumerable<EpubDisplayModel> result = new List<EpubDisplayModel>()
             {
@@ -110,12 +243,14 @@ namespace Willowcat.EbookDesktopUI.Services
 
             return Task.FromResult(result);
         }
-        #endregion GetFilteredResultsAsync
+        #endregion GetSampleFilteredResultsAsync
 
         #region MarkAddToCalibreAsync
-        public Task<EpubDisplayModel> MarkAddToCalibreAsync(string calibreDirectory, EpubDisplayModel displayModel)
+        public Task<EpubDisplayModel> MarkAddToCalibreAsync(EpubDisplayModel displayModel)
         {
             if (displayModel == null) return Task.FromResult(displayModel);
+
+            string calibreDirectory = _Settings.MoveToCalibreDirectory;
 
             if (!displayModel.AdditionalTags.Contains(_InCalibreTagName))
             {
@@ -123,6 +258,8 @@ namespace Willowcat.EbookDesktopUI.Services
                 tags.Add(_InCalibreTagName);
                 displayModel.AdditionalTags = tags.ToArray();
             }
+
+            // TODO: add to epub content tags
 
             if (!string.IsNullOrEmpty(calibreDirectory) && 
                 !string.IsNullOrEmpty(displayModel.LocalFilePath) && 

@@ -74,7 +74,7 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         {
             if (!string.IsNullOrEmpty(_Settings.MoveToCalibreDirectory))
             {
-                DisplayModel = await _EbookFileService.MarkAddToCalibreAsync(_Settings.MoveToCalibreDirectory, DisplayModel);
+                DisplayModel = await _EbookFileService.MarkAddToCalibreAsync(DisplayModel);
             }
         }
         #endregion ExecuteAddToCalibre

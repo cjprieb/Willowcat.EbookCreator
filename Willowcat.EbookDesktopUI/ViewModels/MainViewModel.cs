@@ -63,9 +63,9 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         #region Constructors...
 
         #region MainViewModel
-        public MainViewModel(EbookFileService ebookFileService)
+        public MainViewModel(EbookFileService ebookFileService, SettingsModel settings)
         {
-            Settings = new SettingsModel();
+            Settings = settings;
             EpubSearchViewModel = new EpubSearchViewModel(ebookFileService, Settings);
             MergeBooksViewModel = new MergeBooksViewModel(Settings);
         }

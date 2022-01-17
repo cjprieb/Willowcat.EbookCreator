@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Willowcat.EbookDesktopUI.Models;
 using Willowcat.EbookDesktopUI.Services;
 using Willowcat.EbookDesktopUI.ViewModels;
 using Willowcat.EbookDesktopUI.Views;
@@ -29,7 +30,8 @@ namespace Willowcat.EbookDesktopUI
         {
             InitializeComponent();
 
-            _ViewModel = new MainViewModel(new EbookFileService());
+            var settings = new SettingsModel();
+            _ViewModel = new MainViewModel(new EbookFileService(settings), settings);
 
             DataContext = _ViewModel;
         }

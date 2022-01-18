@@ -6,6 +6,9 @@
              xmlns:local="clr-namespace:Willowcat.EbookDesktopUI.Views"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    </UserControl.Resources>
     <Grid>
         <!--<ScrollViewer VerticalScrollBarVisibility="Auto">
             <ItemsControl ItemsSource="{Binding Books}" Style="{StaticResource EpubSearchListViewStyle}">
@@ -27,6 +30,12 @@
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem" BasedOn="{StaticResource EpubSearchItemViewStyle}">
                     <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsVisible}" Value="True">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding IsVisible}" Value="False">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
                     </Style.Triggers>
                 </Style>
             </ListView.ItemContainerStyle>

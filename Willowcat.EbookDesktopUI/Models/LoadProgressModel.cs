@@ -27,7 +27,15 @@ namespace Willowcat.EbookDesktopUI.Models
         #endregion Properties...
 
         #region Constructors...
+        public LoadProgressModel()
+        {
 
+        }
+        public LoadProgressModel(int curr, int total)
+        {
+            CurrentCount = curr;
+            TotalCount = total;
+        }
         #endregion Constructors...
 
         #region Methods...

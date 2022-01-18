@@ -16,9 +16,12 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         private readonly SettingsModel _Settings = null;
 
         private bool _ShowProgressBar = true;
+        private int _MaxVisible = 10;
         private int _TotalWorks = 0;
         private int _WorksProcessedCount = 0;
         private string _SelectedTab = null;
+
+        private object _LockProgress = new object();
         #endregion Member Variables...
 
         #region Properties...
@@ -30,6 +33,18 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         #region FilterViewModel
         public FilterViewModel FilterViewModel { get; private set; }
         #endregion FilterViewModel
+
+        #region MaxVisible
+        public int MaxVisible
+        {
+            get => _MaxVisible;
+            set
+            {
+                _MaxVisible = value;
+                OnPropertyChanged();
+            }
+        }
+        #endregion MaxVisible
 
         #region PercentComplete
         public decimal PercentComplete
@@ -148,9 +163,19 @@ namespace Willowcat.EbookDesktopUI.ViewModels
                     {
                         if (FilterViewModel.FilterModel != null)
                         {
+                            int countVisible = 0;
                             foreach (var item in EpubListViewModel.Books)
                             {
-                                item.IsVisible = FilterViewModel.FilterModel.IsMatch(item.DisplayModel);
+                                bool isMatch = FilterViewModel.FilterModel.IsMatch(item.DisplayModel);
+                                if (isMatch && countVisible < MaxVisible)
+                                {
+                                    countVisible++;
+                                    item.IsVisible = isMatch;
+                                }
+                                else
+                                {
+                                    item.IsVisible = false;
+                                }
                             }
                         }
                         EpubListViewModel.SelectedEpubItemViewModel = EpubListViewModel.Books.FirstOrDefault();
@@ -177,23 +202,25 @@ namespace Willowcat.EbookDesktopUI.ViewModels
                     var workLoadingTasks = await Task.Run(() => _EbookFileService.GetAllResultsAsync());
 
                     var totalBooks = workLoadingTasks.Count();
-                    ReportProgress(0, totalBooks);
+                    Report(new LoadProgressModel(0, totalBooks));
                     var books = await Task.WhenAll(workLoadingTasks.ToArray());
-                    ReportProgress(totalBooks, totalBooks);
+                    Report(new LoadProgressModel(totalBooks, totalBooks));
                     FilterViewModel.InitializeFandoms(books);
                     int count = 0;
                     foreach (var bookItem in books)
                     {
-                        ReportProgress(count, totalBooks);
+                        Report(new LoadProgressModel(count, totalBooks));
                         if (bookItem.FandomTags.Any())
                         {
                             var bookViewModel = new EpubItemViewModel(_EbookFileService, FilterViewModel, bookItem, _Settings);
+                            bookViewModel.IsVisible = count < MaxVisible;
                             bookViewModel.SeriesMergeRequested += BookViewModel_SeriesMergeRequested;
                             EpubListViewModel.Books.Add(bookViewModel);
                         }
                         count++;
                     }
-                    ReportProgress(count, totalBooks);
+                    Report(new LoadProgressModel(count, totalBooks));
+                    ShowProgressBar = false;
                     EpubListViewModel.SelectedEpubItemViewModel = EpubListViewModel.Books.FirstOrDefault();
                 }
                 finally
@@ -205,33 +232,22 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         #endregion LoadAsync
 
         #region Report
-        public void ReportProgress(int? current, int? total)
-        {
-            if (current.HasValue)
-            {
-                WorksProcessedCount = current.Value;
-            }
-            if (total.HasValue)
-            {
-                TotalWorks = total.Value;
-            }
-            if (current.HasValue && total.HasValue && current == total)
-            {
-                ShowProgressBar = false;
-            }
-        }
-        #endregion Report
-
-        #region Report
         public void Report(LoadProgressModel value)
         {
-            if (value.IncrementCount.HasValue)
+            lock (_LockProgress)
             {
-                ReportProgress(WorksProcessedCount++, TotalWorks);
-            }
-            else
-            {
-                ReportProgress(value.CurrentCount, value.TotalCount);
+                int? current = value.IncrementCount.HasValue ? WorksProcessedCount + 1 : value.CurrentCount;
+                int? total = value.IncrementCount.HasValue ? null : value.TotalCount;
+
+                if (current.HasValue)
+                {
+                    WorksProcessedCount = current.Value;
+                }
+
+                if (total.HasValue)
+                {
+                    TotalWorks = total.Value;
+                }
             }
         }
         #endregion Report

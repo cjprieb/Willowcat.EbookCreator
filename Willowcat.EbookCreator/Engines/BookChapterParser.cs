@@ -1,6 +1,7 @@
 ﻿using CsQuery;
 using System;
 using System.Linq;
+using System.Security;
 using System.Text;
 
 namespace Willowcat.EbookCreator.Engines
@@ -46,14 +47,14 @@ namespace Willowcat.EbookCreator.Engines
                 if (previousElement.InnerText == "Summary")
                 {
                     description.AppendLine($"<p>Summary</p>");
-                    description.AppendLine($"<blockquote>{block.InnerText}</blockquote>");
+                    description.AppendLine($"<blockquote>{SecurityElement.Escape(block.InnerText)}</blockquote>");
                     //description.Append(previousElement.OuterHTML).Append(block.OuterHTML);
                     addedSummary = true;
                 }
                 else if (previousElement.InnerText == "Notes")
                 {
                     description.AppendLine($"<p>Notes</p>");
-                    description.AppendLine($"<blockquote>{block.InnerText}</blockquote>");
+                    description.AppendLine($"<blockquote>{SecurityElement.Escape(block.InnerText)}</blockquote>");
                     //description.Append(previousElement.OuterHTML).Append(block.OuterHTML);
                     addedNotes = true;
                 }
@@ -61,6 +62,25 @@ namespace Willowcat.EbookCreator.Engines
                 if (addedSummary && addedNotes) break;
             }
             return description.ToString();
+        }
+
+        public string GetFirstChapter(int maxWordsToReturn)
+        {
+            StringBuilder description = new StringBuilder();
+            var paragraphs = _Document["p"];
+            var totalWords = 0;
+            foreach (var paragraph in paragraphs)
+            {
+                totalWords += CountWordsInText(paragraph.InnerText);
+                description.AppendLine($"<p>{SecurityElement.Escape(paragraph.InnerText)}</p>");
+                if (totalWords > maxWordsToReturn) break;
+            }
+            return description.ToString();
+        }
+
+        private static int CountWordsInText(string text)
+        {
+            return text.Split(' ').Length;
         }
     }
 }

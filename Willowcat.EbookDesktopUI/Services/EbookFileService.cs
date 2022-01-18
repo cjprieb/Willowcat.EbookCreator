@@ -20,7 +20,13 @@ namespace Willowcat.EbookDesktopUI.Services
 
         #region Properties...
 
+        #region LoadingProgress
         public IProgress<LoadProgressModel> LoadingProgress { get; set; }
+        #endregion LoadingProgress
+
+        #region MaxWordsToReturn
+        public int MaxWordsToReturn { get; set; } = 700;
+        #endregion MaxWordsToReturn
 
         #endregion Properties...
 
@@ -66,7 +72,7 @@ namespace Willowcat.EbookDesktopUI.Services
                 var tempDirectory = Path.Combine(_Settings.BaseMergeDirectory, "temp");
                 var unzipper = new CalibreEpubUnzipper(tempDirectory)
                 {
-                    NumberOfChapterFilesToInclude = 2
+                    NumberOfChapterFilesToInclude = 3
                 };
                 try
                 {
@@ -81,10 +87,11 @@ namespace Willowcat.EbookDesktopUI.Services
                         builder.SetMetadata(metadata.GetMetadataElements());
                     }
 
-                    if (ebook.ChaptersFilePaths.Count >= 2)
+                    if (ebook.ChaptersFilePaths.Count >= 3)
                     {
-                        var chapter = new BookChapterParser(ebook.ChaptersFilePaths[1]);
-                        builder.SetDescription(chapter.GetDescription());
+                        var titlePage = new BookChapterParser(ebook.ChaptersFilePaths[1]);
+                        var chapter1 = new BookChapterParser(ebook.ChaptersFilePaths[2]);
+                        builder.SetDescription(titlePage.GetDescription(), chapter1.GetFirstChapter(MaxWordsToReturn));
                     }
 
                     result = builder.Build();

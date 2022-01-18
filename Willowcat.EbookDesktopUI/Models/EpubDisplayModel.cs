@@ -24,6 +24,7 @@ namespace Willowcat.EbookDesktopUI.Models
         public string WorkUrl { get; set; }
         public string LocalFilePath { get; set; }
         public string Description { get; set; }
+        public string FirstChapterText { get; set; }
         public string Author { get; set; }
         public IEnumerable<ProcessTagType> ProcessTags { get; set; } = new ProcessTagType[] { };
         public IEnumerable<string> AllTags

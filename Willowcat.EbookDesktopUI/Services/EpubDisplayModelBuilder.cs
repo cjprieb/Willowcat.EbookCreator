@@ -19,6 +19,7 @@ namespace Willowcat.EbookDesktopUI.Services
         private BibliographyModel _Bibliography = null;
         private Dictionary<string, List<string>> _MetadataDictionaries = null;
         private string _Description = null;
+        private string _FirstChapterText = null;
 
         #endregion Member Variables...
 
@@ -53,6 +54,7 @@ namespace Willowcat.EbookDesktopUI.Services
             }
 
             model.Description = _Description;
+            model.FirstChapterText = _FirstChapterText;
 
             return model;
         }
@@ -304,9 +306,10 @@ namespace Willowcat.EbookDesktopUI.Services
         #endregion SetBibliographyFields
 
         #region SetDescription
-        public void SetDescription(string description)
+        public void SetDescription(string description, string firstChapterText)
         {
             _Description = description;
+            _FirstChapterText = !string.IsNullOrEmpty(firstChapterText) ? firstChapterText + "<p>...</p>" : string.Empty;
         }
         #endregion SetDescription
 

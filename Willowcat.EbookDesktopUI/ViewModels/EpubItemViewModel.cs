@@ -1,5 +1,6 @@
 ﻿using Prism.Commands;
 using System;
+using System.Linq;
 using System.Windows.Input;
 using Willowcat.Common.UI.ViewModel;
 using Willowcat.EbookDesktopUI.Events;
@@ -15,10 +16,23 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         private readonly EbookFileService _EbookFileService = null;
         private readonly SettingsModel _Settings = null;
 
+        private bool _IsVisible = true;
         private EpubDisplayModel _DisplayModel = null;
         #endregion Member Variables...
 
         #region Properties...
+
+        #region AdditionalTags
+        public EpubTagItemsViewModel AdditionalTags { get; private set; }
+        #endregion AdditionalTags
+
+        #region AddToCalibreCommand
+        public ICommand AddToCalibreCommand { get; private set; }
+        #endregion AddToCalibreCommand
+
+        #region CharacterTags
+        public EpubTagItemsViewModel CharacterTags { get; private set; }
+        #endregion CharacterTags
 
         #region DisplayModel
         public EpubDisplayModel DisplayModel
@@ -28,17 +42,18 @@ namespace Willowcat.EbookDesktopUI.ViewModels
             {
                 _DisplayModel = value;
                 OnPropertyChanged();
+                InitializeTagViews();
             }
         }
         #endregion DisplayModel
 
-        #region AddToCalibreCommand
-        public ICommand AddToCalibreCommand { get; private set; }
-        #endregion AddToCalibreCommand
-
         #region ExcludeTagCommand
         public ICommand ExcludeTagCommand { get; private set; }
         #endregion ExcludeTagCommand
+
+        #region FandomTags
+        public EpubTagItemsViewModel FandomTags { get; private set; }
+        #endregion FandomTags
 
         #region FilterByAuthorCommand
         public ICommand FilterByAuthorCommand { get; private set; }
@@ -48,9 +63,40 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         public ICommand IncludeTagCommand { get; private set; }
         #endregion IncludeTagCommand
 
+        #region IsVisible
+        public bool IsVisible
+        {
+            get => _IsVisible;
+            set
+            {
+                if (_IsVisible != value)
+                {
+                    _IsVisible = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        #endregion IsVisible
+
+        #region OverflowTags
+        public EpubTagItemsViewModel OverflowTags { get; private set; }
+        #endregion OverflowTags
+
+        #region ProcessTags
+        public EpubTagItemsViewModel ProcessTags { get; private set; }
+        #endregion ProcessTags
+
+        #region RelationshipTags
+        public EpubTagItemsViewModel RelationshipTags { get; private set; }
+        #endregion RelationshipTags
+
         #region RequestSeriesMergeCommand
         public ICommand RequestSeriesMergeCommand { get; private set; }
         #endregion RequestSeriesMergeCommand
+
+        #region WarningTags
+        public EpubTagItemsViewModel WarningTags { get; private set; }
+        #endregion WarningTags
 
         #endregion Properties...
 
@@ -67,6 +113,15 @@ namespace Willowcat.EbookDesktopUI.ViewModels
             _FilterViewModel = filterViewModel;
             _DisplayModel = item;
             _Settings = settings;
+
+            FandomTags = new EpubTagItemsViewModel();
+            WarningTags = new EpubTagItemsViewModel();
+            CharacterTags = new EpubTagItemsViewModel();
+            RelationshipTags = new EpubTagItemsViewModel();
+            AdditionalTags = new EpubTagItemsViewModel();
+            ProcessTags = new EpubTagItemsViewModel();
+            OverflowTags = new EpubTagItemsViewModel();
+            InitializeTagViews();
 
             AddToCalibreCommand = new DelegateCommand(ExecuteAddToCalibre);
             ExcludeTagCommand = new DelegateCommand<string>(ExecuteExcludeTagFromFilter);
@@ -129,6 +184,19 @@ namespace Willowcat.EbookDesktopUI.ViewModels
             SeriesMergeRequested?.Invoke(this, new SeriesMergeEventArgs(_DisplayModel, seriesModel));
         }
         #endregion ExecuteRequestSeriesMerge
+
+        #region InitializeTagViews
+        private void InitializeTagViews()
+        {
+            FandomTags.SetTags(_DisplayModel?.FandomTags);
+            WarningTags.SetTags(_DisplayModel?.WarningTags);
+            CharacterTags.SetTags(_DisplayModel?.CharacterTags);
+            RelationshipTags.SetTags(_DisplayModel?.RelationshipTags);
+            AdditionalTags.SetTags(_DisplayModel?.AdditionalTags);
+            ProcessTags.SetTags(_DisplayModel?.ProcessTags?.Select(tag => tag.ToDisplayName()));
+            OverflowTags.SetTags(_DisplayModel?.OverflowTags);
+        }
+        #endregion InitializeTagViews
 
         #endregion Methods...
     }

@@ -15,8 +15,8 @@ namespace Willowcat.EbookDesktopUI.Services
         #region Member Variables...
         private readonly SettingsModel _Settings = null;
 
-        private IEnumerable<string> _CachedFandomList = null;
-        private IEnumerable<EpubDisplayModel> _CachedPublications = null;
+        //private HashSet<string> _CachedFandomList = new HashSet<string>();
+        //private IEnumerable<EpubDisplayModel> _CachedPublications = null;
         #endregion Member Variables...
 
         #region Properties...
@@ -50,39 +50,6 @@ namespace Willowcat.EbookDesktopUI.Services
             }
         }
         #endregion AddProcessTagAsync
-
-        #region LoadFandomsAsync
-        public async Task<IEnumerable<string>> LoadFandomsAsync()
-        {
-            if (_CachedFandomList == null)
-            {
-                if (_CachedPublications == null)
-                {
-                    _CachedPublications = await LoadPublicationsFromCatalogDirectoryAsync(_Settings.BaseCatalogDirectory);
-                }
-
-                var fandomTags = new HashSet<string>();
-
-                foreach (var pub in _CachedPublications)
-                {
-                    if (pub.FandomTags != null)
-                    {
-                        fandomTags.AddAll(pub.FandomTags);
-                    }
-                }
-
-                _CachedFandomList = fandomTags.OrderBy(tag => tag).ToList();
-
-                //_CachedFandomList = new List<string>()
-                //{
-                //    "One",
-                //    "Two",
-                //    "Three"
-                //};
-            }
-            return _CachedFandomList;
-        }
-        #endregion LoadFandomsAsync
 
         #region LoadPublicationAsync
         private Task<EpubDisplayModel> LoadPublicationAsync(string filePath)
@@ -124,6 +91,11 @@ namespace Willowcat.EbookDesktopUI.Services
                     throw new ApplicationException($"Error extracting files from {filePath}", ex);
                 }
 
+                LoadingProgress?.Report(new LoadProgressModel()
+                {
+                    IncrementCount = true
+                });
+
                 return result;
             });
         }
@@ -149,65 +121,24 @@ namespace Willowcat.EbookDesktopUI.Services
         #endregion GetAllPublicationFilePaths
 
         #region LoadPublicationsFromCatalogDirectoryAsync
-        private async Task<IEnumerable<EpubDisplayModel>> LoadPublicationsFromCatalogDirectoryAsync(string directory)
+        private async Task<IEnumerable<Task<EpubDisplayModel>>> LoadPublicationsFromCatalogDirectoryAsync(string directory)
         {
-            var result = new List<EpubDisplayModel>();
+            var result = new List<Task<EpubDisplayModel>>();
             var filePaths = await GetAllPublicationFilePaths(directory);
-            var totalCount = filePaths.Count();
-
-            LoadingProgress?.Report(new LoadProgressModel()
-            {
-                TotalCount = totalCount
-            });
-
-            int currentCount = 0;
             foreach (var file in filePaths)
             {
-                var displayModel = await LoadPublicationAsync(file);
-                if (displayModel.FandomTags.Any())
-                {
-                    result.Add(displayModel);
-                }
-
-                currentCount++;
-                LoadingProgress?.Report(new LoadProgressModel()
-                {
-                    CurrentCount = currentCount,
-                    TotalCount = totalCount
-                });
+                result.Add(LoadPublicationAsync(file));
             }
-
-            LoadingProgress?.Report(new LoadProgressModel()
-            {
-                CurrentCount = totalCount,
-                TotalCount = totalCount
-            });
-
             return result;
         }
         #endregion LoadPublicationsFromCatalogDirectoryAsync
 
-        #region GetFilteredResultsAsync
-        public async Task<IEnumerable<EpubDisplayModel>> GetFilteredResultsAsync(FilterModel filter)
+        #region GetAllResultsAsync
+        public Task<IEnumerable<Task<EpubDisplayModel>>> GetAllResultsAsync()
         {
-            if (_CachedPublications == null)
-            {
-                _CachedPublications = await LoadPublicationsFromCatalogDirectoryAsync(_Settings.BaseCatalogDirectory);
-            }
-
-            List<EpubDisplayModel> filteredPublications = new List<EpubDisplayModel>();
-
-            foreach (var pub in _CachedPublications)
-            {
-                if (filter.IsMatch(pub))
-                {
-                    filteredPublications.Add(pub);
-                }
-            }
-
-            return filteredPublications;
+            return LoadPublicationsFromCatalogDirectoryAsync(_Settings.BaseCatalogDirectory);
         }
-        #endregion GetFilteredResultsAsync
+        #endregion GetAllResultsAsync
 
         #region GetSampleFilteredResultsAsync
         public Task<IEnumerable<EpubDisplayModel>> GetSampleFilteredResultsAsync(FilterModel model)

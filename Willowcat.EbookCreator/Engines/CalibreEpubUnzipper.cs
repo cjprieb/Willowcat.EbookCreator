@@ -32,7 +32,7 @@ namespace Willowcat.EbookCreator.Engines
                 {
                     if (IsStyleSheet(e))
                     {
-                        string stylesheetPath = ExtractFile(e, _OutputDirectory);
+                        string stylesheetPath = ExtractFile(e, epubPath);
                         if (seriesIndex.HasValue)
                         {
                             (string oldName, string newPath) = RenameStylesheet(stylesheetPath, seriesIndex.Value);
@@ -49,7 +49,7 @@ namespace Willowcat.EbookCreator.Engines
                     }
                     else if (IsContentFile(e))
                     {
-                        contentFilePath = ExtractFile(e, _OutputDirectory);
+                        contentFilePath = ExtractFile(e, epubPath);
                     }
                 }
 
@@ -62,7 +62,7 @@ namespace Willowcat.EbookCreator.Engines
                     }
                     else
                     {
-                        chapterOutputPaths.Add(ExtractFile(e, _OutputDirectory));
+                        chapterOutputPaths.Add(ExtractFile(e, epubPath));
                     }
                 }
             }
@@ -78,8 +78,10 @@ namespace Willowcat.EbookCreator.Engines
         #endregion ExtractFilesFromBook
 
         #region ExtractFile
-        private static string ExtractFile(ZipEntry e, string outputDirectory)
+        private  string ExtractFile(ZipEntry e, string epubPath)
         {
+            string epubFileName = Path.GetFileNameWithoutExtension(epubPath).Trim();
+            string outputDirectory = Path.Combine(_OutputDirectory, epubFileName);
             string outputFilePath = Path.Combine(outputDirectory, e.FileName.Replace("/", "\\").Trim());
             if (File.Exists(outputFilePath))
             {
@@ -89,15 +91,6 @@ namespace Willowcat.EbookCreator.Engines
             return outputFilePath;
         }
         #endregion ExtractFile
-
-        #region GetTempoaryOutputDirectory
-        private static string GetTempoaryOutputDirectory(string epubPath)
-        {
-            string epubParentDirectory = Path.GetDirectoryName(epubPath);
-            string epubFileName = Path.GetFileNameWithoutExtension(epubPath).Trim();
-            return Path.Combine(epubParentDirectory, epubFileName);
-        }
-        #endregion GetTempoaryOutputDirectory
 
         #region IsBaseEPubFile
         private bool IsBaseEPubFile(ZipEntry e)

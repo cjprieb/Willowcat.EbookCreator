@@ -40,6 +40,24 @@
         }
         #endregion Parse
 
+        #region ToDisplayName
+        public static string ToDisplayName(this ProcessTagType processTagType)
+        {
+            switch (processTagType)
+            {
+                case ProcessTagType.All: return null;
+                case ProcessTagType.None: return null;
+                case ProcessTagType.InCalibre: return "in calibre";
+                case ProcessTagType.CombineAsSeries: return "add as series";
+                case ProcessTagType.CombineAsShortStories: return "combine";
+                case ProcessTagType.IncludeAsBookmark: return "include as bookmark";
+                case ProcessTagType.Skip: return "skip";
+                case ProcessTagType.Maybe: return "maybe";
+            }
+            return null;
+        }
+        #endregion ToDisplayName
+
         #region ToTagName
         public static string ToTagName(this ProcessTagType processTagType)
         {

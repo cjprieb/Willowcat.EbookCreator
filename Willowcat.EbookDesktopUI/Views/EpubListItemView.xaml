@@ -12,9 +12,11 @@
     <UserControl.Resources>
         <converters:EnumerableToVisibilityConverter x:Key="EnumerableToVisibilityConverter" />
         <ratings:RatingDataTemplateSelector x:Key="ratingDataTemplateSelector" />
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     </UserControl.Resources>
-    <Grid>
+    <Grid Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -104,42 +106,42 @@
         </Border>
 
         <Border Grid.Row="2" Style="{StaticResource EpubTagSection}">
-            <DockPanel>
-                <Label DockPanel.Dock="Left" Content="Fan." Style="{StaticResource EpubLabelStyle}"/>
-                <local:EpubTagItemsView DataContext="{Binding DisplayModel.FandomTags}"/>
-            </DockPanel>
+            <local:EpubTagItemsView 
+                    LabelText="Fan."
+                    TagStyle="{StaticResource EpubTagStyle}"
+                DataContext="{Binding FandomTags}"/>
         </Border>
 
         <Border Grid.Row="3" Style="{StaticResource EpubTagSection}"
-                Visibility="{Binding DisplayModel.WarningTags, Converter={StaticResource EnumerableToVisibilityConverter}}">
-            <DockPanel>
-                <Label DockPanel.Dock="Left" Content="Warn." Style="{StaticResource EpubLabelStyle}"/>
-                <local:EpubTagItemsView DataContext="{Binding DisplayModel.WarningTags}"/>
-            </DockPanel>
+                Visibility="{Binding WarningTags, Converter={StaticResource EnumerableToVisibilityConverter}}">
+            <local:EpubTagItemsView 
+                    LabelText="Warn."
+                    TagStyle="{StaticResource EpubTagStyle}"
+                    DataContext="{Binding WarningTags}"/>
         </Border>
 
         <Border Grid.Row="4" Style="{StaticResource EpubTagSection}"
-                Visibility="{Binding DisplayModel.CharacterTags, Converter={StaticResource EnumerableToVisibilityConverter}}">
-            <DockPanel>
-                <Label DockPanel.Dock="Left" Content="Ch." Style="{StaticResource EpubLabelStyle}"/>
-                <local:EpubTagItemsView DataContext="{Binding DisplayModel.CharacterTags}"/>
-            </DockPanel>
+                Visibility="{Binding CharacterTags, Converter={StaticResource EnumerableToVisibilityConverter}}">
+            <local:EpubTagItemsView 
+                    LabelText="Ch."
+                    TagStyle="{StaticResource EpubTagStyle}"
+                    DataContext="{Binding CharacterTags}"/>
         </Border>
 
         <Border Grid.Row="5" Style="{StaticResource EpubTagSection}"
-                Visibility="{Binding DisplayModel.RelationshipTags, Converter={StaticResource EnumerableToVisibilityConverter}}">
-            <DockPanel>
-                <Label DockPanel.Dock="Left" Content="Rel." Style="{StaticResource EpubLabelStyle}"/>
-                <local:EpubTagItemsView DataContext="{Binding DisplayModel.RelationshipTags}"/>
-            </DockPanel>
+                Visibility="{Binding RelationshipTags, Converter={StaticResource EnumerableToVisibilityConverter}}">
+            <local:EpubTagItemsView 
+                    LabelText="Rel."
+                    TagStyle="{StaticResource EpubTagStyle}"
+                    DataContext="{Binding RelationshipTags}"/>
         </Border>
 
         <Border Grid.Row="6" Style="{StaticResource EpubTagSection}"
-                Visibility="{Binding DisplayModel.AdditionalTags, Converter={StaticResource EnumerableToVisibilityConverter}}">
-            <DockPanel>
-                <Label DockPanel.Dock="Left" Content="Oth." Style="{StaticResource EpubLabelStyle}"/>
-                <local:EpubTagItemsView DataContext="{Binding DisplayModel.AdditionalTags}"/>
-            </DockPanel>
+                Visibility="{Binding AdditionalTags, Converter={StaticResource EnumerableToVisibilityConverter}}">
+            <local:EpubTagItemsView 
+                    LabelText="Oth."
+                    TagStyle="{StaticResource EpubTagStyle}"
+                    DataContext="{Binding AdditionalTags}"/>
         </Border>
 
         <Border Grid.Row="7" Style="{StaticResource EpubTagSection}"
@@ -182,6 +184,13 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </StackPanel>
+        </Border>
+
+        <Border Grid.Row="8" Style="{StaticResource EpubTagSection}"
+                Visibility="{Binding ProcessTags, Converter={StaticResource EnumerableToVisibilityConverter}}">
+            <local:EpubTagItemsView 
+                    TagStyle="{StaticResource EpubProcessTagStyle}"
+                    DataContext="{Binding ProcessTags}"/>
         </Border>
     </Grid>
 </UserControl>

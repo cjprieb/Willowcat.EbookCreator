@@ -6,7 +6,10 @@
              xmlns:local="clr-namespace:Willowcat.EbookDesktopUI.Views"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <ItemsControl ItemsSource="{Binding .}" >
+    <DockPanel>
+        <Label DockPanel.Dock="Left" 
+               Content="{Binding Path=LabelText, RelativeSource={RelativeSource AncestorType=local:EpubTagItemsView}}" Style="{StaticResource EpubLabelStyle}"/>
+    <ItemsControl ItemsSource="{Binding Tags}" >
         <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
                 <WrapPanel Orientation="Horizontal"></WrapPanel>
@@ -17,7 +20,7 @@
                 <Button 
                     Command="{Binding Path=DataContext.IncludeTagCommand, RelativeSource={RelativeSource AncestorType=local:EpubListItemView}}"
                     CommandParameter="{Binding .}"
-                    Style="{StaticResource EpubTagStyle}">
+                    Style="{Binding Path=TagStyle, RelativeSource={RelativeSource AncestorType=local:EpubTagItemsView}}">
                     <Button.ToolTip>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Add tag &quot;" />
@@ -44,5 +47,6 @@
                 </Button>
             </DataTemplate>
         </ItemsControl.ItemTemplate>
-    </ItemsControl>
+        </ItemsControl>
+    </DockPanel>
 </UserControl>

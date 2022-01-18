@@ -178,6 +178,19 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         }
         #endregion AddAuthorToFilter
 
+        #region ExcludeTagFromFilter
+        public void ExcludeTagFromFilter(string tagName)
+        {
+            IncludedTagsViewModel.RemoveTag(tagName);
+            ExcludedTagsViewModel.AddTag(tagName);
+            var matchingFandomTag = Fandoms.FirstOrDefault(tag => tag.Name == tagName);
+            if (matchingFandomTag != null)
+            {
+                matchingFandomTag.IsSelected = false;
+            }
+        }
+        #endregion ExcludeTagFromFilter
+
         #region ExecuteApplyFilter
         private void ExecuteApplyFilter()
         {
@@ -217,30 +230,25 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         }
         #endregion IncludeTagInFilter
 
-        #region LoadAsync
-        public async Task LoadAsync()
+        #region InitializeFandoms
+        public void InitializeFandoms(IEnumerable<EpubDisplayModel> books)
         {
-            var fandoms = await _EbookFileService.LoadFandomsAsync();
-            foreach (var fandom in fandoms)
+            var fandomTags = new HashSet<string>();
+
+            foreach (var pub in books)
+            {
+                if (pub.FandomTags != null)
+                {
+                    fandomTags.AddAll(pub.FandomTags);
+                }
+            }
+
+            foreach (var fandom in fandomTags.OrderBy(tag => tag))
             {
                 Fandoms.Add(new TagViewModel(fandom));
             }
-            ExecuteApplyFilter();
         }
-        #endregion LoadAsync
-
-        #region ExcludeTagFromFilter
-        public void ExcludeTagFromFilter(string tagName)
-        {
-            IncludedTagsViewModel.RemoveTag(tagName);
-            ExcludedTagsViewModel.AddTag(tagName);
-            var matchingFandomTag = Fandoms.FirstOrDefault(tag => tag.Name == tagName);
-            if (matchingFandomTag != null)
-            {
-                matchingFandomTag.IsSelected = false;
-            }
-        }
-        #endregion ExcludeTagFromFilter
+        #endregion InitializeFandoms
 
         #endregion Methods...
     }

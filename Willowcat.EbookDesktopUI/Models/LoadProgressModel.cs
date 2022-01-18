@@ -12,12 +12,16 @@ namespace Willowcat.EbookDesktopUI.Models
 
         #region Properties...
 
+        #region IncrementCount
+        public bool? IncrementCount { get; set; }
+        #endregion IncrementCount
+
         #region CurrentCount
-        public int CurrentCount { get; set; }
+        public int? CurrentCount { get; set; }
         #endregion CurrentCount
 
         #region TotalCount
-        public int TotalCount { get; set; }
+        public int? TotalCount { get; set; }
         #endregion TotalCount
 
         #endregion Properties...

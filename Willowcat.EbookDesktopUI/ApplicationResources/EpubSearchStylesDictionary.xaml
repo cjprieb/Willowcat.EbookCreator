@@ -52,6 +52,10 @@
         <Setter Property="BorderBrush" Value="SlateBlue" />
         <Setter Property="BorderThickness" Value="1" />
     </Style>
+    <Style TargetType="Button" x:Key="EpubProcessTagStyle" BasedOn="{StaticResource EpubTagStyle}">
+        <Setter Property="Background" Value="LightGray"/>
+        <Setter Property="BorderBrush" Value="DimGray" />
+    </Style>
     <Style TargetType="Button" x:Key="EpubIconButtonStyle">
         <Setter Property="Padding" Value="4"/>
         <Setter Property="Margin" Value="4 0"/>

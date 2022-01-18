@@ -102,7 +102,7 @@
                                 DisplayMemberPath="Value"
                                 SelectedValuePath="Key"
                                 ItemsSource="{Binding ProcessTags}" 
-                                SelectedItem="{Binding SelectedProcessTag}" />
+                                SelectedValue="{Binding SelectedProcessTag}" />
                         </Border>
 
                     </Grid>

@@ -143,16 +143,18 @@ namespace Willowcat.EbookDesktopUI.ViewModels
                 try
                 {
                     FilterViewModel.SearchTaskStatus = TaskProgressType.Running;
-                    EpubListViewModel.Books.Clear();
-                    //await Task.Delay(5000);
-                    var filteredWorks = await _EbookFileService.GetFilteredResultsAsync(FilterViewModel.FilterModel);
-                    foreach (var item in filteredWorks)
+
+                    await Task.Run(() =>
                     {
-                        var bookViewModel = new EpubItemViewModel(_EbookFileService, FilterViewModel, item, _Settings);
-                        bookViewModel.SeriesMergeRequested += BookViewModel_SeriesMergeRequested;
-                        EpubListViewModel.Books.Add(bookViewModel);
-                    }
-                    EpubListViewModel.SelectedEpubItemViewModel = EpubListViewModel.Books.FirstOrDefault();
+                        if (FilterViewModel.FilterModel != null)
+                        {
+                            foreach (var item in EpubListViewModel.Books)
+                            {
+                                item.IsVisible = FilterViewModel.FilterModel.IsMatch(item.DisplayModel);
+                            }
+                        }
+                        EpubListViewModel.SelectedEpubItemViewModel = EpubListViewModel.Books.FirstOrDefault();
+                    });
                 }
                 finally
                 {
@@ -165,18 +167,71 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         #region LoadAsync
         public async Task LoadAsync()
         {
-            await FilterViewModel.LoadAsync();
+            if (EpubListViewModel != null)
+            {
+                try
+                {
+                    FilterViewModel.SearchTaskStatus = TaskProgressType.Running;
+
+                    EpubListViewModel.Books.Clear();
+                    var workLoadingTasks = await Task.Run(() => _EbookFileService.GetAllResultsAsync());
+
+                    var totalBooks = workLoadingTasks.Count();
+                    ReportProgress(0, totalBooks);
+                    var books = await Task.WhenAll(workLoadingTasks.ToArray());
+                    ReportProgress(totalBooks, totalBooks);
+                    FilterViewModel.InitializeFandoms(books);
+                    int count = 0;
+                    foreach (var bookItem in books)
+                    {
+                        ReportProgress(count, totalBooks);
+                        if (bookItem.FandomTags.Any())
+                        {
+                            var bookViewModel = new EpubItemViewModel(_EbookFileService, FilterViewModel, bookItem, _Settings);
+                            bookViewModel.SeriesMergeRequested += BookViewModel_SeriesMergeRequested;
+                            EpubListViewModel.Books.Add(bookViewModel);
+                        }
+                        count++;
+                    }
+                    ReportProgress(count, totalBooks);
+                    EpubListViewModel.SelectedEpubItemViewModel = EpubListViewModel.Books.FirstOrDefault();
+                }
+                finally
+                {
+                    FilterViewModel.SearchTaskStatus = TaskProgressType.Finished;
+                }
+            }
         }
         #endregion LoadAsync
 
         #region Report
-        public void Report(LoadProgressModel value)
+        public void ReportProgress(int? current, int? total)
         {
-            WorksProcessedCount = value.CurrentCount;
-            TotalWorks = value.TotalCount;
-            if (value.CurrentCount == value.TotalCount)
+            if (current.HasValue)
+            {
+                WorksProcessedCount = current.Value;
+            }
+            if (total.HasValue)
+            {
+                TotalWorks = total.Value;
+            }
+            if (current.HasValue && total.HasValue && current == total)
             {
                 ShowProgressBar = false;
+            }
+        }
+        #endregion Report
+
+        #region Report
+        public void Report(LoadProgressModel value)
+        {
+            if (value.IncrementCount.HasValue)
+            {
+                ReportProgress(WorksProcessedCount++, TotalWorks);
+            }
+            else
+            {
+                ReportProgress(value.CurrentCount, value.TotalCount);
             }
         }
         #endregion Report

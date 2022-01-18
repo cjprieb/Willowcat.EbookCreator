@@ -72,9 +72,45 @@
                     Padding="4 0"
                     Command="{Binding AddToCalibreCommand}"
                     Style="{StaticResource EpubIconButtonStyle}">
+                    <Button.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem 
+                Header="Add tag &quot;CombineAsShortStories&quot;"
+                Command="{Binding Path=AddProcessTagCommand}"
+                CommandParameter="CombineAsShortStories">
+                            </MenuItem>
+                            <MenuItem 
+                Header="Add tag &quot;Maybe&quot;"
+                Command="{Binding Path=AddProcessTagCommand}"
+                CommandParameter="Maybe">
+                            </MenuItem>
+                            <MenuItem 
+                Header="Add tag &quot;Skip&quot;"
+                Command="{Binding Path=AddProcessTagCommand}"
+                CommandParameter="Skip">
+                            </MenuItem>
+                            <Separator />
+                            <MenuItem 
+                Header="Remove tag &quot;CombineAsShortStories&quot;"
+                Command="{Binding Path=RemoveProcessTagCommand}"
+                CommandParameter="CombineAsShortStories">
+                            </MenuItem>
+                            <MenuItem 
+                Header="Remove tag &quot;Maybe&quot;"
+                Command="{Binding Path=RemoveProcessTagCommand}"
+                CommandParameter="Maybe">
+                            </MenuItem>
+                            <MenuItem 
+                Header="Remove tag &quot;Skip&quot;"
+                Command="{Binding Path=RemoveProcessTagCommand}"
+                CommandParameter="Skip">
+                            </MenuItem>
+                        </ContextMenu>
+                    </Button.ContextMenu>
                     <Button.Content>
                         <TextBlock Text="Add to Calibre" />
                     </Button.Content>
+                    
                 </Button>
                 <ContentControl 
                     Grid.Column="3"

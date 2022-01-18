@@ -26,9 +26,13 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         public EpubTagItemsViewModel AdditionalTags { get; private set; }
         #endregion AdditionalTags
 
-        #region AddToCalibreCommand
-        public ICommand AddToCalibreCommand { get; private set; }
-        #endregion AddToCalibreCommand
+        //#region AddToCalibreCommand
+        //public ICommand AddToCalibreCommand { get; private set; }
+        //#endregion AddToCalibreCommand
+
+        #region AddProcessTagCommand
+        public ICommand AddProcessTagCommand { get; private set; }
+        #endregion AddProcessTagCommand
 
         #region CharacterTags
         public EpubTagItemsViewModel CharacterTags { get; private set; }
@@ -94,6 +98,10 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         public ICommand RequestSeriesMergeCommand { get; private set; }
         #endregion RequestSeriesMergeCommand
 
+        #region RemoveProcessTagCommand
+        public ICommand RemoveProcessTagCommand { get; private set; }
+        #endregion RemoveProcessTagCommand
+
         #region WarningTags
         public EpubTagItemsViewModel WarningTags { get; private set; }
         #endregion WarningTags
@@ -123,7 +131,8 @@ namespace Willowcat.EbookDesktopUI.ViewModels
             OverflowTags = new EpubTagItemsViewModel();
             InitializeTagViews();
 
-            AddToCalibreCommand = new DelegateCommand(ExecuteAddToCalibre);
+            AddProcessTagCommand = new DelegateCommand<string>(ExecuteAddProcessTag);
+            RemoveProcessTagCommand = new DelegateCommand<string>(ExecuteRemoveToCalibre);
             ExcludeTagCommand = new DelegateCommand<string>(ExecuteExcludeTagFromFilter);
             IncludeTagCommand = new DelegateCommand<string>(ExecuteIncludeTagInFilter);
             FilterByAuthorCommand = new DelegateCommand(ExecuteFilterByAuthor);
@@ -135,16 +144,19 @@ namespace Willowcat.EbookDesktopUI.ViewModels
 
         #region Methods...
 
-        #region ExecuteAddToCalibre
-        private async void ExecuteAddToCalibre()
+        #region ExecuteAddProcessTag
+        private async void ExecuteAddProcessTag(string parameter)
         {
-            if (!string.IsNullOrEmpty(_Settings.MoveToCalibreDirectory))
+            ProcessTagType? processTagType = ProcessTagTypeExtensions.ParseAsEnum(parameter);
+            if (processTagType.HasValue && 
+                processTagType != ProcessTagType.All && 
+                processTagType != ProcessTagType.None)
             {
-                await _EbookFileService.MarkAddToCalibreAsync(DisplayModel);
-                OnPropertyChanged(nameof(DisplayModel));
+                await _EbookFileService.AddProcessTagAsync(DisplayModel, processTagType.Value);
+                InitializeProgressTagView();
             }
         }
-        #endregion ExecuteAddToCalibre
+        #endregion ExecuteAddProcessTag
 
         #region ExecuteFilterByAuthor
         private void ExecuteFilterByAuthor()
@@ -176,6 +188,20 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         }
         #endregion ExecuteExcludeTagFromFilter
 
+        #region ExecuteRemoveToCalibre
+        private async void ExecuteRemoveToCalibre(string parameter)
+        {
+            ProcessTagType? processTagType = ProcessTagTypeExtensions.ParseAsEnum(parameter);
+            if (processTagType.HasValue &&
+                processTagType != ProcessTagType.All &&
+                processTagType != ProcessTagType.None)
+            {
+                await _EbookFileService.RemoveProcessTagAsync(DisplayModel, processTagType.Value);
+                InitializeProgressTagView();
+            }
+        }
+        #endregion ExecuteRemoveToCalibre
+
         #region ExecuteRequestSeriesMerge
         private async void ExecuteRequestSeriesMerge(EpubSeriesModel seriesModel)
         {
@@ -193,10 +219,17 @@ namespace Willowcat.EbookDesktopUI.ViewModels
             CharacterTags.SetTags(_DisplayModel?.CharacterTags);
             RelationshipTags.SetTags(_DisplayModel?.RelationshipTags);
             AdditionalTags.SetTags(_DisplayModel?.AdditionalTags);
-            ProcessTags.SetTags(_DisplayModel?.ProcessTags?.Select(tag => tag.ToDisplayName()));
             OverflowTags.SetTags(_DisplayModel?.OverflowTags);
+            InitializeProgressTagView();
         }
         #endregion InitializeTagViews
+
+        #region InitializeProgressTagView
+        private void InitializeProgressTagView()
+        {
+            ProcessTags.SetTags(_DisplayModel?.ProcessTags?.Select(tag => tag.ToDisplayName()));
+        }
+        #endregion InitializeProgressTagView
 
         #endregion Methods...
     }

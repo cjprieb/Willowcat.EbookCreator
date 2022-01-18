@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Security;
-using System.Text;
-using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Xml.Linq;
 using Willowcat.EbookCreator.Models;
@@ -70,12 +68,10 @@ namespace Willowcat.EbookCreator.Epub
             bool subjectAlreadyExist = false;
             foreach (var subElement in _MetadataElement.Elements())
             {
-                if (subElement.Name == subjectName)
+                if (subElement.Name == subjectName && subElement.Value == subject)
                 {
-                    if (subElement.Value == subject)
-                    {
-                        subjectAlreadyExist = true;
-                    }
+                    subjectAlreadyExist = true;
+                    break;
                 }
             }
             if (!subjectAlreadyExist)
@@ -193,6 +189,35 @@ namespace Willowcat.EbookCreator.Epub
             }
         }
         #endregion RemoveCustomFieldValue
+
+        #region RemoveSubject
+        /// <summary>
+        /// Returns true if changes were made to the content file was updated.
+        /// If the subject wasn't found, False is returned.
+        /// </summary>
+        /// <param name="subject"></param>
+        /// <returns></returns>
+        public bool RemoveSubject(string subject)
+        {
+            if (_CustomFields == null || _MetadataElement == null)
+            {
+                ParseForCustomFields();
+            }
+
+            bool fileUpdated = false;
+            XName subjectName = _DcNamespace + "subject";
+            foreach (var subElement in _MetadataElement.Elements())
+            {
+                if (subElement.Name == subjectName && subElement.Value == subject)
+                {
+                    fileUpdated = true;
+                    subElement.Remove();
+                    break;
+                }
+            }
+            return fileUpdated;
+        }
+        #endregion RemoveSubject
 
         #region SetCustomElements
         private void SetCustomElements()

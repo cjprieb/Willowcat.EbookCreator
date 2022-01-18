@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Willowcat.Common.Utilities;
 using Willowcat.EbookCreator.Engines;
 using Willowcat.EbookCreator.Utilities;
 using Willowcat.EbookDesktopUI.Models;
@@ -44,9 +43,14 @@ namespace Willowcat.EbookDesktopUI.Services
             if (displayModel != null && !displayModel.ProcessTags.Contains(processTag))
             {
                 List<ProcessTagType> tags = new List<ProcessTagType>(displayModel.ProcessTags);
-                tags.Add(ProcessTagType.InCalibre);
+                tags.Add(processTag);
                 displayModel.ProcessTags = tags.ToArray();
                 await Task.Run(() => EpubUtilities.AddSubjectToContentFile(displayModel.LocalFilePath, processTag.ToTagName()));
+
+                if (processTag == ProcessTagType.InCalibre)
+                {
+                    await MoveToCalibreDirectory(displayModel);
+                }
             }
         }
         #endregion AddProcessTagAsync
@@ -207,12 +211,10 @@ namespace Willowcat.EbookDesktopUI.Services
         #endregion GetSampleFilteredResultsAsync
 
         #region MarkAddToCalibreAsync
-        public async Task MarkAddToCalibreAsync(EpubDisplayModel displayModel)
+        private async Task MoveToCalibreDirectory(EpubDisplayModel displayModel)
         {
-            if (displayModel != null)
+            if (displayModel != null && !string.IsNullOrEmpty(_Settings.MoveToCalibreDirectory))
             {
-                await AddProcessTagAsync(displayModel, ProcessTagType.InCalibre);
-
                 string calibreDirectory = _Settings.MoveToCalibreDirectory;
                 if (!string.IsNullOrEmpty(calibreDirectory) &&
                     !string.IsNullOrEmpty(displayModel.LocalFilePath) &&
@@ -235,6 +237,19 @@ namespace Willowcat.EbookDesktopUI.Services
             }
         }
         #endregion MarkAddToCalibreAsync
+
+        #region RemoveProcessTagAsync
+        public async Task RemoveProcessTagAsync(EpubDisplayModel displayModel, ProcessTagType processTag)
+        {
+            if (displayModel != null && !displayModel.ProcessTags.Contains(processTag))
+            {
+                List<ProcessTagType> tags = new List<ProcessTagType>(displayModel.ProcessTags);
+                tags.Remove(processTag);
+                displayModel.ProcessTags = tags.ToArray();
+                await Task.Run(() => EpubUtilities.RemoveSubjectFromContentFile(displayModel.LocalFilePath, processTag.ToTagName()));
+            }
+        }
+        #endregion RemoveProcessTagAsync
 
         #endregion Methods...
     }

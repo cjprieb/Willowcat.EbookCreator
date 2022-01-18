@@ -207,14 +207,19 @@ namespace Willowcat.EbookDesktopUI.ViewModels
                     Report(new LoadProgressModel(totalBooks, totalBooks));
                     FilterViewModel.InitializeFandoms(books);
                     int count = 0;
+                    int visibleCount = 0;
                     foreach (var bookItem in books)
                     {
                         Report(new LoadProgressModel(count, totalBooks));
                         if (bookItem.FandomTags.Any())
                         {
                             var bookViewModel = new EpubItemViewModel(_EbookFileService, FilterViewModel, bookItem, _Settings);
-                            bookViewModel.IsVisible = count < MaxVisible;
                             bookViewModel.SeriesMergeRequested += BookViewModel_SeriesMergeRequested;
+
+                            bool isMatch = FilterViewModel?.FilterModel?.IsMatch(bookItem) ?? true;
+                            bookViewModel.IsVisible = isMatch && visibleCount < MaxVisible;
+                            if (bookViewModel.IsVisible) visibleCount++;
+
                             EpubListViewModel.Books.Add(bookViewModel);
                         }
                         count++;

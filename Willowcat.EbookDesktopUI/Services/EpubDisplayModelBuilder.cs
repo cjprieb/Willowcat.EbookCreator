@@ -264,7 +264,7 @@ namespace Willowcat.EbookDesktopUI.Services
             var seriesTextList = GetTags(key);
             if (seriesTextList != null && seriesTextList.Any())
             {
-                Regex seriesPattern = new Regex("Part (\\d+) of <a href=\"([^\"]+)\">(.+)</a>");
+                Regex seriesPattern = new Regex("Part (\\d+) of <a href=\"([^\"]+)\">([^<]+)</a>");
                 foreach (Match match in seriesPattern.Matches(seriesTextList.First()))
                 {
                     string indexString = match.Groups[1].Value;

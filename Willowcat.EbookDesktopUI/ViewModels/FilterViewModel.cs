@@ -34,7 +34,7 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         private FilterModel _FilterModel;
         private string _Author = null;
         private TaskProgressType _SearchTaskStatus = TaskProgressType.None;
-        private ProcessTagType _SelectedProcessTagType = ProcessTagType.All;
+        private ProcessTagType _SelectedProcessTagType = ProcessTagType.None;
         #endregion Member Variables...
 
         #region Properties...
@@ -247,6 +247,11 @@ namespace Willowcat.EbookDesktopUI.ViewModels
             {
                 Fandoms.Add(new TagViewModel(fandom));
             }
+
+            FilterModel = new FilterModel()
+            {
+                SelectedProcessTag = SelectedProcessTag
+            };
         }
         #endregion InitializeFandoms
 

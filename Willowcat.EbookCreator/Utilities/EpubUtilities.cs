@@ -238,6 +238,14 @@ namespace Willowcat.EbookCreator.Utilities
         }
         #endregion GetCleanupStats
 
+        #region RemoveSubjectFromContentFile
+        public static bool RemoveSubjectFromContentFile(string epubFilePath, string subject)
+        {
+            EpubZippedFile zipFile = new EpubZippedFile(epubFilePath);
+            return zipFile.UpdateContentFile((editor) => editor.RemoveSubject(subject));
+        }
+        #endregion RemoveSubjectFromContentFile
+
         #endregion Methods...
     }
 

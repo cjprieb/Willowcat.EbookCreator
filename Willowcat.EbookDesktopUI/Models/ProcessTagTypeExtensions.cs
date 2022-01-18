@@ -1,4 +1,6 @@
-﻿namespace Willowcat.EbookDesktopUI.Models
+﻿using System;
+
+namespace Willowcat.EbookDesktopUI.Models
 {
     public static class ProcessTagTypeExtensions
     {
@@ -39,6 +41,18 @@
             return result;
         }
         #endregion Parse
+
+        #region ParseAsEnum
+        internal static ProcessTagType? ParseAsEnum(string tag)
+        {
+            ProcessTagType? result = null;
+            if (Enum.TryParse(typeof(ProcessTagType), tag, out object value))
+            {
+                result = (ProcessTagType)value;
+            }
+            return result;
+        }
+        #endregion ParseAsEnum
 
         #region ToDisplayName
         public static string ToDisplayName(this ProcessTagType processTagType)

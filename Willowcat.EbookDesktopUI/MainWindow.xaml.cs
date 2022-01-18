@@ -33,6 +33,8 @@ namespace Willowcat.EbookDesktopUI
             var settings = new SettingsModel();
             _ViewModel = new MainViewModel(new EbookFileService(settings), settings);
 
+            _ViewModel.EpubSearchViewModel.SeriesMergeRequested += EpubSearchViewModel_SeriesMergeRequested;
+
             DataContext = _ViewModel;
         }
 
@@ -41,6 +43,11 @@ namespace Willowcat.EbookDesktopUI
             var dialog = new CreateSeriesWindow(_ViewModel.Settings);
             dialog.Owner = this;
             dialog.Show();
+        }
+        private void EpubSearchViewModel_SeriesMergeRequested(object sender, Events.SeriesMergeEventArgs e)
+        {
+            _ViewModel.MergeBooksViewModel = new MergeBooksViewModel(_ViewModel.Settings, e.DisplayModel, e.SeriesModel);
+            MainTabControl.SelectedItem = MergeTabItem;
         }
 
         private void SettingsButton_Click(object sender, RoutedEventArgs e)

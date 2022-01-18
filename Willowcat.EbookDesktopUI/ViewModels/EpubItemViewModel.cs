@@ -1,6 +1,8 @@
 ﻿using Prism.Commands;
+using System;
 using System.Windows.Input;
 using Willowcat.Common.UI.ViewModel;
+using Willowcat.EbookDesktopUI.Events;
 using Willowcat.EbookDesktopUI.Models;
 using Willowcat.EbookDesktopUI.Services;
 
@@ -46,7 +48,15 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         public ICommand IncludeTagCommand { get; private set; }
         #endregion IncludeTagCommand
 
+        #region RequestSeriesMergeCommand
+        public ICommand RequestSeriesMergeCommand { get; private set; }
+        #endregion RequestSeriesMergeCommand
+
         #endregion Properties...
+
+        #region Event Handlers...
+        public event EventHandler<SeriesMergeEventArgs> SeriesMergeRequested;
+        #endregion Event Handlers...
 
         #region Constructors...
 
@@ -62,6 +72,7 @@ namespace Willowcat.EbookDesktopUI.ViewModels
             ExcludeTagCommand = new DelegateCommand<string>(ExecuteExcludeTagFromFilter);
             IncludeTagCommand = new DelegateCommand<string>(ExecuteIncludeTagInFilter);
             FilterByAuthorCommand = new DelegateCommand(ExecuteFilterByAuthor);
+            RequestSeriesMergeCommand = new DelegateCommand<EpubSeriesModel>(ExecuteRequestSeriesMerge);
         }
         #endregion EpubListItemViewModel
 
@@ -74,7 +85,8 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         {
             if (!string.IsNullOrEmpty(_Settings.MoveToCalibreDirectory))
             {
-                DisplayModel = await _EbookFileService.MarkAddToCalibreAsync(DisplayModel);
+                await _EbookFileService.MarkAddToCalibreAsync(DisplayModel);
+                OnPropertyChanged(nameof(DisplayModel));
             }
         }
         #endregion ExecuteAddToCalibre
@@ -108,6 +120,15 @@ namespace Willowcat.EbookDesktopUI.ViewModels
             }
         }
         #endregion ExecuteExcludeTagFromFilter
+
+        #region ExecuteRequestSeriesMerge
+        private async void ExecuteRequestSeriesMerge(EpubSeriesModel seriesModel)
+        {
+            await _EbookFileService.AddProcessTagAsync(DisplayModel, ProcessTagType.CombineAsSeries);
+            OnPropertyChanged(nameof(DisplayModel));
+            SeriesMergeRequested?.Invoke(this, new SeriesMergeEventArgs(_DisplayModel, seriesModel));
+        }
+        #endregion ExecuteRequestSeriesMerge
 
         #endregion Methods...
     }

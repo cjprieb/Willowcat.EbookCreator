@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security;
 using System.Text.RegularExpressions;
 using Willowcat.EbookCreator.Models;
 using Willowcat.EbookDesktopUI.Models;
@@ -22,6 +23,9 @@ namespace Willowcat.EbookDesktopUI.Services
         #endregion Member Variables...
 
         #region Properties...
+
+        public int MaxAdditionalTags { get; set; } = 8;
+        public int MaxLengthOfAdditionalTag { get; set; } = 15;
 
         #endregion Properties...
 
@@ -54,6 +58,26 @@ namespace Willowcat.EbookDesktopUI.Services
         }
         #endregion Build
 
+        #region ExtractProcessTags
+        private List<ProcessTagType> ExtractProcessTags()
+        {
+            List<ProcessTagType> processTags = new List<ProcessTagType>();
+            foreach (var subject in _Bibliography.Tags)
+            {
+                if (subject.StartsWith("process"))
+                {
+                    ProcessTagType? processTagType = ParseAsProcessTag(subject);
+                    if (processTagType.HasValue && processTagType.Value != ProcessTagType.None && processTagType.Value != ProcessTagType.All)
+                    {
+                        processTags.Add(processTagType.Value);
+                    }
+                }
+            }
+
+            return processTags;
+        }
+        #endregion ExtractProcessTags
+
         #region InitializeBibliography
         private void InitializeBibliography(EpubDisplayModel model)
         {
@@ -70,13 +94,15 @@ namespace Willowcat.EbookDesktopUI.Services
                     }
                 };
             }
+
+            model.ProcessTags = ExtractProcessTags();
         }
         #endregion InitializeBibliography
 
         #region InitializeSeries
         private void InitializeSeries(EpubDisplayModel model)
         {
-            //throw new NotImplementedException();
+            model.Series = ParseSeries("Series");
         }
         #endregion InitializeSeries
 
@@ -107,10 +133,37 @@ namespace Willowcat.EbookDesktopUI.Services
             model.FandomTags = GetTags("Fandom");
             model.RelationshipTags = GetTags("Relationship");
             model.CharacterTags = GetTags("Character");
-            // TODO: move extra tags to "detail" section
-            model.AdditionalTags = GetTags("AdditionalTags");
+             
+            var parsedTags = GetTags("Additional Tags");
+            var additionalTags = new List<string>();
+            var overflowTags = new List<string>();
+            foreach (var tag in parsedTags)
+            {
+                if (additionalTags.Count < MaxAdditionalTags && tag.Length < MaxLengthOfAdditionalTag)
+                {
+                    additionalTags.Add(tag);
+                }
+                else
+                {
+                    overflowTags.Add(tag);
+                }
+            }
+            model.AdditionalTags = additionalTags;
+            model.OverflowTags = overflowTags;
         }
         #endregion InitializeTags
+
+        #region ParseAsProcessTag
+        private ProcessTagType? ParseAsProcessTag(string subject)
+        {
+            ProcessTagType? result = null;
+            if (subject.StartsWith(ProcessTagTypeExtensions.ProcessTagPrefix))
+            {
+                result = ProcessTagTypeExtensions.Parse(subject.Substring(ProcessTagTypeExtensions.ProcessTagPrefix.Length));
+            }
+            return result;
+        }
+        #endregion ParseAsProcessTag
 
         #region ParseChapters
         private (int count, int? total) ParseChapters(string value)
@@ -205,6 +258,31 @@ namespace Willowcat.EbookDesktopUI.Services
         }
         #endregion ParseRating
 
+        #region ParseSeries
+        private IEnumerable<EpubSeriesModel> ParseSeries(string key)
+        {
+            var seriesTextList = GetTags(key);
+            if (seriesTextList != null && seriesTextList.Any())
+            {
+                Regex seriesPattern = new Regex("Part (\\d+) of <a href=\"([^\"]+)\">(.+)</a>");
+                foreach (Match match in seriesPattern.Matches(seriesTextList.First()))
+                {
+                    string indexString = match.Groups[1].Value;
+                    string url = match.Groups[2].Value;
+                    string title = match.Groups[3].Value
+                            .Replace("&amp;", "&")
+                            .Replace("&quot;", "\"");
+                    yield return new EpubSeriesModel()
+                    {
+                        Index = int.Parse(indexString),
+                        Title = title,
+                        Url = url
+                    };
+                }
+            }
+        }
+        #endregion ParseSeries
+
         #region ParseTags
         private IEnumerable<string> GetTags(string key)
         {
@@ -243,3 +321,4 @@ namespace Willowcat.EbookDesktopUI.Services
         #endregion Methods...
     }
 }
+ 

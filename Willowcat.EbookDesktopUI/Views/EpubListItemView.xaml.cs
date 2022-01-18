@@ -19,15 +19,5 @@ namespace Willowcat.EbookDesktopUI.Views
         {
             HyperlinkExtensions.Navigate(e.Uri);
         }
-
-        private void MergeSeriesButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (DataContext is null) return;
-
-            if (DataContext is EpubListItemView listItem)
-            {
-                // TODO: finish merge request action
-            }
-        }
     }
 }

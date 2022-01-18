@@ -105,7 +105,7 @@
 
         <Border Grid.Row="2" Style="{StaticResource EpubTagSection}">
             <DockPanel>
-                <Label DockPanel.Dock="Left" Content="Fandom: " Style="{StaticResource EpubLabelStyle}"/>
+                <Label DockPanel.Dock="Left" Content="Fan." Style="{StaticResource EpubLabelStyle}"/>
                 <local:EpubTagItemsView DataContext="{Binding DisplayModel.FandomTags}"/>
             </DockPanel>
         </Border>
@@ -113,7 +113,7 @@
         <Border Grid.Row="3" Style="{StaticResource EpubTagSection}"
                 Visibility="{Binding DisplayModel.WarningTags, Converter={StaticResource EnumerableToVisibilityConverter}}">
             <DockPanel>
-                <Label DockPanel.Dock="Left" Content="Warnings: " Style="{StaticResource EpubLabelStyle}"/>
+                <Label DockPanel.Dock="Left" Content="Warn." Style="{StaticResource EpubLabelStyle}"/>
                 <local:EpubTagItemsView DataContext="{Binding DisplayModel.WarningTags}"/>
             </DockPanel>
         </Border>
@@ -121,7 +121,7 @@
         <Border Grid.Row="4" Style="{StaticResource EpubTagSection}"
                 Visibility="{Binding DisplayModel.CharacterTags, Converter={StaticResource EnumerableToVisibilityConverter}}">
             <DockPanel>
-                <Label DockPanel.Dock="Left" Content="Characters: " Style="{StaticResource EpubLabelStyle}"/>
+                <Label DockPanel.Dock="Left" Content="Ch." Style="{StaticResource EpubLabelStyle}"/>
                 <local:EpubTagItemsView DataContext="{Binding DisplayModel.CharacterTags}"/>
             </DockPanel>
         </Border>
@@ -129,7 +129,7 @@
         <Border Grid.Row="5" Style="{StaticResource EpubTagSection}"
                 Visibility="{Binding DisplayModel.RelationshipTags, Converter={StaticResource EnumerableToVisibilityConverter}}">
             <DockPanel>
-                <Label DockPanel.Dock="Left" Content="Relationship: " Style="{StaticResource EpubLabelStyle}"/>
+                <Label DockPanel.Dock="Left" Content="Rel." Style="{StaticResource EpubLabelStyle}"/>
                 <local:EpubTagItemsView DataContext="{Binding DisplayModel.RelationshipTags}"/>
             </DockPanel>
         </Border>
@@ -137,7 +137,7 @@
         <Border Grid.Row="6" Style="{StaticResource EpubTagSection}"
                 Visibility="{Binding DisplayModel.AdditionalTags, Converter={StaticResource EnumerableToVisibilityConverter}}">
             <DockPanel>
-                <Label DockPanel.Dock="Left" Content="Other: " Style="{StaticResource EpubLabelStyle}"/>
+                <Label DockPanel.Dock="Left" Content="Oth." Style="{StaticResource EpubLabelStyle}"/>
                 <local:EpubTagItemsView DataContext="{Binding DisplayModel.AdditionalTags}"/>
             </DockPanel>
         </Border>
@@ -157,19 +157,20 @@
                         <DataTemplate>
                             <Border>
                                 <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Part "/>
+                                    <TextBlock Text="{Binding Index}"/>
+                                    <TextBlock Text=" of "/>
                                     <TextBlock>
                                         <Hyperlink 
                                             NavigateUri="{Binding Url}"
                                             RequestNavigate="Hyperlink_RequestNavigate"
                                             ToolTip="{Binding Url}">
-                                            <TextBlock Text="Part "/>
-                                            <TextBlock Text="{Binding Index}"/>
-                                            <TextBlock Text=" of "/>
                                             <Run Text="{Binding Title}"/>                    
                                         </Hyperlink>                                        
                                     </TextBlock>
                                     <Button
-                                        Click="MergeSeriesButton_Click"
+                                        Command="{Binding Path=DataContext.RequestSeriesMergeCommand, RelativeSource={RelativeSource AncestorType=local:EpubListItemView}}"
+                                        CommandParameter="{Binding .}"
                                         Style="{StaticResource EpubIconButtonStyle}">
                                         <Button.Content>
                                             <fa:FontAwesome Icon="ObjectGroup" />

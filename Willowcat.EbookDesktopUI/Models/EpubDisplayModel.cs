@@ -9,6 +9,7 @@ namespace Willowcat.EbookDesktopUI.Models
     public class EpubDisplayModel
     {
         public IEnumerable<string> AdditionalTags { get; set; } = new string[] { };
+        public IEnumerable<string> OverflowTags { get; set; } = new string[] { };
         public IEnumerable<string> CharacterTags { get; set; } = new string[] { };
         public IEnumerable<string> FandomTags { get; set; } = new string[] { };
         public RatingType Rating { get; set; }
@@ -24,6 +25,39 @@ namespace Willowcat.EbookDesktopUI.Models
         public string LocalFilePath { get; set; }
         public string Description { get; set; }
         public string Author { get; set; }
+        public IEnumerable<ProcessTagType> ProcessTags { get; set; } = new ProcessTagType[] { };
+        public IEnumerable<string> AllTags
+        {
+            get
+            {
+                IEnumerable<string> result = new string[] { };
+                if (AdditionalTags != null)
+                {
+                    result = result.Union(AdditionalTags);
+                }
+                if (CharacterTags != null)
+                {
+                    result = result.Union(CharacterTags);
+                }
+                if (RelationshipTags != null)
+                {
+                    result = result.Union(RelationshipTags);
+                }
+                if (WarningTags != null)
+                {
+                    result = result.Union(WarningTags);
+                }
+                if (FandomTags != null)
+                {
+                    result = result.Union(FandomTags);
+                }
+                if (OverflowTags != null)
+                {
+                    result = result.Union(OverflowTags);
+                }
+                return result;
+            }
+        }
     }
 
     public class EpubSeriesModel

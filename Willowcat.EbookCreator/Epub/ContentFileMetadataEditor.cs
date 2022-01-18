@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Security;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
@@ -10,15 +11,18 @@ using Willowcat.EbookCreator.Models;
 
 namespace Willowcat.EbookCreator.Epub
 {
-    public class ContentFileCustomMetadataEditor
+    public class ContentFileMetadataEditor
     {
         #region Member Variables...
         private const string opfNamespaceUrl = "http://www.idpf.org/2007/opf";
         private static readonly XNamespace _OpfNamespace = opfNamespaceUrl;
 
+        private const string dcNamespaceUrl = "http://purl.org/dc/elements/1.1/";
+        private static readonly XNamespace _DcNamespace = dcNamespaceUrl;
+
         //private Dictionary<string, XElement> _CustomFieldElements = new Dictionary<string, XElement>();
         private CalibreCustomFields _CustomFields = new CalibreCustomFields();
-        private XElement _CustomFieldsMetadataElement = null;
+        private XElement _MetadataElement = null;
 
         #endregion Member Variables...
 
@@ -36,16 +40,52 @@ namespace Willowcat.EbookCreator.Epub
 
         #region Constructors...
 
-        #region ContentFileCustomMetadataEditor
-        public ContentFileCustomMetadataEditor(string xmlString)
+        #region ContentFileMetadataEditor
+        public ContentFileMetadataEditor(string xmlString)
         {
             RootElement = XElement.Parse(xmlString, LoadOptions.PreserveWhitespace);
         }
-        #endregion ContentFileCustomMetadataEditor
+        #endregion ContentFileMetadataEditor
 
         #endregion Constructors...
 
         #region Methods...
+
+        #region AddSubject
+        /// <summary>
+        /// Returns true if changes were made to the content file was updated.
+        /// If the subject already exists, False is returned.
+        /// </summary>
+        /// <param name="subject"></param>
+        /// <returns></returns>
+        public bool AddSubject(string subject)
+        {
+            if (_CustomFields == null || _MetadataElement == null)
+            {
+                ParseForCustomFields();
+            }
+
+            bool fileUpdated = false;
+            XName subjectName = _DcNamespace + "subject";
+            bool subjectAlreadyExist = false;
+            foreach (var subElement in _MetadataElement.Elements())
+            {
+                if (subElement.Name == subjectName)
+                {
+                    if (subElement.Value == subject)
+                    {
+                        subjectAlreadyExist = true;
+                    }
+                }
+            }
+            if (!subjectAlreadyExist)
+            {
+                fileUpdated = true;
+                _MetadataElement.Add(new XElement(subjectName, SecurityElement.Escape(subject)));
+            }
+            return fileUpdated;
+        }
+        #endregion AddSubject
 
         #region AddVersion2CustomFieldsMetadataElement
         private void AddVersion2CustomFieldsMetadataElement(KeyValuePair<string, CalibreCustomFieldModel> kvp)
@@ -56,7 +96,7 @@ namespace Willowcat.EbookCreator.Epub
                 new XAttribute("name", $"calibre:user_metadata:{kvp.Key}"),
                 new XAttribute("content", xmlValue)
              );
-            _CustomFieldsMetadataElement.Add(userMetadataField);
+            _MetadataElement.Add(userMetadataField);
         }
         #endregion AddVersion2CustomFieldsMetadataElement
 
@@ -65,7 +105,7 @@ namespace Willowcat.EbookCreator.Epub
         {
             XElement userMetadataField = new XElement(_OpfNamespace + "meta", new XAttribute("property", "calibre:user_metadata"));
             userMetadataField.Value = _CustomFields.SerializeToJson();
-            _CustomFieldsMetadataElement.Add(userMetadataField);
+            _MetadataElement.Add(userMetadataField);
         }
         #endregion AddVersion3CustomFieldsMetadataElement
 
@@ -93,14 +133,14 @@ namespace Willowcat.EbookCreator.Epub
         #region ParseForCustomFields
         private void ParseForCustomFields()
         {
-            _CustomFieldsMetadataElement = RootElement.Element(_OpfNamespace + "metadata");
-            var opfAttribute = _CustomFieldsMetadataElement.Attribute(_OpfNamespace + "opf");
+            _MetadataElement = RootElement.Element(_OpfNamespace + "metadata");
+            var opfAttribute = _MetadataElement.Attribute(_OpfNamespace + "opf");
             if (opfAttribute != null)
             {
                 opfAttribute.Remove();
             }
             var elementsToRemove = new List<XElement>();
-            foreach (var subElement in _CustomFieldsMetadataElement.Elements())
+            foreach (var subElement in _MetadataElement.Elements())
             {
                 var propertyAttribute = subElement.Attribute("property");
                 var nameAttribute = subElement.Attribute("name");
@@ -142,7 +182,7 @@ namespace Willowcat.EbookCreator.Epub
         #region RemoveCustomFieldValue
         public void RemoveCustomFieldValue(string propertyName, bool overrideExistingValue = false)
         {
-            if (_CustomFields == null || _CustomFieldsMetadataElement == null)
+            if (_CustomFields == null || _MetadataElement == null)
             {
                 ParseForCustomFields();
             }
@@ -178,7 +218,7 @@ namespace Willowcat.EbookCreator.Epub
         #region SetCustomFieldValue
         public void SetCustomFieldValue(CalibreCustomFieldModel customFieldModel, bool overrideExistingValue = false)
         {
-            if (_CustomFields == null || _CustomFieldsMetadataElement == null)
+            if (_CustomFields == null || _MetadataElement == null)
             {
                 ParseForCustomFields();
             }

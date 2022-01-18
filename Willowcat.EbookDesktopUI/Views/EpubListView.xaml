@@ -21,6 +21,7 @@
         <ListView 
             ItemsSource="{Binding Books}" 
             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+            ScrollViewer.CanContentScroll="False"
             SelectedItem="{Binding SelectedEpubItemViewModel}"
             Style="{StaticResource EpubSearchListViewStyle}">
             <ListView.ItemContainerStyle>

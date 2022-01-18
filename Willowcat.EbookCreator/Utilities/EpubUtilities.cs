@@ -27,76 +27,30 @@ namespace Willowcat.EbookCreator.Utilities
 
         #region Methods...
 
-        #region AddOrSetMetadataElementInStream
-        public static string AddOrSetMetadataElementInStream(MemoryStream stream, TimeSpan timeToRead)
+        #region AddSubjectToContentFile
+        public static bool AddSubjectToContentFile(string epubFilePath, string subject)
         {
-            var originalData = Encoding.UTF8.GetString(stream.ToArray());
-            return AddOrSetMetadataElementToXml(originalData, timeToRead);
+            EpubZippedFile zipFile = new EpubZippedFile(epubFilePath);
+            return zipFile.UpdateContentFile((editor) => editor.AddSubject(subject));
         }
-        #endregion AddOrSetMetadataElementInStream
-
-        #region AddOrSetMetadataElementInStream
-        public static string AddOrSetMetadataElementToXml(string xmlString, TimeSpan timeToRead)
-        {
-            var timeToReadField = CalibreCustomFields.CreateTimeToReadField(timeToRead);
-            var editor = new ContentFileCustomMetadataEditor(xmlString);
-            if (editor.Version == "3.0" || editor.Version == "2.0")
-            {
-                editor.RemoveCustomFieldValue("#readtime");
-                editor.SetCustomFieldValue(timeToReadField);
-                return editor.BuildXmlString();
-            }
-            else
-            {
-                return null;
-            }
-        }
-        #endregion AddOrSetMetadataElementInStream
-
-        #region AddTimeToReadToContentFile
-        public static bool AddTimeToReadToContentFile(string contentFilePath, TimeSpan timeToRead)
-        {
-            string oldOpfFileContents = File.ReadAllText(contentFilePath);
-            string newOpfFileContents = AddOrSetMetadataElementToXml(oldOpfFileContents, timeToRead);
-            if (!string.IsNullOrEmpty(newOpfFileContents))
-            {
-                File.WriteAllText(contentFilePath, newOpfFileContents);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        #endregion AddTimeToReadToContentFile
+        #endregion AddSubjectToContentFile
 
         #region AddTimeToReadToEpub
         public static bool AddTimeToReadToEpub(string epubFilePath, TimeSpan timeToRead)
         {
-            string newOpfFileContents = null;
-            string opfFilePath = null;
-            bool fileUpdated = false;
-
-            using (ZipFile zip = ZipFile.Read(epubFilePath))
+            EpubZippedFile zipFile = new EpubZippedFile(epubFilePath);
+            return zipFile.UpdateContentFile((editor) =>
             {
-                var contentFileEntry = zip.FirstOrDefault(entry => entry.FileName.EndsWith(".opf"));
-                if (contentFileEntry != null)
+                var timeToReadField = CalibreCustomFields.CreateTimeToReadField(timeToRead);
+                var changesMade = false;
+                if (editor.Version == "3.0" || editor.Version == "2.0")
                 {
-                    using (var stream = new MemoryStream())
-                    {
-                        contentFileEntry.Extract(stream);
-                        newOpfFileContents = AddOrSetMetadataElementInStream(stream, timeToRead);
-                        if (newOpfFileContents != null)
-                        {
-                            opfFilePath = contentFileEntry.FileName;
-                            zip.UpdateEntry(contentFileEntry.FileName, Encoding.UTF8.GetBytes(newOpfFileContents));
-                            zip.Save();
-                            fileUpdated = true;
-                        }
-                    }
+                    editor.RemoveCustomFieldValue("#readtime");
+                    editor.SetCustomFieldValue(timeToReadField);
+                    changesMade = true;
                 }
-            }
-            return fileUpdated;
+                return changesMade;
+            });
         }
         #endregion AddTimeToReadToEpub
 

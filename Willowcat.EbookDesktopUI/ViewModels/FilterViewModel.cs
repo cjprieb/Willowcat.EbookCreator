@@ -1,5 +1,6 @@
 ﻿using Prism.Commands;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
@@ -16,11 +17,24 @@ namespace Willowcat.EbookDesktopUI.ViewModels
     public class FilterViewModel : ViewModelBase
     {
         #region Member Variables...
+        private static Dictionary<ProcessTagType, string> _ProcessTags = new Dictionary<ProcessTagType, string>() 
+        {
+            { ProcessTagType.All, "" },
+            { ProcessTagType.None, "Untagged" },
+            { ProcessTagType.InCalibre, "In Calibre" },
+            { ProcessTagType.CombineAsSeries, "Combine As Series" },
+            { ProcessTagType.CombineAsShortStories, "Combine As Short Stories" },
+            { ProcessTagType.IncludeAsBookmark, "Include As Bookmark" },
+            { ProcessTagType.Skip, "Skip" },
+            { ProcessTagType.Maybe, "Maybe" }
+        };
+
         private readonly EbookFileService _EbookFileService;
 
         private FilterModel _FilterModel;
         private string _Author = null;
         private TaskProgressType _SearchTaskStatus = TaskProgressType.None;
+        private ProcessTagType _SelectedProcessTagType = ProcessTagType.All;
         #endregion Member Variables...
 
         #region Properties...
@@ -101,6 +115,13 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         }
         #endregion IsSearching
 
+        #region ProcessTags
+        public Dictionary<ProcessTagType, string> ProcessTags
+        {
+            get => _ProcessTags;
+        }
+        #endregion ProcessTags
+
         #region SearchTaskStatus
         public TaskProgressType SearchTaskStatus
         {
@@ -114,6 +135,18 @@ namespace Willowcat.EbookDesktopUI.ViewModels
             }
         }
         #endregion SearchTaskStatus
+
+        #region SelectedProcessTag
+        public ProcessTagType SelectedProcessTag
+        {
+            get => _SelectedProcessTagType;
+            set
+            {
+                _SelectedProcessTagType = value;
+                OnPropertyChanged();
+            }
+        }
+        #endregion SelectedProcessTag
 
         #endregion Properties...
 
@@ -153,6 +186,7 @@ namespace Willowcat.EbookDesktopUI.ViewModels
             filterModel.ExcludedTags.AddAll(ExcludedTagsViewModel.SelectedTags.Select(tag => tag.Name));
             filterModel.IncludedTags.AddAll(IncludedTagsViewModel.SelectedTags.Select(tag => tag.Name));
             filterModel.Fandoms.AddRange(Fandoms.Where(tag => tag.IsSelected).Select(tag => tag.Name));
+            filterModel.SelectedProcessTag = SelectedProcessTag;
             FilterModel = filterModel;
             FilterUpdated?.Invoke(this, new FilterUpdatedEventArgs(filterModel));
         }

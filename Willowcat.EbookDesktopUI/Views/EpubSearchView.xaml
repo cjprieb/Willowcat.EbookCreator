@@ -19,8 +19,8 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200" />
+            <ColumnDefinition Width="2*" />
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="300" />
         </Grid.ColumnDefinitions>
         <Grid 
             Grid.Row="0"
@@ -46,15 +46,31 @@
             Grid.Column="0"
             DataContext="{Binding FilterViewModel}" />
 
+        <GridSplitter 
+                Grid.Column="0"
+                Grid.Row="1"
+                Background="DarkSlateGray"
+                Width="2"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Stretch" />
+
         <local:EpubListView
             Grid.Row="1"
             Grid.Column="1"
             DataContext="{Binding EpubListViewModel}" />
 
-        <local:EpubDetailsView
+        <GridSplitter 
+                Grid.Column="1"
+                Grid.Row="1"
+                Background="Black"
+                Width="2"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Stretch" />
+
+        <local:EpubDetailsView 
             Grid.Row="1"
             Grid.Column="2"
-            DataContext="{Binding EpubListViewModel.SelectedEpubItemViewModel}"
-            Visibility="{Binding EpubListViewModel.SelectedEpubItemViewModel,Converter={StaticResource NullToVisibilityConverter}}" />
+            DataContext="{Binding EpubListViewModel.SelectedEpubItemViewModel}" />
+
     </Grid>
 </UserControl>

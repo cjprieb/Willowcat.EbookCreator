@@ -57,7 +57,7 @@
             Grid.Row="2"
             Grid.Column="1"
             Style="{StaticResource DefaultTextboxStyle}"
-            Text="{Binding OverrideBookTitle}" />
+            Text="{Binding BookTitle}" />
 
         <Label 
             Grid.Row="3"
@@ -90,7 +90,7 @@
             Grid.Row="5"
             Grid.Column="1"
             Style="{StaticResource DefaultTextboxStyle}"
-            Text="{Binding IncludeIndxes}" />
+            Text="{Binding IncludeIndexes}" />
 
         <Label 
             Grid.Row="6"

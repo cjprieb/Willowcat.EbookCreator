@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Willowcat.Common.UI.ViewModel;
 using Willowcat.Common.Utilities;
+using Willowcat.EbookDesktopUI.Events;
 using Willowcat.EbookDesktopUI.Models;
 using Willowcat.EbookDesktopUI.Services;
 
@@ -17,6 +18,7 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         private bool _ShowProgressBar = true;
         private int _TotalWorks = 0;
         private int _WorksProcessedCount = 0;
+        private string _SelectedTab = null;
         #endregion Member Variables...
 
         #region Properties...
@@ -35,6 +37,18 @@ namespace Willowcat.EbookDesktopUI.ViewModels
             get => TotalWorks != 0 ? ((decimal)WorksProcessedCount / TotalWorks * 100) : 0;
         }
         #endregion PercentComplete
+
+        #region SelectedTab
+        public string SelectedTab
+        {
+            get => _SelectedTab;
+            set
+            {
+                _SelectedTab = value;
+                OnPropertyChanged();
+            }
+        }
+        #endregion SelectedTab
 
         #region ShowProgressBar
         public bool ShowProgressBar
@@ -76,6 +90,10 @@ namespace Willowcat.EbookDesktopUI.ViewModels
 
         #endregion Properties...
 
+        #region Event Handlers...
+        public event EventHandler<SeriesMergeEventArgs> SeriesMergeRequested;
+        #endregion Event Handlers...
+
         #region Constructors...
 
         #region EpubSearchViewModel
@@ -97,6 +115,13 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         #region Methods...
 
         #region Event Handlers...
+
+        #region BookViewModel_SeriesMergeRequested
+        private void BookViewModel_SeriesMergeRequested(object sender, SeriesMergeEventArgs e)
+        {
+            SeriesMergeRequested?.Invoke(this, e);
+        }
+        #endregion BookViewModel_SeriesMergeRequested
 
         #region FilterViewModel_FilterUpdated
         private async void FilterViewModel_FilterUpdated(object sender, Events.FilterUpdatedEventArgs e)
@@ -123,7 +148,9 @@ namespace Willowcat.EbookDesktopUI.ViewModels
                     var filteredWorks = await _EbookFileService.GetFilteredResultsAsync(FilterViewModel.FilterModel);
                     foreach (var item in filteredWorks)
                     {
-                        EpubListViewModel.Books.Add(new EpubItemViewModel(_EbookFileService, FilterViewModel, item, _Settings));
+                        var bookViewModel = new EpubItemViewModel(_EbookFileService, FilterViewModel, item, _Settings);
+                        bookViewModel.SeriesMergeRequested += BookViewModel_SeriesMergeRequested;
+                        EpubListViewModel.Books.Add(bookViewModel);
                     }
                     EpubListViewModel.SelectedEpubItemViewModel = EpubListViewModel.Books.FirstOrDefault();
                 }

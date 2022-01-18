@@ -74,6 +74,7 @@ namespace Willowcat.EbookDesktopUI.ViewModels
             {
                 _FolderName = value;
                 OnPropertyChanged();
+                SetOutputDirectory();
             }
         }
         #endregion FolderName
@@ -188,6 +189,14 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         }
         #endregion MergeBooksViewModel
 
+        #region MergeBooksViewModel
+        public MergeBooksViewModel(SettingsModel settings, EpubDisplayModel displayModel, EpubSeriesModel series)
+            : this (settings)
+        {
+            InitializeFieldsFromDisplayModel(displayModel, series);
+        }
+        #endregion MergeBooksViewModel
+
         #endregion Constructors...
 
         #region Methods...
@@ -247,19 +256,20 @@ namespace Willowcat.EbookDesktopUI.ViewModels
                 SeriesIndex = seriesIndex
             };
             series.SetWorkIndexesFromString(IncludeIndexes);
+            EbookPathsModel paths = SetOutputDirectory();
 
-            string folderName = !string.IsNullOrEmpty(FolderName) ? FolderName : null;
-            var paths = new EbookPathsModel(_Settings.BaseMergeDirectory, string.IsNullOrEmpty(folderName) ? series.SeriesName : folderName);
-            OutputDirectory = Path.GetDirectoryName(paths.EpubFilePath);
-
-            var epubBuilder = new EpubBuilder(new MergeLoggingService<EpubBuilder>(this));
-            var epubOptions = new EpubOptions()
+            if (paths != null)
             {
-                OverwriteOriginalFiles = OverwriteOriginalFiles,
-                WordsReadPerMinute = _Settings.WordsReadPerMinute
-            };
-            var publicationEngine = new MergeBooksPublicationEngine(new MergeLoggingService<MergeBooksPublicationEngine>(this), epubBuilder, epubOptions);
-            await publicationEngine.PublishAsync(series, paths.ToFilePaths());
+                var epubBuilder = new EpubBuilder(new MergeLoggingService<EpubBuilder>(this));
+                var epubOptions = new EpubOptions()
+                {
+                    OverwriteOriginalFiles = OverwriteOriginalFiles,
+                    WordsReadPerMinute = _Settings.WordsReadPerMinute
+                };
+                var publicationEngine = new MergeBooksPublicationEngine(new MergeLoggingService<MergeBooksPublicationEngine>(this), epubBuilder, epubOptions);
+                await publicationEngine.PublishAsync(series, paths.ToFilePaths());
+                OnPropertyChanged(nameof(DoesDirectoryExist));
+            }
         }
         #endregion GenerateBookAsync
 
@@ -277,6 +287,23 @@ namespace Willowcat.EbookDesktopUI.ViewModels
             return result;
         }
         #endregion GetWorkUrls
+
+        #region InitializeFieldsFromDisplayModel
+        private void InitializeFieldsFromDisplayModel(EpubDisplayModel displayModel, EpubSeriesModel series)
+        {
+            string folderName = displayModel.Title;
+            if (series != null)
+            {
+                SeriesUrl = series.Url;
+                BookTitle = series.Title;
+                folderName = $"{series.Title} - {displayModel.Author}";
+            }
+            FolderName = folderName
+                .Replace("&", "")
+                .Replace("\"", "")
+                .Replace(",", "");
+        }
+        #endregion InitializeFieldsFromDisplayModel
 
         #region LoadAsync
         public Task LoadAsync()
@@ -325,6 +352,20 @@ namespace Willowcat.EbookDesktopUI.ViewModels
             Properties.Settings.Default.Save();
         }
         #endregion SaveToProperties
+
+        #region SetOutputDirectory
+        private EbookPathsModel SetOutputDirectory()
+        {
+            EbookPathsModel paths = null;
+            if (!string.IsNullOrEmpty(SeriesName) || !string.IsNullOrEmpty(FolderName))
+            {
+                string folderName = !string.IsNullOrEmpty(FolderName) ? FolderName : null;
+                paths = new EbookPathsModel(_Settings.BaseMergeDirectory, string.IsNullOrEmpty(folderName) ? SeriesName : folderName);
+                OutputDirectory = Path.GetDirectoryName(paths.EpubFilePath);
+            }
+            return paths;
+        }
+        #endregion SetOutputDirectory
 
         #endregion Methods...
     }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace Willowcat.EbookDesktopUI.Models
@@ -11,6 +10,8 @@ namespace Willowcat.EbookDesktopUI.Models
         public HashSet<string> IncludedTags { get; set; } = new HashSet<string>();
         public List<string> Fandoms { get; set; } = new List<string>();
 
+        public ProcessTagType SelectedProcessTag { get; set; } = ProcessTagType.All;
+
         internal bool IsMatch(EpubDisplayModel pub)
         {
             if (!string.IsNullOrEmpty(Author))
@@ -18,11 +19,16 @@ namespace Willowcat.EbookDesktopUI.Models
                 if (pub.Author != Author) return false;
             }
 
-            IEnumerable<string> allPubTags = pub.AdditionalTags
-                .Union(pub.CharacterTags)
-                .Union(pub.RelationshipTags)
-                .Union(pub.WarningTags)
-                .Union(pub.FandomTags);
+            if (SelectedProcessTag == ProcessTagType.None)
+            {
+                if (pub.ProcessTags?.Any() ?? false) return false;
+            }
+            else if (SelectedProcessTag != ProcessTagType.All)
+            {
+                if (!pub.ProcessTags.Any(tag => tag == SelectedProcessTag)) return false;
+            }
+
+            IEnumerable<string> allPubTags = pub.AllTags;
 
             if (ExcludedTags != null && ExcludedTags.Any())
             {

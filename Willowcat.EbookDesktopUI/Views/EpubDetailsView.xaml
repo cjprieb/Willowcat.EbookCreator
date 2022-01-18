@@ -4,12 +4,17 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Willowcat.EbookDesktopUI.Views"
+             xmlns:converters="clr-namespace:Willowcat.EbookDesktopUI.ApplicationResources.Converters"
              xmlns:common="clr-namespace:Willowcat.Common.UI.Behavior;assembly=Willowcat.Common.UI"
              xmlns:fa="http://schemas.fontawesome.io/icons/"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
+    <UserControl.Resources>
+        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+    </UserControl.Resources>
+    <Grid Visibility="{Binding .,Converter={StaticResource NullToVisibilityConverter},Mode=OneWay}">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -63,25 +68,18 @@
         </StackPanel>
 
         <Border Grid.Row="2">
-            <RichTextBox
+            <local:EpubTagItemsView DataContext="{Binding DisplayModel.OverflowTags}"/>
+        </Border>
+
+        <Border Grid.Row="3">
+            <ScrollViewer>
+                <RichTextBox
                 Background="Transparent"
                 BorderThickness="0"
                 common:HtmlRichTextBoxBehavior.Text="{Binding DisplayModel.Description,Mode=OneWay}"
                 IsDocumentEnabled="True"
                 IsReadOnly="True" />
-            <!--<FlowDocumentPageViewer>
-                <FlowDocument>
-                <Paragraph>Summary</Paragraph>
-                <Paragraph Margin="14 0">
-                    A collection of Fantasy Fluff Batfam/White Collar crossover fics. They're all gonna be disconnected chapters unless otherwise stated.</Paragraph>
-                <Paragraph>Notes</Paragraph>
-                    <Paragraph>PLEASE TAKE NOTE: If you haven't read my other story, Dragon Drabbles, this story may not make any sense, as I'm using the characterizations from that story for this one!
-As always, if anyone else wants to play in the Fantasy Fluff sandbox, feel free! Just make sure to drop a link in the comments or have me as the inspiration for it so I can read it!</Paragraph>
-            </FlowDocument>
-            </FlowDocumentPageViewer>-->
-            <!--<TextBox
-                Text="{Binding Description,Mode=OneWay}"
-                TextWrapping="Wrap"/>-->
+            </ScrollViewer>
         </Border>
 
     </Grid>

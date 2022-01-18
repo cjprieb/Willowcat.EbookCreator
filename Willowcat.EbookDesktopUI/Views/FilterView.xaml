@@ -18,7 +18,6 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Button 
             Grid.Row="0"
@@ -50,41 +49,61 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-            <StackPanel Grid.Row="0" Orientation="Vertical">
+                <StackPanel Grid.Row="0" Orientation="Vertical">
 
-                <Grid Visibility="{Binding Author, Converter={StaticResource NullToVisibilityConverter}}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <Label 
+                    <Grid Visibility="{Binding Author, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Label 
                             Grid.Column="0"
                         Style="{StaticResource FilterTagListHeaderStyle}"
                         Content="Author: "/>
 
-                    <Border Grid.Column="1" Style="{StaticResource FilterTagItemBorderStyle}">
+                        <Border Grid.Column="1" Style="{StaticResource FilterTagItemBorderStyle}">
 
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock 
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock 
                             Grid.Column="0"
                             Style="{StaticResource FilterTagLabelStyle}"
                             Text="{Binding Author}"/>
-                            <Button
+                                <Button
                             Grid.Column="1"
                             Command="{Binding Path=ClearAuthorCommand}"
                             Style="{StaticResource FilterTagButtonStyle}">
-                                <Button.Content>
-                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <fa:ImageAwesome Icon="Trash" Style="{StaticResource CenterButtonIcon}"/>
-                                    </StackPanel>
-                                </Button.Content>
-                            </Button>
-                        </Grid>
-                    </Border>
+                                    <Button.Content>
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <fa:ImageAwesome Icon="Trash" Style="{StaticResource CenterButtonIcon}"/>
+                                        </StackPanel>
+                                    </Button.Content>
+                                </Button>
+                            </Grid>
+                        </Border>
+
+                    </Grid>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Label 
+                            Grid.Column="0"
+                            Style="{StaticResource FilterTagListHeaderStyle}"
+                            Content="Process: "/>
+
+                        <Border Grid.Column="1">
+                            <ComboBox 
+                                DisplayMemberPath="Value"
+                                SelectedValuePath="Key"
+                                ItemsSource="{Binding ProcessTags}" 
+                                SelectedItem="{Binding SelectedProcessTag}" />
+                        </Border>
 
                     </Grid>
 
@@ -127,30 +146,5 @@
                 </ListView>
             </Grid>
         </Border>
-
-        <Button 
-            Grid.Row="2"
-            IsEnabled="{Binding CanApplyFilterCommand}"
-            Command="{Binding ApplyFilterCommand}" 
-            Style="{StaticResource ToolbarButtonStyle}">
-            <Button.Content>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="Apply Filter"/>
-                    <fa:ImageAwesome Icon="Filter" Style="{StaticResource RightButtonIcon}" />
-                </StackPanel>
-            </Button.Content>
-        </Button>
-
-        <!--<Button 
-                Click="CreateSeriesButton_Click"
-                Style="{StaticResource ToolbarButtonStyle}">
-            <Button.Content>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <fa:ImageAwesome Icon="Book" Style="{StaticResource ButtonIcon}" />
-                    <TextBlock Text="Create Series"/>
-                </StackPanel>
-            </Button.Content>
-        </Button>-->
-
     </Grid>
 </UserControl>

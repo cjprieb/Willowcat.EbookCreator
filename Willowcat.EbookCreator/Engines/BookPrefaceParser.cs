@@ -76,21 +76,10 @@ namespace Willowcat.EbookCreator.Engines
 
         private List<string> ParseSeries(IDomObject definitionElement)
         {
-            // TODO: properly parse series
-            List<string> tags = new List<string>()
+            return new List<string>()
             {
-                definitionElement.InnerText
+                definitionElement.InnerHTML.Replace('\n', ' ').Replace("\r", "")
             };
-            //foreach (var child in definitionElement.ChildElements)
-            //{
-            //    if (child.NodeType != NodeType.ELEMENT_NODE) continue;
-
-            //    if (child.NodeName.EqualsIgnoreCase("a"))
-            //    {
-            //        tags.Add(child.InnerText);
-            //    }
-            //}
-            return tags;
         }
 
         private List<string> ParseTags(IDomObject definitionElement)

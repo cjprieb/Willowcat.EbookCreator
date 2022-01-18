@@ -106,14 +106,6 @@ namespace Willowcat.EbookCreator.Utilities.Tests
                     {
                         Console.WriteLine($"File skipped: {book.epubPath}");
                     }
-                    if (EpubUtilities.AddTimeToReadToContentFile(book.contentPath, timeToReadBook))
-                    {
-                        Console.WriteLine($"File updated: {book.contentPath}");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"File skipped: {book.contentPath}");
-                    }
                     computedValues.Add(message);
                 }
                 catch (ZipException ex)

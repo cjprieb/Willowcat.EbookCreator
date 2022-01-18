@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Willowcat.Common.Utilities;
 using Willowcat.EbookCreator.Engines;
+using Willowcat.EbookCreator.Utilities;
 using Willowcat.EbookDesktopUI.Models;
 
 namespace Willowcat.EbookDesktopUI.Services
@@ -12,7 +13,6 @@ namespace Willowcat.EbookDesktopUI.Services
     public class EbookFileService
     {
         #region Member Variables...
-        private const string _InCalibreTagName = "process.in calibre";
         private readonly SettingsModel _Settings = null;
 
         private IEnumerable<string> _CachedFandomList = null;
@@ -37,6 +37,19 @@ namespace Willowcat.EbookDesktopUI.Services
         #endregion Constructors...
 
         #region Methods...
+
+        #region AddProcessTagAsync
+        public async Task AddProcessTagAsync(EpubDisplayModel displayModel, ProcessTagType processTag)
+        {
+            if (displayModel != null && !displayModel.ProcessTags.Contains(processTag))
+            {
+                List<ProcessTagType> tags = new List<ProcessTagType>(displayModel.ProcessTags);
+                tags.Add(ProcessTagType.InCalibre);
+                displayModel.ProcessTags = tags.ToArray();
+                await Task.Run(() => EpubUtilities.AddSubjectToContentFile(displayModel.LocalFilePath, processTag.ToTagName()));
+            }
+        }
+        #endregion AddProcessTagAsync
 
         #region LoadFandomsAsync
         public async Task<IEnumerable<string>> LoadFandomsAsync()
@@ -150,7 +163,11 @@ namespace Willowcat.EbookDesktopUI.Services
             int currentCount = 0;
             foreach (var file in filePaths)
             {
-                result.Add(await LoadPublicationAsync(file));
+                var displayModel = await LoadPublicationAsync(file);
+                if (displayModel.FandomTags.Any())
+                {
+                    result.Add(displayModel);
+                }
 
                 currentCount++;
                 LoadingProgress?.Report(new LoadProgressModel()
@@ -259,38 +276,32 @@ namespace Willowcat.EbookDesktopUI.Services
         #endregion GetSampleFilteredResultsAsync
 
         #region MarkAddToCalibreAsync
-        public Task<EpubDisplayModel> MarkAddToCalibreAsync(EpubDisplayModel displayModel)
+        public async Task MarkAddToCalibreAsync(EpubDisplayModel displayModel)
         {
-            if (displayModel == null) return Task.FromResult(displayModel);
-
-            string calibreDirectory = _Settings.MoveToCalibreDirectory;
-
-            if (!displayModel.AdditionalTags.Contains(_InCalibreTagName))
+            if (displayModel != null)
             {
-                List<string> tags = new List<string>(displayModel.AdditionalTags);
-                tags.Add(_InCalibreTagName);
-                displayModel.AdditionalTags = tags.ToArray();
-            }
+                await AddProcessTagAsync(displayModel, ProcessTagType.InCalibre);
 
-            // TODO: add to epub content tags
-
-            if (!string.IsNullOrEmpty(calibreDirectory) && 
-                !string.IsNullOrEmpty(displayModel.LocalFilePath) && 
-                File.Exists(displayModel.LocalFilePath))
-            {
-                if (!Directory.Exists(calibreDirectory))
+                string calibreDirectory = _Settings.MoveToCalibreDirectory;
+                if (!string.IsNullOrEmpty(calibreDirectory) &&
+                    !string.IsNullOrEmpty(displayModel.LocalFilePath) &&
+                    File.Exists(displayModel.LocalFilePath))
                 {
-                    Directory.CreateDirectory(calibreDirectory);
-                }
+                    await Task.Run(() =>
+                    {
+                        if (!Directory.Exists(calibreDirectory))
+                        {
+                            Directory.CreateDirectory(calibreDirectory);
+                        }
 
-                string newFilePath = Path.Combine(calibreDirectory, Path.GetFileName(displayModel.LocalFilePath));
-                if (!File.Exists(newFilePath))
-                {
-                    File.Copy(displayModel.LocalFilePath, newFilePath);
+                        string newFilePath = Path.Combine(calibreDirectory, Path.GetFileName(displayModel.LocalFilePath));
+                        if (!File.Exists(newFilePath))
+                        {
+                            File.Copy(displayModel.LocalFilePath, newFilePath);
+                        }
+                    });
                 }
             }
-
-            return Task.FromResult(displayModel);
         }
         #endregion MarkAddToCalibreAsync
 

@@ -43,11 +43,11 @@
 
         </StackPanel>
         
-        <TabControl Grid.Row="1">
-            <TabItem Header="Search">
+        <TabControl Grid.Row="1" x:Name="MainTabControl">
+            <TabItem Header="Search" x:Name="SearchTabItem">
                 <local:EpubSearchView DataContext="{Binding EpubSearchViewModel}" />
             </TabItem>
-            <TabItem Header="Merge">
+            <TabItem Header="Merge" x:Name="MergeTabItem">
                 <local:MergeBooksView DataContext="{Binding MergeBooksViewModel}" />
             </TabItem>
         </TabControl>

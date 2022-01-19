@@ -79,40 +79,55 @@
                     <Button.ContextMenu>
                         <ContextMenu>
                             <MenuItem 
-                Header="Add tag &quot;CombineAsShortStories&quot;"
-                Command="{Binding Path=AddProcessTagCommand}"
-                CommandParameter="CombineAsShortStories">
-                            </MenuItem>
+                                Header="Add tag 'CombineAsSeries'"
+                                Command="{Binding AddProcessTagCommand}" 
+                                CommandParameter="CombineAsSeries" />
                             <MenuItem 
-                Header="Add tag &quot;Maybe&quot;"
-                Command="{Binding Path=AddProcessTagCommand}"
-                CommandParameter="Maybe">
-                            </MenuItem>
+                                Header="Add tag 'CombineAsShortStories'"
+                                Command="{Binding AddProcessTagCommand}" 
+                                CommandParameter="CombineAsShortStories" />
                             <MenuItem 
-                Header="Add tag &quot;Skip&quot;"
-                Command="{Binding Path=AddProcessTagCommand}"
-                CommandParameter="Skip">
-                            </MenuItem>
+                                Header="Add tag 'Incomplete'"
+                                Command="{Binding AddProcessTagCommand}" 
+                                CommandParameter="Incomplete" />
+                            <MenuItem 
+                                Header="Add tag 'Maybe'"
+                                Command="{Binding AddProcessTagCommand}" 
+                                CommandParameter="Maybe" />
+                            <MenuItem 
+                                Header="Add tag 'Skip'"
+                                Command="{Binding AddProcessTagCommand}" 
+                                CommandParameter="Skip" />
                             <Separator />
                             <MenuItem 
-                Header="Remove tag &quot;CombineAsShortStories&quot;"
-                Command="{Binding Path=RemoveProcessTagCommand}"
-                CommandParameter="CombineAsShortStories">
-                            </MenuItem>
+                                Header="Remove tag 'CombineAsSeries'"
+                                Command="{Binding RemoveProcessTagCommand}" 
+                                CommandParameter="CombineAsSeries" />
                             <MenuItem 
-                Header="Remove tag &quot;Maybe&quot;"
-                Command="{Binding Path=RemoveProcessTagCommand}"
-                CommandParameter="Maybe">
-                            </MenuItem>
+                                Header="Remove tag 'CombineAsShortStories'"
+                                Command="{Binding RemoveProcessTagCommand}" 
+                                CommandParameter="CombineAsShortStories" />
                             <MenuItem 
-                Header="Remove tag &quot;Skip&quot;"
-                Command="{Binding Path=RemoveProcessTagCommand}"
-                CommandParameter="Skip">
-                            </MenuItem>
+                                Header="Remove tag 'Incomplete'"
+                                Command="{Binding RemoveProcessTagCommand}" 
+                                CommandParameter="Incomplete" />
+                            <MenuItem 
+                                Header="Remove tag 'Maybe'"
+                                Command="{Binding RemoveProcessTagCommand}" 
+                                CommandParameter="Maybe" />
+                            <MenuItem 
+                                Header="Remove tag 'Skip'"
+                                Command="{Binding RemoveProcessTagCommand}" 
+                                CommandParameter="Skip" />
+                            <MenuItem 
+                                Header="Remove tag 'InCalibre'"
+                                Command="{Binding RemoveProcessTagCommand}" 
+                                CommandParameter="InCalibre" />
+
                         </ContextMenu>
                     </Button.ContextMenu>
                     <Button.Content>
-                        <TextBlock Text="Add to Calibre" />
+                        <TextBlock Text="Add 'In Calibre' Tag" />
                     </Button.Content>
                     
                 </Button>

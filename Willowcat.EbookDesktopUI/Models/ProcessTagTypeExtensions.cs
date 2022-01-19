@@ -30,6 +30,10 @@ namespace Willowcat.EbookDesktopUI.Models
             {
                 result = ProcessTagType.IncludeAsBookmark;
             }
+            else if (tag == "incomplete")
+            {
+                result = ProcessTagType.Incomplete;
+            }
             else if (tag == "skip")
             {
                 result = ProcessTagType.Skip;
@@ -65,6 +69,7 @@ namespace Willowcat.EbookDesktopUI.Models
                 case ProcessTagType.CombineAsSeries: return "add as series";
                 case ProcessTagType.CombineAsShortStories: return "combine";
                 case ProcessTagType.IncludeAsBookmark: return "include as bookmark";
+                case ProcessTagType.Incomplete: return "incomplete";
                 case ProcessTagType.Skip: return "skip";
                 case ProcessTagType.Maybe: return "maybe";
             }
@@ -83,6 +88,7 @@ namespace Willowcat.EbookDesktopUI.Models
                 case ProcessTagType.CombineAsSeries: return "process.add as series";
                 case ProcessTagType.CombineAsShortStories: return "process.combine";
                 case ProcessTagType.IncludeAsBookmark: return "process.include as bookmark";
+                case ProcessTagType.Incomplete: return "process.incomplete";
                 case ProcessTagType.Skip: return "process.skip";
                 case ProcessTagType.Maybe: return "process.maybe";
             }

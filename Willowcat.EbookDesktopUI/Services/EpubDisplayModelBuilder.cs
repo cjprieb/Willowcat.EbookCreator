@@ -171,8 +171,10 @@ namespace Willowcat.EbookDesktopUI.Services
         #endregion ParseAsProcessTag
 
         #region ParseChapters
-        private (int count, int? total) ParseChapters(string value)
+        private (int count, int? total) ParseChapters(string key)
         {
+            var values = GetTags(key);
+            var value = values.Any() ? values.First() : string.Empty;
             int count = 1;
             int? total = 1;
             Regex chapterPattern = new Regex(@"(\d+)/([\d\?]+)");

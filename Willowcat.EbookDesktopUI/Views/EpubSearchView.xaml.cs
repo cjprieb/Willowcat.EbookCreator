@@ -22,5 +22,10 @@ namespace Willowcat.EbookDesktopUI.Views
         {
             InitializeComponent();
         }
+
+        private void EpubListView_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            EpubDetailsViewControl.ResetVisibleControls();
+        }
     }
 }

@@ -29,5 +29,12 @@ namespace Willowcat.EbookDesktopUI.Views
                 PathExtensions.ExploreToFile(viewModel.DisplayModel.LocalFilePath);
             }
         }
+
+        public void ResetVisibleControls()
+        {
+            BookDetailsTabControl.SelectedItem = SummaryTabItem;
+            SummaryTextControl.ScrollToTop();
+            FirstChapterTextControl.ScrollToTop();
+        }
     }
 }

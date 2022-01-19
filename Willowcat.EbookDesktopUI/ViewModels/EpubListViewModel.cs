@@ -1,6 +1,9 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using Willowcat.Common.UI.ViewModel;
+using Willowcat.EbookDesktopUI.Events;
 using Willowcat.EbookDesktopUI.Models;
 using Willowcat.EbookDesktopUI.Services;
 
@@ -35,6 +38,10 @@ namespace Willowcat.EbookDesktopUI.ViewModels
 
         #endregion Properties...
 
+        #region Events...
+        public event EventHandler<PageRequestedEventArgs> OnPageRequested;
+        #endregion Events...
+
         #region Constructors...
 
         #region EpubListViewModel
@@ -48,6 +55,47 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         #endregion Constructors...
 
         #region Methods...
+
+        #region ApplyPaginationAsync
+        public async Task ApplyPaginationAsync(int itemsToSkip, int itemsToDisplay)
+        {
+            await Task.Run(() =>
+            {
+                foreach (var item in Books.Where(book => book.IsMatch))
+                {
+                    item.IsVisible = false;
+                }
+            });
+
+            var itemsToEnable = Books
+                .Where(book => book.IsMatch)
+                .Skip(itemsToSkip)
+                .Take(itemsToDisplay);
+
+            await Task.Run(() =>
+            {
+                EpubItemViewModel firstVisibleItem = null;
+                foreach (var item in itemsToEnable)
+                {
+                    if (firstVisibleItem == null)
+                    {
+                        firstVisibleItem = item;
+                    }
+                    item.IsVisible = true;
+                }
+                SelectedEpubItemViewModel = firstVisibleItem;
+            });
+
+            FirePageRequested(itemsToSkip, itemsToDisplay);
+        }
+        #endregion ApplyPaginationAsync
+
+        #region FirePageRequested
+        private void FirePageRequested(int itemsToSkip, int itemsToDisplay)
+        {
+            OnPageRequested?.Invoke(this, new PageRequestedEventArgs(itemsToSkip, itemsToDisplay));
+        }
+        #endregion FirePageRequested
 
         #endregion Methods...
     }

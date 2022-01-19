@@ -1,0 +1,17 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:Willowcat.EbookDesktopUI.ApplicationResources.TagTemplates">
+    <DataTemplate x:Key="AddTagMenuItemTemplate">
+        <MenuItem 
+            Command="{Binding AddProcessTagCommand}" 
+            CommandParameter="{Binding TagType}">
+            <MenuItem.Header>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Add tag '"/>
+                    <TextBlock Text="{Binding TagName}"/>
+                    <TextBlock Text="'"/>
+                </StackPanel>
+            </MenuItem.Header>
+        </MenuItem>
+    </DataTemplate>
+</ResourceDictionary>

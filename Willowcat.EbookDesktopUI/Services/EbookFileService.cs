@@ -52,11 +52,6 @@ namespace Willowcat.EbookDesktopUI.Services
                 tags.Add(processTag);
                 displayModel.ProcessTags = tags.ToArray();
                 await Task.Run(() => EpubUtilities.AddSubjectToContentFile(displayModel.LocalFilePath, processTag.ToTagName()));
-
-                if (processTag == ProcessTagType.InCalibre)
-                {
-                    await MoveToCalibreDirectory(displayModel);
-                }
             }
         }
         #endregion AddProcessTagAsync
@@ -219,7 +214,7 @@ namespace Willowcat.EbookDesktopUI.Services
         #endregion GetSampleFilteredResultsAsync
 
         #region MarkAddToCalibreAsync
-        private async Task MoveToCalibreDirectory(EpubDisplayModel displayModel)
+        public async Task MoveToCalibreDirectory(EpubDisplayModel displayModel)
         {
             if (displayModel != null && !string.IsNullOrEmpty(_Settings.MoveToCalibreDirectory))
             {
@@ -249,7 +244,7 @@ namespace Willowcat.EbookDesktopUI.Services
         #region RemoveProcessTagAsync
         public async Task RemoveProcessTagAsync(EpubDisplayModel displayModel, ProcessTagType processTag)
         {
-            if (displayModel != null && !displayModel.ProcessTags.Contains(processTag))
+            if (displayModel != null && displayModel.ProcessTags.Contains(processTag))
             {
                 List<ProcessTagType> tags = new List<ProcessTagType>(displayModel.ProcessTags);
                 tags.Remove(processTag);

@@ -53,8 +53,8 @@
         <Setter Property="BorderThickness" Value="1" />
     </Style>
     <Style TargetType="Button" x:Key="EpubProcessTagStyle" BasedOn="{StaticResource EpubTagStyle}">
-        <Setter Property="Background" Value="LightGray"/>
-        <Setter Property="BorderBrush" Value="DimGray" />
+        <Setter Property="Background" Value="SeaShell"/>
+        <Setter Property="BorderBrush" Value="Peru" />
     </Style>
     <Style TargetType="Button" x:Key="EpubIconButtonStyle">
         <Setter Property="Padding" Value="4"/>
@@ -66,5 +66,12 @@
         <Setter Property="FontSize" Value="14"/>
         <!--<Setter Property="IsReadOnly" Value="True" />-->
         <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style TargetType="RichTextBox" x:Key="EpubDetailReadOnlyHtmlStyle">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="IsDocumentEnabled" Value="True" />
+        <Setter Property="IsReadOnly" Value="True" />
     </Style>
 </ResourceDictionary>

@@ -13,6 +13,7 @@ namespace Willowcat.EbookDesktopUI.Models
         CombineAsShortStories,
         IncludeAsBookmark,
         Skip,
-        Maybe
+        Maybe,
+        Incomplete
     }
 }

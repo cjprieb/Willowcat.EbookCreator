@@ -71,8 +71,9 @@ namespace Willowcat.EbookCreator.Engines
             var totalWords = 0;
             foreach (var paragraph in paragraphs)
             {
-                totalWords += CountWordsInText(paragraph.InnerText);
-                description.AppendLine($"<p>{SecurityElement.Escape(paragraph.InnerText)}</p>");
+                string text = paragraph.InnerText.Trim();
+                totalWords += CountWordsInText(text);
+                description.AppendLine($"<p>{SecurityElement.Escape(text)}</p>");
                 if (totalWords > maxWordsToReturn) break;
             }
             return description.ToString();

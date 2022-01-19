@@ -1,5 +1,6 @@
 ﻿using Prism.Commands;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
 using Willowcat.Common.UI.ViewModel;
@@ -15,6 +16,13 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         private readonly FilterViewModel _FilterViewModel = null;
         private readonly EbookFileService _EbookFileService = null;
         private readonly SettingsModel _Settings = null;
+        private static ProcessTagType[] _PotentialProcessTags = new ProcessTagType[]
+        {
+            ProcessTagType.CombineAsSeries,
+            ProcessTagType.CombineAsShortStories,
+            ProcessTagType.Maybe,
+            ProcessTagType.Skip,
+        };
 
         private bool _IsMatch = true;
         private bool _IsVisible = true;
@@ -99,9 +107,17 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         }
         #endregion IsVisible
 
+        #region MoveToCalibreCommand
+        public ICommand MoveToCalibreCommand { get; private set; }
+        #endregion MoveToCalibreCommand
+
         #region OverflowTags
         public EpubTagItemsViewModel OverflowTags { get; private set; }
         #endregion OverflowTags
+
+        #region PotentialProcessTags
+        public IEnumerable<ProcessTagType> PotentialProcessTags => _PotentialProcessTags;
+        #endregion PotentialProcessTags
 
         #region ProcessTags
         public EpubTagItemsViewModel ProcessTags { get; private set; }
@@ -149,7 +165,8 @@ namespace Willowcat.EbookDesktopUI.ViewModels
             InitializeTagViews();
 
             AddProcessTagCommand = new DelegateCommand<string>(ExecuteAddProcessTag);
-            RemoveProcessTagCommand = new DelegateCommand<string>(ExecuteRemoveToCalibre);
+            MoveToCalibreCommand = new DelegateCommand(ExecuteMoveToCalibre);
+            RemoveProcessTagCommand = new DelegateCommand<string>(ExecuteRemoveTag);
             ExcludeTagCommand = new DelegateCommand<string>(ExecuteExcludeTagFromFilter);
             IncludeTagCommand = new DelegateCommand<string>(ExecuteIncludeTagInFilter);
             FilterByAuthorCommand = new DelegateCommand(ExecuteFilterByAuthor);
@@ -205,8 +222,18 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         }
         #endregion ExecuteExcludeTagFromFilter
 
-        #region ExecuteRemoveToCalibre
-        private async void ExecuteRemoveToCalibre(string parameter)
+        #region ExecuteMoveToCalibre
+        private async void ExecuteMoveToCalibre()
+        {
+            await _EbookFileService.AddProcessTagAsync(DisplayModel, ProcessTagType.InCalibre);
+            InitializeProgressTagView();
+
+            await _EbookFileService.MoveToCalibreDirectory(DisplayModel);
+        }
+        #endregion ExecuteMoveToCalibre
+
+        #region ExecuteRemoveTag
+        private async void ExecuteRemoveTag(string parameter)
         {
             ProcessTagType? processTagType = ProcessTagTypeExtensions.ParseAsEnum(parameter);
             if (processTagType.HasValue &&
@@ -217,13 +244,14 @@ namespace Willowcat.EbookDesktopUI.ViewModels
                 InitializeProgressTagView();
             }
         }
-        #endregion ExecuteRemoveToCalibre
+        #endregion ExecuteRemoveTag
 
         #region ExecuteRequestSeriesMerge
         private async void ExecuteRequestSeriesMerge(EpubSeriesModel seriesModel)
         {
             await _EbookFileService.AddProcessTagAsync(DisplayModel, ProcessTagType.CombineAsSeries);
-            OnPropertyChanged(nameof(DisplayModel));
+            InitializeProgressTagView();
+
             SeriesMergeRequested?.Invoke(this, new SeriesMergeEventArgs(_DisplayModel, seriesModel));
         }
         #endregion ExecuteRequestSeriesMerge

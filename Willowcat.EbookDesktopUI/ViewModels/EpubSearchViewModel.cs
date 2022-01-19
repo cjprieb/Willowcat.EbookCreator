@@ -192,32 +192,7 @@ namespace Willowcat.EbookDesktopUI.ViewModels
                 {
                     FilterViewModel.SearchTaskStatus = TaskProgressType.Running;
 
-                    await Task.Run(() =>
-                    {
-                        foreach (var item in EpubListViewModel.Books.Where(book => book.IsMatch))
-                        {
-                            item.IsVisible = false;
-                        }
-                    });
-
-                    var itemsToEnable = EpubListViewModel.Books
-                        .Where(book => book.IsMatch)
-                        .Skip(itemsToSkip)
-                        .Take(itemsToDisplay);
-
-                    await Task.Run(() =>
-                    {
-                        EpubItemViewModel firstVisibleItem = null;
-                        foreach (var item in itemsToEnable)
-                        {
-                            if (firstVisibleItem == null)
-                            {
-                                firstVisibleItem = item;
-                            }
-                            item.IsVisible = true;
-                        }
-                        EpubListViewModel.SelectedEpubItemViewModel = firstVisibleItem;
-                    });
+                    await EpubListViewModel.ApplyPaginationAsync(itemsToSkip, itemsToDisplay);
                 }
                 finally
                 {

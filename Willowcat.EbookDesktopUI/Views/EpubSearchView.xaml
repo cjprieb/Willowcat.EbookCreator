@@ -72,6 +72,7 @@
             <local:EpubListView 
                 Grid.Row="1"
                 Grid.Column="0"
+                OnSelectionChanged="EpubListView_OnSelectionChanged"
                 DataContext="{Binding EpubListViewModel}" />
         </Grid>
 
@@ -86,6 +87,7 @@
         <local:EpubDetailsView 
             Grid.Row="1"
             Grid.Column="2"
+            x:Name="EpubDetailsViewControl"
             DataContext="{Binding EpubListViewModel.SelectedEpubItemViewModel}" />
 
     </Grid>

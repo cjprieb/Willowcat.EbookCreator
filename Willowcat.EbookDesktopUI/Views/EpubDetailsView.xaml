@@ -103,36 +103,52 @@
                     </MenuItem>
                 </ContextMenu>
             </Border.ContextMenu>
-            <TabControl>
-                <TabItem Header="Summary">
-                    <ScrollViewer>
-                        <RichTextBox
-                            FontSize="14"
-                            Background="Transparent"
-                            BorderThickness="0"
-                            common:HtmlRichTextBoxBehavior.Text="{Binding DisplayModel.Description,Mode=OneWay}"
-                            IsDocumentEnabled="True"
-                            IsReadOnly="True">
-                        </RichTextBox>
-                    </ScrollViewer>
-                </TabItem>
-                <TabItem Header="Preview">
+            <TabControl Name="BookDetailsTabControl">
+                <TabItem Header="Summary" Name="SummaryTabItem">
                     <Grid>
                         <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Border Grid.Row="0">
+                            <StackPanel Orientation="Horizontal">
+                                <Button 
+                                    Height="20"
+                                    Padding="4 0"
+                                    Command="{Binding MoveToCalibreCommand}"
+                                    Style="{StaticResource DefaultButtonStyle}">
+                                    <Button.Content>
+                                        <TextBlock Text="Mark to move to Calibre" />
+                                    </Button.Content>
+                                </Button>
+
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Row="1" Margin="0 4 0 0" BorderBrush="Black" BorderThickness="0 1 0 0" Padding="0 4 0 0">
+                            <local:EpubTagItemsView DataContext="{Binding OverflowTags}" TagStyle="{StaticResource EpubProcessTagStyle}"/>
+                        </Border>
+                        <ScrollViewer Grid.Row="2">
+                            <RichTextBox
+                                x:Name="SummaryTextControl"
+                                Style="{StaticResource EpubDetailReadOnlyHtmlStyle}"
+                                common:HtmlRichTextBoxBehavior.Text="{Binding DisplayModel.Description,Mode=OneWay}">
+                            </RichTextBox>
+                        </ScrollViewer>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Preview" Name="PreviewTabItem">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
-                        <Border Grid.Row="1">
-                            <local:EpubTagItemsView DataContext="{Binding OverflowTags}"/>
-                        </Border>
-                        <ScrollViewer Grid.Row="0">
+                        <ScrollViewer Grid.Row="1">
                             <RichTextBox
-                                FontSize="14"
-                                Background="Transparent"
-                                BorderThickness="0"
-                                common:HtmlRichTextBoxBehavior.Text="{Binding DisplayModel.FirstChapterText,Mode=OneWay}"
-                                IsDocumentEnabled="True"
-                                IsReadOnly="True">
+                                x:Name="FirstChapterTextControl"
+                                Style="{StaticResource EpubDetailReadOnlyHtmlStyle}"
+                                common:HtmlRichTextBoxBehavior.Text="{Binding DisplayModel.FirstChapterText,Mode=OneWay}">
                             </RichTextBox>
                         </ScrollViewer>
                     </Grid>

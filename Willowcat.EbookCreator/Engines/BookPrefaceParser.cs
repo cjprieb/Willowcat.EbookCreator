@@ -22,6 +22,25 @@ namespace Willowcat.EbookCreator.Engines
             _Document = CQ.CreateDocumentFromFile(filePath);
         }
 
+        public string GetWorkUrl()
+        {
+            string url = null;
+            var linkElements = _Document["a"];
+            if (linkElements != null && linkElements.Any())
+            {
+                foreach (var ahrefElement in linkElements)
+                {
+                    string linkUrl = ahrefElement.GetAttribute("href");
+                    if (linkUrl.Contains("works"))
+                    {
+                        url = linkUrl;
+                        break;
+                    }
+                }
+            }
+            return url;
+        }
+
         public Dictionary<string, List<string>> GetMetadataElements()
         {
             var tagsElement = _Document["dl.tags"];

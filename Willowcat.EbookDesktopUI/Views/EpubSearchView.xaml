@@ -4,8 +4,10 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Willowcat.EbookDesktopUI.Views"
+             xmlns:viewmodel="clr-namespace:Willowcat.EbookDesktopUI.ViewModels"
              xmlns:fa="http://schemas.fontawesome.io/icons/"
              xmlns:converters="clr-namespace:Willowcat.EbookDesktopUI.ApplicationResources.Converters"
+             d:DataContext="{d:DesignInstance Type={x:Type viewmodel:EpubSearchViewModel}, IsDesignTimeCreatable=False}"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="1000">
     <UserControl.Resources>
@@ -18,9 +20,9 @@
             <RowDefinition Height="*" />            
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="200" />
-            <ColumnDefinition Width="2*" />
             <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="3*" />
+            <ColumnDefinition Width="2*" />
         </Grid.ColumnDefinitions>
         <Grid 
             Grid.Row="0"
@@ -54,10 +56,24 @@
                 HorizontalAlignment="Right"
                 VerticalAlignment="Stretch" />
 
-        <local:EpubListView
+        <Grid 
             Grid.Row="1"
-            Grid.Column="1"
-            DataContext="{Binding EpubListViewModel}" />
+            Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <local:PaginationView 
+                Grid.Row="0"
+                Grid.Column="0" 
+                DataContext="{Binding Pagination}"/>
+
+            <local:EpubListView 
+                Grid.Row="1"
+                Grid.Column="0"
+                DataContext="{Binding EpubListViewModel}" />
+        </Grid>
 
         <GridSplitter 
                 Grid.Column="1"

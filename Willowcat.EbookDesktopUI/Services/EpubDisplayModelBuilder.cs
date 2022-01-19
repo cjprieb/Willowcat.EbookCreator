@@ -20,6 +20,7 @@ namespace Willowcat.EbookDesktopUI.Services
         private Dictionary<string, List<string>> _MetadataDictionaries = null;
         private string _Description = null;
         private string _FirstChapterText = null;
+        private string _WorkUrl = null;
 
         #endregion Member Variables...
 
@@ -55,6 +56,8 @@ namespace Willowcat.EbookDesktopUI.Services
 
             model.Description = _Description;
             model.FirstChapterText = _FirstChapterText;
+            model.WorkUrl = _WorkUrl;
+            model.WorkId = ParseWorkId(_WorkUrl);
 
             return model;
         }
@@ -297,6 +300,20 @@ namespace Willowcat.EbookDesktopUI.Services
         }
         #endregion ParseTags
 
+        #region ParseWorkId
+        private string ParseWorkId(string workUrl)
+        {
+            //http://archiveofourown.org/works/24359968
+            string id = null;
+            Match match = Regex.Match(workUrl, @"http://archiveofourown.org/works/(\d+)");
+            if (match.Success)
+            {
+                id = match.Groups[1].Value;
+            }
+            return id;
+        }
+        #endregion ParseWorkId
+
         #region SetBibliographyFields
         public EpubDisplayModelBuilder SetBibliography(BibliographyModel bibliography)
         {
@@ -320,6 +337,13 @@ namespace Willowcat.EbookDesktopUI.Services
             return this;
         }
         #endregion SetMetadata
+
+        #region SetWorkUrl
+        public void SetWorkUrl(string url)
+        {
+            _WorkUrl = url;
+        }
+        #endregion WorkUrl
 
         #endregion Methods...
     }

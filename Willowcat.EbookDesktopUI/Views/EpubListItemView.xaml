@@ -11,6 +11,7 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
         <converters:EnumerableToVisibilityConverter x:Key="EnumerableToVisibilityConverter" />
+        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
         <ratings:RatingDataTemplateSelector x:Key="ratingDataTemplateSelector" />
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     </UserControl.Resources>
@@ -33,7 +34,9 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" Style="{StaticResource EpubSearchWorkUrlStyle}">
+            <TextBlock Grid.Column="0" 
+                       Visibility="{Binding DisplayModel.WorkUrl,Converter={StaticResource NullToVisibilityConverter}}"
+                       Style="{StaticResource EpubSearchWorkUrlStyle}">
                 <Hyperlink 
                     TextDecorations="None" 
                     NavigateUri="{Binding DisplayModel.WorkUrl}"
@@ -70,7 +73,8 @@
                     Grid.Column="2"
                     Height="20"
                     Padding="4 0"
-                    Command="{Binding AddToCalibreCommand}"
+                    Command="{Binding AddProcessTagCommand}"
+                    CommandParameter="InCalibre"
                     Style="{StaticResource EpubIconButtonStyle}">
                     <Button.ContextMenu>
                         <ContextMenu>

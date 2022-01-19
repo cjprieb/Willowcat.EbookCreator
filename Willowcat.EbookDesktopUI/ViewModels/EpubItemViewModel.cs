@@ -16,6 +16,7 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         private readonly EbookFileService _EbookFileService = null;
         private readonly SettingsModel _Settings = null;
 
+        private bool _IsMatch = true;
         private bool _IsVisible = true;
         private EpubDisplayModel _DisplayModel = null;
         #endregion Member Variables...
@@ -25,10 +26,6 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         #region AdditionalTags
         public EpubTagItemsViewModel AdditionalTags { get; private set; }
         #endregion AdditionalTags
-
-        //#region AddToCalibreCommand
-        //public ICommand AddToCalibreCommand { get; private set; }
-        //#endregion AddToCalibreCommand
 
         #region AddProcessTagCommand
         public ICommand AddProcessTagCommand { get; private set; }
@@ -66,6 +63,26 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         #region IncludeTagCommand
         public ICommand IncludeTagCommand { get; private set; }
         #endregion IncludeTagCommand
+
+        #region IsMatch
+        public bool IsMatch
+        {
+            get => _IsMatch;
+            set
+            {
+                if (_IsMatch != value)
+                {
+                    _IsMatch = value;
+                    OnPropertyChanged();
+
+                    if (!_IsMatch)
+                    {
+                        IsVisible = false;
+                    }
+                }
+            }
+        }
+        #endregion IsMatch
 
         #region IsVisible
         public bool IsVisible

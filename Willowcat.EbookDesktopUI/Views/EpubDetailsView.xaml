@@ -67,10 +67,6 @@
             </Button>
         </StackPanel>
 
-        <Border Grid.Row="2">
-            <local:EpubTagItemsView DataContext="{Binding DisplayModel.OverflowTags}"/>
-        </Border>
-
         <Border Grid.Row="3">
             <Border.ContextMenu>
                 <ContextMenu>
@@ -121,16 +117,25 @@
                     </ScrollViewer>
                 </TabItem>
                 <TabItem Header="Preview">
-                    <ScrollViewer>
-                        <RichTextBox
-                            FontSize="14"
-                            Background="Transparent"
-                            BorderThickness="0"
-                            common:HtmlRichTextBoxBehavior.Text="{Binding DisplayModel.FirstChapterText,Mode=OneWay}"
-                            IsDocumentEnabled="True"
-                            IsReadOnly="True">
-                        </RichTextBox>
-                    </ScrollViewer>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Border Grid.Row="1">
+                            <local:EpubTagItemsView DataContext="{Binding OverflowTags}"/>
+                        </Border>
+                        <ScrollViewer Grid.Row="0">
+                            <RichTextBox
+                                FontSize="14"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                common:HtmlRichTextBoxBehavior.Text="{Binding DisplayModel.FirstChapterText,Mode=OneWay}"
+                                IsDocumentEnabled="True"
+                                IsReadOnly="True">
+                            </RichTextBox>
+                        </ScrollViewer>
+                    </Grid>
                 </TabItem>
             </TabControl>
         </Border>

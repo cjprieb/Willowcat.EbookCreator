@@ -16,7 +16,6 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         private readonly SettingsModel _Settings = null;
 
         private bool _ShowProgressBar = true;
-        private int _MaxVisible = 10;
         private int _TotalWorks = 0;
         private int _WorksProcessedCount = 0;
         private string _SelectedTab = null;
@@ -34,17 +33,9 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         public FilterViewModel FilterViewModel { get; private set; }
         #endregion FilterViewModel
 
-        #region MaxVisible
-        public int MaxVisible
-        {
-            get => _MaxVisible;
-            set
-            {
-                _MaxVisible = value;
-                OnPropertyChanged();
-            }
-        }
-        #endregion MaxVisible
+        #region Pagination
+        public PaginationViewModel Pagination { get; private set; } = new PaginationViewModel();
+        #endregion Pagination
 
         #region PercentComplete
         public decimal PercentComplete
@@ -122,6 +113,8 @@ namespace Willowcat.EbookDesktopUI.ViewModels
             FilterViewModel.FilterUpdated += FilterViewModel_FilterUpdated;
 
             EpubListViewModel = new EpubListViewModel(_EbookFileService, settings);
+
+            Pagination.OnPageRequested += Pagination_OnPageRequested;
         }
         #endregion EpubSearchViewModel
 
@@ -148,6 +141,13 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         }
         #endregion FilterViewModel_FilterUpdated
 
+        #region Pagination_OnPageRequested
+        private async void Pagination_OnPageRequested(object sender, PageRequestedEventArgs e)
+        {
+            await ApplyPaginationAsync(e.ItemsToSkip, e.ItemsToDisplay);
+        }
+        #endregion Pagination_OnPageRequested
+
         #endregion Event Handlers...
 
         #region ApplyFilterAsync
@@ -161,25 +161,19 @@ namespace Willowcat.EbookDesktopUI.ViewModels
 
                     await Task.Run(() =>
                     {
-                        if (FilterViewModel.FilterModel != null)
+                        int totalMatches = 0;
+                        foreach (var item in EpubListViewModel.Books)
                         {
-                            int countVisible = 0;
-                            foreach (var item in EpubListViewModel.Books)
+                            item.IsMatch = FilterViewModel.FilterModel.IsMatch(item.DisplayModel);
+                            if (item.IsMatch)
                             {
-                                bool isMatch = FilterViewModel.FilterModel.IsMatch(item.DisplayModel);
-                                if (isMatch && countVisible < MaxVisible)
-                                {
-                                    countVisible++;
-                                    item.IsVisible = isMatch;
-                                }
-                                else
-                                {
-                                    item.IsVisible = false;
-                                }
+                                totalMatches++;
                             }
                         }
-                        EpubListViewModel.SelectedEpubItemViewModel = EpubListViewModel.Books.FirstOrDefault();
+                        Pagination.TotalItems = totalMatches;
                     });
+                    Pagination.CurrentPage = 1;
+                    await ApplyPaginationAsync(0, Pagination.ItemsPerPage);
                 }
                 finally
                 {
@@ -188,6 +182,50 @@ namespace Willowcat.EbookDesktopUI.ViewModels
             }            
         }
         #endregion ApplyFilterAsync
+
+        #region ApplyPaginationAsync
+        public async Task ApplyPaginationAsync(int itemsToSkip, int itemsToDisplay)
+        {
+            if (FilterViewModel.FilterModel != null && EpubListViewModel != null)
+            {
+                try
+                {
+                    FilterViewModel.SearchTaskStatus = TaskProgressType.Running;
+
+                    await Task.Run(() =>
+                    {
+                        foreach (var item in EpubListViewModel.Books.Where(book => book.IsMatch))
+                        {
+                            item.IsVisible = false;
+                        }
+                    });
+
+                    var itemsToEnable = EpubListViewModel.Books
+                        .Where(book => book.IsMatch)
+                        .Skip(itemsToSkip)
+                        .Take(itemsToDisplay);
+
+                    await Task.Run(() =>
+                    {
+                        EpubItemViewModel firstVisibleItem = null;
+                        foreach (var item in itemsToEnable)
+                        {
+                            if (firstVisibleItem == null)
+                            {
+                                firstVisibleItem = item;
+                            }
+                            item.IsVisible = true;
+                        }
+                        EpubListViewModel.SelectedEpubItemViewModel = firstVisibleItem;
+                    });
+                }
+                finally
+                {
+                    FilterViewModel.SearchTaskStatus = TaskProgressType.Finished;
+                }
+            }
+        }
+        #endregion ApplyPaginationAsync
 
         #region LoadAsync
         public async Task LoadAsync()
@@ -207,7 +245,6 @@ namespace Willowcat.EbookDesktopUI.ViewModels
                     Report(new LoadProgressModel(totalBooks, totalBooks));
                     FilterViewModel.InitializeFandoms(books);
                     int count = 0;
-                    int visibleCount = 0;
                     foreach (var bookItem in books)
                     {
                         Report(new LoadProgressModel(count, totalBooks));
@@ -215,18 +252,15 @@ namespace Willowcat.EbookDesktopUI.ViewModels
                         {
                             var bookViewModel = new EpubItemViewModel(_EbookFileService, FilterViewModel, bookItem, _Settings);
                             bookViewModel.SeriesMergeRequested += BookViewModel_SeriesMergeRequested;
-
-                            bool isMatch = FilterViewModel?.FilterModel?.IsMatch(bookItem) ?? true;
-                            bookViewModel.IsVisible = isMatch && visibleCount < MaxVisible;
-                            if (bookViewModel.IsVisible) visibleCount++;
-
+                            bookViewModel.IsVisible = false;
                             EpubListViewModel.Books.Add(bookViewModel);
                         }
                         count++;
                     }
                     Report(new LoadProgressModel(count, totalBooks));
                     ShowProgressBar = false;
-                    EpubListViewModel.SelectedEpubItemViewModel = EpubListViewModel.Books.FirstOrDefault();
+
+                    await ApplyFilterAsync();
                 }
                 finally
                 {

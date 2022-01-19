@@ -85,6 +85,7 @@ namespace Willowcat.EbookDesktopUI.Services
                     {
                         var metadata = new BookPrefaceParser(ebook.ChaptersFilePaths[0]);
                         builder.SetMetadata(metadata.GetMetadataElements());
+                        builder.SetWorkUrl(metadata.GetWorkUrl());
                     }
 
                     if (ebook.ChaptersFilePaths.Count >= 3)

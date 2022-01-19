@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Willowcat.Common.UI.ViewModel;
@@ -15,9 +16,12 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         private readonly EbookFileService _EbookFileService;
         private readonly SettingsModel _Settings = null;
 
+        private bool _IsRefreshingList = false;
         private bool _ShowProgressBar = true;
         private int _TotalWorks = 0;
         private int _WorksProcessedCount = 0;
+        private List<EpubItemViewModel> _AllEpubDisplayModels = new List<EpubItemViewModel>();
+        private List<EpubItemViewModel> _FilteredEpubDisplayModels = new List<EpubItemViewModel>();
         private string _SelectedTab = null;
 
         private object _LockProgress = new object();
@@ -32,6 +36,18 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         #region FilterViewModel
         public FilterViewModel FilterViewModel { get; private set; }
         #endregion FilterViewModel
+
+        #region IsRefreshingList
+        public bool IsRefreshingList
+        {
+            get => _IsRefreshingList;
+            set
+            {
+                _IsRefreshingList = value;
+                OnPropertyChanged();
+            }
+        }
+        #endregion IsRefreshingList
 
         #region Pagination
         public PaginationViewModel Pagination { get; private set; } = new PaginationViewModel();
@@ -158,20 +174,17 @@ namespace Willowcat.EbookDesktopUI.ViewModels
                 try
                 {
                     FilterViewModel.SearchTaskStatus = TaskProgressType.Running;
+                    IsRefreshingList = true;
 
-                    await Task.Run(() =>
+                    _FilteredEpubDisplayModels = await Task.Run(() =>
                     {
-                        int totalMatches = 0;
-                        foreach (var item in EpubListViewModel.Books)
-                        {
-                            item.IsMatch = FilterViewModel.FilterModel.IsMatch(item.DisplayModel);
-                            if (item.IsMatch)
-                            {
-                                totalMatches++;
-                            }
-                        }
-                        Pagination.TotalItems = totalMatches;
+                        var filteredItems = _AllEpubDisplayModels
+                            .Where(item => FilterViewModel.FilterModel.IsMatch(item.DisplayModel))
+                            .ToList();
+                        return filteredItems;
                     });
+
+                    Pagination.SetTotalItems(_FilteredEpubDisplayModels.Count);
                     Pagination.CurrentPage = 1;
                     await ApplyPaginationAsync(0, Pagination.ItemsPerPage);
                 }
@@ -190,15 +203,16 @@ namespace Willowcat.EbookDesktopUI.ViewModels
             {
                 try
                 {
-                    FilterViewModel.SearchTaskStatus = TaskProgressType.Running;
+                    IsRefreshingList = true;
 
-                    await EpubListViewModel.ApplyPaginationAsync(itemsToSkip, itemsToDisplay);
+                    EpubListViewModel.ApplyPagination(_FilteredEpubDisplayModels, itemsToSkip, itemsToDisplay);
                 }
                 finally
                 {
-                    FilterViewModel.SearchTaskStatus = TaskProgressType.Finished;
+                    IsRefreshingList = false;
                 }
             }
+            await Task.FromResult(0);
         }
         #endregion ApplyPaginationAsync
 
@@ -207,40 +221,27 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         {
             if (EpubListViewModel != null)
             {
-                try
+                var workLoadingTasks = await Task.Run(() => _EbookFileService.GetAllResultsAsync());
+
+                var totalBooks = workLoadingTasks.Count();
+                Report(new LoadProgressModel(0, totalBooks));
+                var books = await Task.WhenAll(workLoadingTasks.ToArray());
+                Report(new LoadProgressModel(totalBooks, totalBooks));
+
+                FilterViewModel.InitializeFandoms(books);
+                foreach (var bookItem in books)
                 {
-                    FilterViewModel.SearchTaskStatus = TaskProgressType.Running;
-
-                    EpubListViewModel.Books.Clear();
-                    var workLoadingTasks = await Task.Run(() => _EbookFileService.GetAllResultsAsync());
-
-                    var totalBooks = workLoadingTasks.Count();
-                    Report(new LoadProgressModel(0, totalBooks));
-                    var books = await Task.WhenAll(workLoadingTasks.ToArray());
-                    Report(new LoadProgressModel(totalBooks, totalBooks));
-                    FilterViewModel.InitializeFandoms(books);
-                    int count = 0;
-                    foreach (var bookItem in books)
+                    if (bookItem.FandomTags.Any())
                     {
-                        Report(new LoadProgressModel(count, totalBooks));
-                        if (bookItem.FandomTags.Any())
-                        {
-                            var bookViewModel = new EpubItemViewModel(_EbookFileService, FilterViewModel, bookItem, _Settings);
-                            bookViewModel.SeriesMergeRequested += BookViewModel_SeriesMergeRequested;
-                            bookViewModel.IsVisible = false;
-                            EpubListViewModel.Books.Add(bookViewModel);
-                        }
-                        count++;
+                        var bookViewModel = new EpubItemViewModel(_EbookFileService, FilterViewModel, bookItem, _Settings);
+                        bookViewModel.SeriesMergeRequested += BookViewModel_SeriesMergeRequested;
+                        bookViewModel.IsVisible = true;
+                        _AllEpubDisplayModels.Add(bookViewModel);
                     }
-                    Report(new LoadProgressModel(count, totalBooks));
-                    ShowProgressBar = false;
+                }
+                ShowProgressBar = false;
 
-                    await ApplyFilterAsync();
-                }
-                finally
-                {
-                    FilterViewModel.SearchTaskStatus = TaskProgressType.Finished;
-                }
+                await ApplyFilterAsync();
             }
         }
         #endregion LoadAsync

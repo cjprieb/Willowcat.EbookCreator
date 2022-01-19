@@ -1,5 +1,7 @@
 ﻿using Prism.Commands;
 using System;
+using System.Collections.ObjectModel;
+using System.Windows.Input;
 using Willowcat.Common.UI.ViewModel;
 using Willowcat.EbookDesktopUI.Events;
 
@@ -17,6 +19,10 @@ namespace Willowcat.EbookDesktopUI.ViewModels
 
         #region Properties...
 
+        #region AllPages
+        public ObservableCollection<PaginationPageViewModel> AllPages { get; private set; } = new ObservableCollection<PaginationPageViewModel>();
+        #endregion AllPages
+
         #region CurrentPage
         public int CurrentPage
         {
@@ -28,6 +34,7 @@ namespace Willowcat.EbookDesktopUI.ViewModels
                 OnPropertyChanged(nameof(NextPage));
                 OnPropertyChanged(nameof(PreviousPage));
                 RequestPageCommand.RaiseCanExecuteChanged();
+                UpdatePageViewModels();
             }
         }
         #endregion CurrentPage
@@ -64,7 +71,7 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         public int TotalItems
         {
             get => _TotalItems;
-            set
+            private set
             {
                 if (_TotalItems != value)
                 {
@@ -120,6 +127,101 @@ namespace Willowcat.EbookDesktopUI.ViewModels
             }
         }
         #endregion ExecuteRequestPage
+
+        #region PageViewModel_OnLoadPage
+        private void PageViewModel_OnLoadPage(object sender, LoadPageEventArgs e)
+        {
+            ExecuteRequestPage(e.Page);
+        }
+        #endregion PageViewModel_OnLoadPage
+
+        #region SetTotalItems
+        public void SetTotalItems(int totalItems)
+        {
+            TotalItems = totalItems;
+            foreach (var oldModel in AllPages)
+            {
+                oldModel.OnLoadPage -= PageViewModel_OnLoadPage;
+            }
+
+            AllPages.Clear();
+
+            for (int i = 1; i <= TotalPages; i++)
+            {
+                var pageViewModel = new PaginationPageViewModel(i);
+                pageViewModel.OnLoadPage += PageViewModel_OnLoadPage;
+                AllPages.Add(pageViewModel);
+            }
+        }
+        #endregion SetTotalItems
+
+        #region UpdatePageViewModels
+        private void UpdatePageViewModels()
+        {
+            foreach (var viewModel in AllPages)
+            {
+                viewModel.IsCurrentPage = (viewModel.Page == CurrentPage);
+            }
+        }
+        #endregion UpdatePageViewModels
+
+        #endregion Methods...
+    }
+
+    public class PaginationPageViewModel : ViewModelBase
+    {
+        #region Member Variables...
+        private bool _IsCurrentPage = false;
+        #endregion Member Variables...
+
+        #region Properties...
+
+        #region IsCurrentPage
+        public bool IsCurrentPage
+        {
+            get => _IsCurrentPage;
+            set
+            {
+                _IsCurrentPage = value;
+                OnPropertyChanged();
+            }
+        }
+        #endregion IsCurrentPage
+
+        #region RequestPageCommand
+        public ICommand RequestPageCommand { get; private set; }
+        #endregion RequestPageCommand
+
+        #region Page
+        public int Page { get; private set; }
+        #endregion Page
+
+        #endregion Properties...
+
+        #region Events...
+        public event EventHandler<LoadPageEventArgs> OnLoadPage;
+        #endregion Events...
+
+        #region Constructors...
+
+        #region PaginationPageViewModel
+        public PaginationPageViewModel(int page)
+        {
+            Page = page;
+            RequestPageCommand = new DelegateCommand(ExecuteLoadPage);
+        }
+        #endregion PaginationPageViewModel
+
+        #endregion Constructors...
+
+        #region Methods...
+
+        #region ExecuteLoadPage
+        private void ExecuteLoadPage()
+        {
+            OnLoadPage?.Invoke(this, new LoadPageEventArgs(Page));
+        }
+        #endregion ExecuteLoadPage
 
         #endregion Methods...
     }

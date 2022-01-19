@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -56,39 +58,24 @@ namespace Willowcat.EbookDesktopUI.ViewModels
 
         #region Methods...
 
-        #region ApplyPaginationAsync
-        public async Task ApplyPaginationAsync(int itemsToSkip, int itemsToDisplay)
+        #region ApplyPagination
+        public void ApplyPagination(IEnumerable<EpubItemViewModel> items, int itemsToSkip, int itemsToDisplay)
         {
-            await Task.Run(() =>
-            {
-                foreach (var item in Books.Where(book => book.IsMatch))
-                {
-                    item.IsVisible = false;
-                }
-            });
-
-            var itemsToEnable = Books
-                .Where(book => book.IsMatch)
+            var itemsToEnable = items
+                //.Where(book => book.IsMatch)
                 .Skip(itemsToSkip)
                 .Take(itemsToDisplay);
 
-            await Task.Run(() =>
+            Books.Clear();
+            foreach (var item in itemsToEnable)
             {
-                EpubItemViewModel firstVisibleItem = null;
-                foreach (var item in itemsToEnable)
-                {
-                    if (firstVisibleItem == null)
-                    {
-                        firstVisibleItem = item;
-                    }
-                    item.IsVisible = true;
-                }
-                SelectedEpubItemViewModel = firstVisibleItem;
-            });
+                Books.Add(item);
+            }
+            SelectedEpubItemViewModel = itemsToEnable.FirstOrDefault();
 
             FirePageRequested(itemsToSkip, itemsToDisplay);
         }
-        #endregion ApplyPaginationAsync
+        #endregion ApplyPagination
 
         #region FirePageRequested
         private void FirePageRequested(int itemsToSkip, int itemsToDisplay)

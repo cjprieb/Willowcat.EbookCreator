@@ -39,13 +39,46 @@
             </StackPanel>            
         </Button>
 
-        <StackPanel
+        <ItemsControl
+            Grid.Column="2"
+            ItemsSource="{Binding AllPages}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Button
+                        Content="{Binding Page}"
+                        Command="{Binding RequestPageCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource ToolbarButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsCurrentPage}" Value="True">
+                                        <Setter Property="Background" Value="LightSkyBlue" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <Button.ToolTip>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Page " />
+                                <TextBlock Text="{Binding PreviousPage}" />
+                            </StackPanel>
+                        </Button.ToolTip>
+                    </Button>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <!--<StackPanel
             Grid.Column="2"
             Orientation="Horizontal">
             <TextBlock Text="{Binding CurrentPage}" />
             <TextBlock Text=" / " />
             <TextBlock Text="{Binding TotalPages}" />
-        </StackPanel>
+        </StackPanel>-->
 
         <Button
             Grid.Column="4"

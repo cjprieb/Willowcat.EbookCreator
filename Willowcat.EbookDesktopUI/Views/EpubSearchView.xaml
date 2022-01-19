@@ -13,6 +13,16 @@
     <UserControl.Resources>
         <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <Style TargetType="local:EpubListView" x:Key="EpubListViewStyle">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsRefreshingList}" Value="True">
+                    <Setter Property="Cursor" Value="Wait" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsRefreshingList}" Value="False">
+                    <Setter Property="Cursor" Value="None" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -72,8 +82,11 @@
             <local:EpubListView 
                 Grid.Row="1"
                 Grid.Column="0"
+                Style="{StaticResource EpubListViewStyle}"
                 OnSelectionChanged="EpubListView_OnSelectionChanged"
-                DataContext="{Binding EpubListViewModel}" />
+                DataContext="{Binding EpubListViewModel}"/>
+            <!--
+            </local:EpubListView>-->
         </Grid>
 
         <GridSplitter 

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Willowcat.Common.Utilities;
 
 namespace Willowcat.EbookDesktopUI.Models
 {
@@ -52,11 +53,11 @@ namespace Willowcat.EbookDesktopUI.Models
         {
             if (matchAll)
             {
-                return filterTags.All(filterTag => pubTags.Any(tag => filterTag == tag));
+                return filterTags.All(filterTag => pubTags.Any(tag => filterTag.EqualsIgnoreCase(tag)));
             }
             else
             {
-                return filterTags.Any(filterTag => pubTags.Any(tag => filterTag == tag));
+                return filterTags.Any(filterTag => pubTags.Any(tag => filterTag.EqualsIgnoreCase(tag)));
             }
         }
     }

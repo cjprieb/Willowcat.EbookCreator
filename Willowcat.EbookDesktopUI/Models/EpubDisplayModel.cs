@@ -56,6 +56,10 @@ namespace Willowcat.EbookDesktopUI.Models
                 {
                     result = result.Union(OverflowTags);
                 }
+                if (ProcessTags != null)
+                {
+                    result = result.Union(ProcessTags.Select(tag => tag.ToTagName()));
+                }
                 return result;
             }
         }

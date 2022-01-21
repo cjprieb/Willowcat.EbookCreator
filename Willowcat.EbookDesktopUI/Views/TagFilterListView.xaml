@@ -7,6 +7,9 @@
              xmlns:fa="http://schemas.fontawesome.io/icons/"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -29,7 +32,15 @@
 
             <TextBox
                 Grid.Column="0"
+                Visibility="{Binding !ShowComboBox, Converter={StaticResource BooleanToVisibilityConverter}}"
                 Text="{Binding NewTagName}" />
+
+            <ComboBox
+                ItemsSource="{Binding PossibleTags}"
+                DisplayMemberPath="Name"
+                SelectedValuePath="Name"
+                SelectedValue="{Binding NewTagName}"
+                Visibility="{Binding ShowComboBox, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
             <Button
                 Grid.Column="1"

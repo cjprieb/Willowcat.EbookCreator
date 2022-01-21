@@ -9,6 +9,7 @@ namespace Willowcat.EbookDesktopUI.ViewModels
     public class TagFilterListViewModel : ViewModelBase
     {
         #region Member Variables...
+        private bool _ShowComboBox = false;
         private string _NewTagName = string.Empty;
         private string _Label = string.Empty;
         #endregion Member Variables...
@@ -43,6 +44,10 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         }
         #endregion NewTagName
 
+        #region PossibleTags
+        public ObservableCollection<TagViewModel> PossibleTags { get; private set; } = new ObservableCollection<TagViewModel>();
+        #endregion PossibleTags
+
         #region RemoveTagCommand
         public ICommand RemoveTagCommand { get; private set; }
         #endregion RemoveTagCommand
@@ -50,6 +55,18 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         #region SelectedTags
         public ObservableCollection<TagViewModel> SelectedTags { get; set; } = new ObservableCollection<TagViewModel>();
         #endregion SelectedTags
+
+        #region ShowComboBox
+        public bool ShowComboBox
+        {
+            get => _ShowComboBox;
+            set
+            {
+                _ShowComboBox = value;
+                OnPropertyChanged();
+            }
+        }
+        #endregion ShowComboBox
 
         #endregion Properties...
 
@@ -69,15 +86,26 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         #region Methods...
 
         #region AddTag
-        public void AddTag(string tagName)
+        public bool AddTag(string tagName)
         {
-            if (!string.IsNullOrEmpty(tagName))
+            bool TagAdded = false;
+            if (!string.IsNullOrEmpty(tagName) && !SelectedTags.Any(tag => tag.Name == tagName))
             {
-                if (!SelectedTags.Any(tag => tag.Name == tagName))
+                if (ShowComboBox)
+                {
+                    if (PossibleTags.Any(tag => tag.Name == tagName))
+                    {
+                        SelectedTags.Add(new TagViewModel(tagName, true));
+                        TagAdded = true;
+                    }
+                }
+                else
                 {
                     SelectedTags.Add(new TagViewModel(tagName, true));
+                    TagAdded = true;
                 }
             }
+            return TagAdded;
         }
         #endregion AddTag
 

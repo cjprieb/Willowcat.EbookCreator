@@ -7,9 +7,10 @@ namespace Willowcat.EbookDesktopUI.Models
     public class FilterModel
     {
         public string Author { get; set; }
+        public string Keyword { get; set; }
         public HashSet<string> ExcludedTags { get; set; } = new HashSet<string>();
         public HashSet<string> IncludedTags { get; set; } = new HashSet<string>();
-        public List<string> Fandoms { get; set; } = new List<string>();
+        public HashSet<string> Fandoms { get; set; } = new HashSet<string>();
 
         public ProcessTagType SelectedProcessTag { get; set; } = ProcessTagType.All;
 
@@ -46,7 +47,22 @@ namespace Willowcat.EbookDesktopUI.Models
                 if (!HasMatch(pub.FandomTags, Fandoms, matchAll: false)) return false;
             }
 
+            if (!string.IsNullOrEmpty(Keyword))
+            {
+                if (Contains(pub.Author, Keyword)) return true;
+                if (Contains(pub.Title, Keyword)) return true;
+                if (allPubTags.Any(tag => Contains(tag, Keyword))) return true;
+                if (Contains(pub.Description, Keyword)) return true;
+
+                return false;
+            }
+
             return true;
+        }
+
+        private bool Contains(string baseString, string searchString)
+        {
+            return baseString?.Contains(searchString, System.StringComparison.OrdinalIgnoreCase) ?? false;
         }
 
         private bool HasMatch(IEnumerable<string> pubTags, IEnumerable<string> filterTags, bool matchAll)

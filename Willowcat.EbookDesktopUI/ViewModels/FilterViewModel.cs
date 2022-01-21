@@ -33,6 +33,7 @@ namespace Willowcat.EbookDesktopUI.ViewModels
 
         private FilterModel _FilterModel;
         private string _Author = null;
+        private string _Keyword = null;
         private TaskProgressType _SearchTaskStatus = TaskProgressType.None;
         private ProcessTagType _SelectedProcessTagType = ProcessTagType.None;
         #endregion Member Variables...
@@ -66,6 +67,10 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         public ICommand ClearAuthorCommand { get; private set; }
         #endregion ClearAuthorCommand
 
+        #region ClearKeywordCommand
+        public ICommand ClearKeywordCommand { get; private set; }
+        #endregion ClearKeywordCommand
+
         #region ExcludedTagsViewModel
         public TagFilterListViewModel ExcludedTagsViewModel { get; private set; } = new TagFilterListViewModel("Exclude:");
         #endregion ExcludedTagsViewModel
@@ -74,9 +79,9 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         public TagFilterListViewModel IncludedTagsViewModel { get; private set; } = new TagFilterListViewModel("Include:");
         #endregion IncludedTagsViewModel
 
-        #region Fandoms
-        public ObservableCollection<TagViewModel> Fandoms { get; set; } = new ObservableCollection<TagViewModel>();
-        #endregion Fandoms
+        #region FandomsViewModel
+        public TagFilterListViewModel FandomsViewModel { get; private set; } = new TagFilterListViewModel("Fandoms:");
+        #endregion FandomsViewModel
 
         #region FilterModel
         public FilterModel FilterModel
@@ -107,6 +112,18 @@ namespace Willowcat.EbookDesktopUI.ViewModels
             }
         }
         #endregion FilterString
+
+        #region Keyword
+        public string Keyword
+        {
+            get => _Keyword;
+            set
+            {
+                _Keyword = value;
+                OnPropertyChanged();
+            }
+        }
+        #endregion Keyword
 
         #region IsSearching
         public bool IsSearching
@@ -163,6 +180,7 @@ namespace Willowcat.EbookDesktopUI.ViewModels
 
             ApplyFilterCommand = new DelegateCommand(ExecuteApplyFilter);
             ClearAuthorCommand = new DelegateCommand(ExecuteClearAuthor);
+            ClearKeywordCommand = new DelegateCommand(ExecuteClearKeyword);
         }
         #endregion FilterViewModel
 
@@ -183,11 +201,7 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         {
             IncludedTagsViewModel.RemoveTag(tagName);
             ExcludedTagsViewModel.AddTag(tagName);
-            var matchingFandomTag = Fandoms.FirstOrDefault(tag => tag.Name == tagName);
-            if (matchingFandomTag != null)
-            {
-                matchingFandomTag.IsSelected = false;
-            }
+            FandomsViewModel.RemoveTag(tagName);
         }
         #endregion ExcludeTagFromFilter
 
@@ -196,9 +210,10 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         {
             var filterModel = new FilterModel();
             filterModel.Author = Author;
+            filterModel.Keyword = Keyword;
             filterModel.ExcludedTags.AddAll(ExcludedTagsViewModel.SelectedTags.Select(tag => tag.Name));
             filterModel.IncludedTags.AddAll(IncludedTagsViewModel.SelectedTags.Select(tag => tag.Name));
-            filterModel.Fandoms.AddRange(Fandoms.Where(tag => tag.IsSelected).Select(tag => tag.Name));
+            filterModel.Fandoms.AddAll(FandomsViewModel.SelectedTags.Select(tag => tag.Name));
             filterModel.SelectedProcessTag = SelectedProcessTag;
             FilterModel = filterModel;
             FilterUpdated?.Invoke(this, new FilterUpdatedEventArgs(filterModel));
@@ -213,16 +228,19 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         }
         #endregion ExecuteClearAuthor
 
+        #region ExecuteClearKeyword
+        private void ExecuteClearKeyword()
+        {
+            Keyword = null;
+            ExecuteApplyFilter();
+        }
+        #endregion ExecuteClearKeyword
+
         #region IncludeTagInFilter
         public void IncludeTagInFilter(string tagName)
         {
             ExcludedTagsViewModel.RemoveTag(tagName);
-            var matchingFandomTag = Fandoms.FirstOrDefault(tag => tag.Name == tagName);
-            if (matchingFandomTag != null)
-            {
-                matchingFandomTag.IsSelected = true;
-            }
-            else
+            if (!FandomsViewModel.AddTag(tagName))
             {
                 IncludedTagsViewModel.AddTag(tagName);
             }
@@ -243,9 +261,10 @@ namespace Willowcat.EbookDesktopUI.ViewModels
                 }
             }
 
+            FandomsViewModel.ShowComboBox = true;
             foreach (var fandom in fandomTags.OrderBy(tag => tag))
             {
-                Fandoms.Add(new TagViewModel(fandom));
+                FandomsViewModel.PossibleTags.Add(new TagViewModel(fandom));
             }
 
             FilterModel = new FilterModel()

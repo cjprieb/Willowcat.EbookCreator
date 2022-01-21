@@ -64,14 +64,14 @@ namespace Willowcat.EbookDesktopUI.Services
                 EpubDisplayModel result = null;
 
                 var builder = new EpubDisplayModelBuilder();
-                var tempDirectory = Path.Combine(_Settings.BaseMergeDirectory, "temp");
-                var unzipper = new CalibreEpubUnzipper(tempDirectory)
+                var unzipToDirectory = Path.Combine(_Settings.BaseMergeDirectory, "temp", Path.GetFileNameWithoutExtension(filePath));
+                var unzipper = new CalibreEpubUnzipper()
                 {
                     NumberOfChapterFilesToInclude = 3
                 };
                 try
                 {
-                    var ebook = unzipper.ExtractFilesFromBook(filePath);
+                    var ebook = unzipper.ExtractFilesFromBook(filePath, unzipToDirectory);
                     var parser = new CalibreContentParser(ebook.ContentFilePath);
                     var bibliography = parser.ParseForBibliography();
                     builder.SetBibliography(bibliography);

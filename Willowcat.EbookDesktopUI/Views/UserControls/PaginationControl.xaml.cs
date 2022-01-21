@@ -11,14 +11,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Willowcat.EbookDesktopUI.Views
+namespace Willowcat.EbookDesktopUI.Views.UserControls
 {
     /// <summary>
     /// Interaction logic for PaginationView.xaml
     /// </summary>
-    public partial class PaginationView : UserControl
+    public partial class PaginationControl : UserControl
     {
-        public PaginationView()
+        public PaginationControl()
         {
             InitializeComponent();
         }

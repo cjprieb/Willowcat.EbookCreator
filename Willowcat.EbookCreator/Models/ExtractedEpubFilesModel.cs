@@ -20,9 +20,9 @@ namespace Willowcat.EbookCreator.Models
         #endregion GetChapterFiles
 
         #region GetOtherFiles
-        public IEnumerable<FileItemModel> GetOtherFiles()
+        public IEnumerable<string> GetOtherFiles()
         {
-            return Stylesheets.Select(x => new FileItemModel(Path.GetFileName(x.Value), MediaType.Unknown));
+            return Stylesheets.Select(kvp => Path.GetFileName(kvp.Value));
         }
         #endregion GetOtherFiles
     }

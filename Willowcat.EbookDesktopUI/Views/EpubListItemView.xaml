@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Willowcat.EbookDesktopUI.Views"
+             xmlns:custom="clr-namespace:Willowcat.EbookDesktopUI.Views.UserControls"
              xmlns:ratings="clr-namespace:Willowcat.EbookDesktopUI.ApplicationResources.RatingTemplates"
              xmlns:converters="clr-namespace:Willowcat.EbookDesktopUI.ApplicationResources.Converters"
              xmlns:fa="http://schemas.fontawesome.io/icons/"
@@ -37,14 +38,11 @@
             <TextBlock Grid.Column="0" 
                        Visibility="{Binding DisplayModel.WorkUrl,Converter={StaticResource NullToVisibilityConverter}}"
                        Style="{StaticResource EpubSearchWorkUrlStyle}">
-                <Hyperlink 
-                    TextDecorations="None" 
-                    NavigateUri="{Binding DisplayModel.WorkUrl}"
-                    RequestNavigate="Hyperlink_RequestNavigate"
-                    ToolTip="{Binding DisplayModel.WorkUrl}">
-                    <!--<Run Text="Link"/>-->
-                    <fa:FontAwesome Icon="ExternalLink" />                    
-                </Hyperlink>
+                <custom:OpenInBrowserHyperlink
+                    HyperlinkStyle="{StaticResource IconOnlyHyperlinkStyle}"
+                    NavigateUri="{Binding DisplayModel.WorkUrl}">
+                    <fa:FontAwesome Icon="ExternalLink" />                   
+                </custom:OpenInBrowserHyperlink>
             </TextBlock>
             <StackPanel Grid.Column="1" Orientation="Vertical">
                 <TextBox Text="{Binding DisplayModel.Title}" Style="{StaticResource EpubSearchTitleStyle}" />
@@ -214,18 +212,10 @@
                         <DataTemplate>
                             <Border>
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="Part "/>
-                                    <TextBlock Text="{Binding Index}"/>
-                                    <TextBlock Text=" of "/>
-                                    <TextBlock>
-                                        <Hyperlink 
-                                            NavigateUri="{Binding Url}"
-                                            RequestNavigate="Hyperlink_RequestNavigate"
-                                            ToolTip="{Binding Url}">
-                                            <Run Text="{Binding Title}"/>                    
-                                        </Hyperlink>                                        
-                                    </TextBlock>
+                                    <TextBlock Text="{Binding Index, StringFormat='Part {0} of '}"/>
+                                    <custom:OpenInBrowserHyperlink NavigateUri="{Binding Url}" AdditionalContent="{Binding Title}" />
                                     <Button
+                                        ToolTip="Merge Series"
                                         Command="{Binding Path=DataContext.RequestSeriesMergeCommand, RelativeSource={RelativeSource AncestorType=local:EpubListItemView}}"
                                         CommandParameter="{Binding .}"
                                         Style="{StaticResource EpubIconButtonStyle}">

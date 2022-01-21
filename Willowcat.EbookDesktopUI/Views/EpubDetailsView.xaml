@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Willowcat.EbookDesktopUI.Views"
+             xmlns:custom="clr-namespace:Willowcat.EbookDesktopUI.Views.UserControls"
              xmlns:converters="clr-namespace:Willowcat.EbookDesktopUI.ApplicationResources.Converters"
              xmlns:common="clr-namespace:Willowcat.Common.UI.Behavior;assembly=Willowcat.Common.UI"
              xmlns:fa="http://schemas.fontawesome.io/icons/"
@@ -28,12 +29,7 @@
                 Grid.Row="0"
                 Grid.Column="0"
                 Style="{StaticResource EpubDetailTitleStyle}">
-                <Hyperlink 
-                    NavigateUri="{Binding DisplayModel.WorkUrl}"
-                    RequestNavigate="Hyperlink_RequestNavigate"
-                    ToolTip="{Binding DisplayModel.WorkUrl}">
-                    <Run Text="{Binding DisplayModel.Title}"/>                    
-                </Hyperlink>
+                <custom:OpenInBrowserHyperlink NavigateUri="{Binding DisplayModel.WorkUrl}" AdditionalContent="{Binding DisplayModel.Title}"/>
             </TextBlock>
             <Button 
                 Grid.Row="0"

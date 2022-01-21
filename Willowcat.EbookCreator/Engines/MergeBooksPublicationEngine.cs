@@ -78,16 +78,27 @@ namespace Willowcat.EbookCreator.Engines
         #endregion AdjustChapterTitles
 
         #region BuildChapterEntry
-        private TableOfContentsLinkModel BuildChapterEntry(string filePath)
+        private (TableOfContentsLinkModel chapterEntry, FileItemModel metadataEntry) BuildChapterEntry(string filePath)
         {
+            TableOfContentsLinkModel chapterEntry = null;
+            FileItemModel metadataEntry = null;
+
             var parser = new BookChapterParser(filePath);
             var chapterTitle = parser.GetChapterTitle();
             var fileName = Path.GetFileName(filePath);
-            if (chapterTitle == "Preface" || chapterTitle == "Afterword")
+            if (chapterTitle == "Preface")
             {
-                return null;
+                metadataEntry = new FileItemModel(fileName, MediaType.HtmlXml);
             }
-            return new TableOfContentsLinkModel(chapterTitle ?? "Title Page", new FileItemModel(fileName, MediaType.HtmlXml));
+            else if (chapterTitle == "Afterword")
+            {
+                // skip entry for this page
+            }
+            else
+            {
+                chapterEntry = new TableOfContentsLinkModel(chapterTitle ?? "Title Page", new FileItemModel(fileName, MediaType.HtmlXml));
+            }
+            return (chapterEntry, metadataEntry);
         }
         #endregion BuildChapterEntry
 
@@ -95,25 +106,24 @@ namespace Willowcat.EbookCreator.Engines
         private TableOfContentsLinkModel BuildEntryFromBookFiles(ExtractedEpubFilesModel bookFiles)
         {
             List<TableOfContentsLinkModel> chapterEntries = new List<TableOfContentsLinkModel>();
+            FileItemModel firstMetadataPage = null;
             foreach (var filePath in bookFiles.ChaptersFilePaths)
             {
-                var entry = BuildChapterEntry(filePath);
-                if (entry != null)
+                (var chapterEntry,var metadataEntry) = BuildChapterEntry(filePath);
+                if (chapterEntry != null)
                 {
-                    chapterEntries.Add(entry);
+                    chapterEntries.Add(chapterEntry);
+                }
+                else if (firstMetadataPage == null && metadataEntry != null)
+                {
+                    firstMetadataPage = metadataEntry;
                 }
             }
-
-            //var lastChapter = chapterEntries.Last();
-            //if (lastChapter.Name == "Afterword")
-            //{
-            //    chapterEntries.Remove(lastChapter);
-            //}
 
             string bookTitle = GetBookTitle(bookFiles.ContentFilePath);
             AdjustChapterTitles(bookTitle, chapterEntries);
 
-            var result = new TableOfContentsLinkModel(bookTitle, chapterEntries.First().FileItem);
+            var result = new TableOfContentsLinkModel(bookTitle, firstMetadataPage);
             result.ChildEntries.AddRange(chapterEntries);
             return result;
         }
@@ -163,14 +173,16 @@ namespace Willowcat.EbookCreator.Engines
 
                 _Logger.LogInformation($"Writing {listOfBookFiles.SelectMany(x => x.ChaptersFilePaths).Count()} chapter files");
 
+                IEnumerable<string> otherFiles = new string[] { };
                 foreach (var bookFiles in listOfBookFiles)
                 {
                     UpdateStylesheetReferences(bookFiles);
 
-                    result.TableOfContents.OtherFiles.AddRange(bookFiles.GetOtherFiles());
+                    otherFiles = otherFiles.Union(bookFiles.GetOtherFiles());
                     result.TableOfContents.ChapterFiles.AddRange(bookFiles.GetChapterFiles());
                     result.TableOfContents.Entries.Add(BuildEntryFromBookFiles(bookFiles));
                 }
+                result.TableOfContents.OtherFiles.AddRange(otherFiles.Distinct().Select(x => new FileItemModel(x, MediaType.Unknown)));
                 result.Bibliography = CreateBibliography(listOfBookFiles);
             }
 
@@ -223,26 +235,28 @@ namespace Willowcat.EbookCreator.Engines
         #endregion DownloadOriginalEbooks
 
         #region ExtractFilesFromBook
-        private List<ExtractedEpubFilesModel> ExtractFilesFromBook(string sourceDirectory, string tempDirectory)
+        private List<ExtractedEpubFilesModel> ExtractFilesFromBook(string sourceDirectory, string outputDirectory)
         {
-            if (Directory.Exists(tempDirectory))
+            if (Directory.Exists(outputDirectory))
             {
-                Directory.Delete(tempDirectory, true);
+                Directory.Delete(outputDirectory, true);
             }
-            List<ExtractedEpubFilesModel> bookfiles = new List<ExtractedEpubFilesModel>();
+            List<ExtractedEpubFilesModel> listOfBookFiles = new List<ExtractedEpubFilesModel>();
             IEnumerable<string> files = Directory.GetFiles(sourceDirectory, "*.epub").OrderBy(x => x);
             if (files.Any())
             {
-                var unzipper = new CalibreEpubUnzipper(tempDirectory);
+                var unzipper = new CalibreEpubUnzipper();
                 var seriesIndex = 1;
                 foreach (var file in files)
                 {
                     try
                     {
-                        var bookFiles = unzipper.ExtractFilesFromBook(file, seriesIndex);
+                        var tempDirectory = Path.Combine(outputDirectory, Path.GetFileNameWithoutExtension(file));
+                        var bookFiles = unzipper.ExtractFilesFromBook(file, tempDirectory);
                         if (bookFiles != null)
                         {
-                            bookfiles.Add(bookFiles);// BuildEntryFromBookFiles(Path.GetFileNameWithoutExtension(file), chapters));
+                            listOfBookFiles.Add(bookFiles);// BuildEntryFromBookFiles(Path.GetFileNameWithoutExtension(file), chapters));
+                            MoveBookFilesToStagingDirectory(bookFiles, seriesIndex, outputDirectory);
                             seriesIndex++;
                         }
                     }
@@ -251,8 +265,10 @@ namespace Willowcat.EbookCreator.Engines
                         throw new ApplicationException($"Error extracting files from {file}", ex);
                     }
                 }
+
+                ReducePossibleStyleSheets(listOfBookFiles);
             }
-            return bookfiles;
+            return listOfBookFiles;
         }
         #endregion ExtractFilesFromBook
 
@@ -297,6 +313,45 @@ namespace Willowcat.EbookCreator.Engines
             masterBibliography.CreatorSort = masterBibliography.Creator.ToLower();
         }
         #endregion MergeBibliographies
+
+        #region MoveBookFilesToStagingDirectory
+        private void MoveBookFilesToStagingDirectory(ExtractedEpubFilesModel bookFiles, int seriesIndex, string outputDirectory)
+        {
+            for (int i = 0; i < bookFiles.ChaptersFilePaths.Count; i++)
+            {
+                string newFilePath = MoveFileToStagingDirectory(bookFiles.ChaptersFilePaths[i], seriesIndex, outputDirectory);
+                bookFiles.ChaptersFilePaths[i] = newFilePath;
+            }
+
+            string[] keys = bookFiles.Stylesheets.Keys.ToArray();
+            foreach (string stylesheetReference in keys)
+            {
+                string oldFilePath = bookFiles.Stylesheets[stylesheetReference];
+                string newFilePath = MoveFileToStagingDirectory(oldFilePath, seriesIndex, outputDirectory);
+                bookFiles.Stylesheets[stylesheetReference] = newFilePath;
+            }
+
+            string newContentFilePath = Path.Combine(outputDirectory, Path.GetFileName(bookFiles.ContentFilePath));
+            if (!File.Exists(newContentFilePath))
+            {
+                File.Move(bookFiles.ContentFilePath, newContentFilePath);
+                bookFiles.ContentFilePath = newContentFilePath;
+            }
+        }
+        #endregion MoveBookFilesToStagingDirectory
+
+        #region MoveBookFilesToStagingDirectory
+        private string MoveFileToStagingDirectory(string oldFilePath, int seriesIndex, string outputDirectory)
+        {
+            string newFilePath = Path.Combine(outputDirectory, Path.GetFileName(oldFilePath));
+            if (File.Exists(newFilePath))
+            {
+                newFilePath = PathExtensions.AddIndexToFileName(newFilePath, seriesIndex);
+            }
+            File.Move(oldFilePath, newFilePath);
+            return newFilePath;
+        }
+        #endregion MoveBookFilesToStagingDirectory
 
         #region ParseForBookUrls
         private List<WorkModel> ParseForBookUrls(string content)
@@ -352,14 +407,44 @@ namespace Willowcat.EbookCreator.Engines
         }
         #endregion PublishAsync
 
+        #region ReducePossibleStyleSheets
+        private void ReducePossibleStyleSheets(List<ExtractedEpubFilesModel> listOfBookFiles)
+        {
+            List<Stylesheet> stylesheetsToKeep = new List<Stylesheet>();
+            foreach (var bookFiles in listOfBookFiles)
+            {
+                var keys = bookFiles.Stylesheets.Keys.ToArray();
+                foreach (var stylesheetReference in keys)
+                {
+                    string extractedFilePath = bookFiles.Stylesheets[stylesheetReference];
+                    string text = File.ReadAllText(extractedFilePath);
+                    bool foundMatch = false;
+                    foreach (var stylesheet in stylesheetsToKeep)
+                    {
+                        if (stylesheet.Text == text)
+                        {
+                            bookFiles.Stylesheets[stylesheetReference] = stylesheet.FilePath;
+                            File.Delete(extractedFilePath);
+                            foundMatch = true;
+                        }
+                    }
+                    if (!foundMatch)
+                    {
+                        stylesheetsToKeep.Add(new Stylesheet(extractedFilePath, text));
+                    }
+                }
+            }
+        }
+        #endregion ReducePossibleStyleSheets
+
         #region UpdateStylesheetReferences
         private void UpdateStylesheetReferences(ExtractedEpubFilesModel bookFiles)
         {
-            Dictionary<string, string> stylesheetReplacement = bookFiles.Stylesheets.ToDictionary(x => x.Key, x => Path.GetFileName(x.Value));
+            Dictionary<string, string> stylesheetReplacementPaths = bookFiles.Stylesheets.ToDictionary(x => x.Key, x => Path.GetFileName(x.Value));
             foreach (var chapterFile in bookFiles.ChaptersFilePaths)
             {
                 string htmlText = File.ReadAllText(chapterFile);
-                foreach (var kvp in stylesheetReplacement)
+                foreach (var kvp in stylesheetReplacementPaths)
                 {
                     // double checking I have a css string
                     if (kvp.Key.EndsWith(".css"))
@@ -373,5 +458,16 @@ namespace Willowcat.EbookCreator.Engines
         #endregion UpdateStylesheetReferences
 
         #endregion Methods...
+    }
+
+    internal struct Stylesheet
+    {
+        public string FilePath;
+        public string Text;
+        public Stylesheet(string filePath, string text)
+        {
+            FilePath = filePath;
+            Text = text;
+        }
     }
 }

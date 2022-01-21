@@ -8,40 +8,28 @@ namespace Willowcat.EbookCreator.Engines
 {
     public class CalibreEpubUnzipper
     {
-        private readonly string _OutputDirectory;
-
         public int? NumberOfChapterFilesToInclude { get; set; } = null;
 
-        public CalibreEpubUnzipper(string outputDirectory)
+        public CalibreEpubUnzipper()
         {
-            _OutputDirectory = outputDirectory;
         }
 
         #region ExtractFilesFromBook
-        public ExtractedEpubFilesModel ExtractFilesFromBook(string epubPath, int? seriesIndex = null)
+        public ExtractedEpubFilesModel ExtractFilesFromBook(string epubPath, string outputDirectory)
         {
             List<string> chapterOutputPaths = new List<string>();
             List<ZipEntry> chapterEntries = new List<ZipEntry>();
-            Dictionary<string, string> stylesheets = new Dictionary<string, string>();
+            List<string> stylesheets = new List<string>();
             string contentFilePath = null;
-            //string temporaryDirectory = GetTempoaryOutputDirectory(epubPath);
 
             using (ZipFile zip = ZipFile.Read(epubPath))
             {
                 foreach (ZipEntry e in zip)
                 {
-                    if (IsStyleSheet(e))
+                    if (IsStyleSheet(e) && !NumberOfChapterFilesToInclude.HasValue)
                     {
-                        string stylesheetPath = ExtractFile(e, epubPath);
-                        if (seriesIndex.HasValue)
-                        {
-                            (string oldName, string newPath) = RenameStylesheet(stylesheetPath, seriesIndex.Value);
-                            stylesheets[oldName] = newPath;
-                        }
-                        else
-                        {
-                            stylesheets[stylesheetPath] = stylesheetPath;
-                        }
+                        string stylesheetPath = ExtractFile(e, outputDirectory);
+                        stylesheets.Add(stylesheetPath);
                     }
                     else if (IsChapterFile(e))
                     {
@@ -49,7 +37,7 @@ namespace Willowcat.EbookCreator.Engines
                     }
                     else if (IsContentFile(e))
                     {
-                        contentFilePath = ExtractFile(e, epubPath);
+                        contentFilePath = ExtractFile(e, outputDirectory);
                     }
                 }
 
@@ -62,7 +50,7 @@ namespace Willowcat.EbookCreator.Engines
                     }
                     else
                     {
-                        chapterOutputPaths.Add(ExtractFile(e, epubPath));
+                        chapterOutputPaths.Add(ExtractFile(e, outputDirectory));
                     }
                 }
             }
@@ -70,7 +58,7 @@ namespace Willowcat.EbookCreator.Engines
             return new ExtractedEpubFilesModel()
             {
                 ChaptersFilePaths = chapterOutputPaths,
-                Stylesheets = stylesheets,
+                Stylesheets = stylesheets.ToDictionary(x => Path.GetFileName(x), x => x),
                 OriginalEpubFileName = epubPath,
                 ContentFilePath = contentFilePath
             };
@@ -78,10 +66,8 @@ namespace Willowcat.EbookCreator.Engines
         #endregion ExtractFilesFromBook
 
         #region ExtractFile
-        private  string ExtractFile(ZipEntry e, string epubPath)
+        private string ExtractFile(ZipEntry e, string outputDirectory)
         {
-            string epubFileName = Path.GetFileNameWithoutExtension(epubPath).Trim();
-            string outputDirectory = Path.Combine(_OutputDirectory, epubFileName);
             string outputFilePath = Path.Combine(outputDirectory, e.FileName.Replace("/", "\\").Trim());
             if (File.Exists(outputFilePath))
             {
@@ -126,20 +112,5 @@ namespace Willowcat.EbookCreator.Engines
             return false;
         }
         #endregion IsStyleSheet
-
-        #region RenameStylesheet
-        private (string oldName, string newName) RenameStylesheet(string outputFilePath, int seriesIndex)
-        {
-            string oldName = Path.GetFileName(outputFilePath);
-            string newName = $"{Path.GetFileNameWithoutExtension(outputFilePath)}_{seriesIndex}.css";
-            string newFilePath = Path.Combine(Path.GetDirectoryName(outputFilePath), newName);
-            if (File.Exists(newFilePath))
-            {
-                File.Delete(newFilePath);
-            }
-            File.Move(outputFilePath, newFilePath);
-            return (oldName, newFilePath);
-        }
-        #endregion RenameStylesheet
     }
 }

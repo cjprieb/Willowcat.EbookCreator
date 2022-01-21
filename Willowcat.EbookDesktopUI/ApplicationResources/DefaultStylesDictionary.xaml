@@ -27,6 +27,9 @@
         <Setter Property="Foreground" Value="White"/>
         <Setter Property="FontSize" Value="16"/>
     </Style>
+    <Style TargetType="Hyperlink" x:Key="IconOnlyHyperlinkStyle">
+        <Setter Property="TextDecorations" Value="None"/>
+    </Style>
     <Style TargetType="Button" x:Key="ToolbarButtonStyle">
         <Setter Property="Padding" Value="4"/>
         <Setter Property="Margin" Value="4"/>

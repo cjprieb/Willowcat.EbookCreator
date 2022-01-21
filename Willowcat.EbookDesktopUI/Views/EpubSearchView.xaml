@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Willowcat.EbookDesktopUI.Views"
              xmlns:viewmodel="clr-namespace:Willowcat.EbookDesktopUI.ViewModels"
+             xmlns:custom="clr-namespace:Willowcat.EbookDesktopUI.Views.UserControls"
              xmlns:fa="http://schemas.fontawesome.io/icons/"
              xmlns:converters="clr-namespace:Willowcat.EbookDesktopUI.ApplicationResources.Converters"
              d:DataContext="{d:DesignInstance Type={x:Type viewmodel:EpubSearchViewModel}, IsDesignTimeCreatable=False}"
@@ -74,7 +75,7 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <local:PaginationView 
+            <custom:PaginationControl 
                 Grid.Row="0"
                 Grid.Column="0" 
                 DataContext="{Binding Pagination}"/>
@@ -85,8 +86,6 @@
                 Style="{StaticResource EpubListViewStyle}"
                 OnSelectionChanged="EpubListView_OnSelectionChanged"
                 DataContext="{Binding EpubListViewModel}"/>
-            <!--
-            </local:EpubListView>-->
         </Grid>
 
         <GridSplitter 

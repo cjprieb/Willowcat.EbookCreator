@@ -18,9 +18,14 @@ prefs.defaults['words_per_minute'] = '471'
 prefs.defaults['time_to_read_custom_field_name'] = 'read_time'
 prefs.defaults['format_custom_field_name'] = 'format'
 prefs.defaults['fanfiction_tags_custom_field_name'] = 'fandom_tags'
+prefs.defaults['time_to_read_minutes_custom_field_name'] = 'read_time_minutes'
 prefs.defaults['tag_conversion_config_path'] = ''
 # prefs.defaults['fanfiction_tags_custom_field_name'] = 'fandom_tags'
 
+class SettingKey:
+    def __init__(self, label_text, setting_key):
+        self.label_text = label_text
+        self.setting_key = setting_key
 
 class ConfigWidget(QWidget):
 
@@ -29,82 +34,34 @@ class ConfigWidget(QWidget):
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
 
-        self.layout_row_1 = QHBoxLayout()
-        self.layout.addLayout(self.layout_row_1)
+        self.settings_rows = []
+        self.settings_rows.append(SettingKey('&Path to Ebook Console App:', 'ebook_console_app_path'))
+        self.settings_rows.append(SettingKey('&Words Read Per Minute:', 'words_per_minute'))
+        self.settings_rows.append(SettingKey('Custom Field Name for "time to read":', 'time_to_read_custom_field_name'))
+        self.settings_rows.append(SettingKey('Custom Field Name for "format":', 'format_custom_field_name'))
+        self.settings_rows.append(SettingKey('Custom Field Name for "fandom tags":', 'fanfiction_tags_custom_field_name'))
+        self.settings_rows.append(SettingKey('Custom Field Name for "time to read (minutes)":', 'time_to_read_minutes_custom_field_name'))
+        self.settings_rows.append(SettingKey('Tag Conversion Config Path:', 'tag_conversion_config_path'))
 
-        self.layout_row_2 = QHBoxLayout()
-        self.layout.addLayout(self.layout_row_2)
+        for setting in self.settings_rows:
+            self.add_setting_row(setting)
 
-        self.layout_row_3 = QHBoxLayout()
-        self.layout.addLayout(self.layout_row_3)
+    def add_setting_row(self, setting):
+        current_label = QLabel(setting.label_text)
 
-        self.layout_row_4 = QHBoxLayout()
-        self.layout.addLayout(self.layout_row_4)
+        current_edit_box = QLineEdit(self)
+        current_edit_box.setText(prefs[setting.setting_key])
+        current_label.setBuddy(current_edit_box)
 
-        self.layout_row_5 = QHBoxLayout()
-        self.layout.addLayout(self.layout_row_5)
+        current_layout_row = QHBoxLayout()
+        current_layout_row.addWidget(current_label)
+        current_layout_row.addWidget(current_edit_box)
 
-        self.layout_row_6 = QHBoxLayout()
-        self.layout.addLayout(self.layout_row_6)
+        setting.label_control = current_label
+        setting.edit_control = current_edit_box
 
-        # Path to console app
-        self.label_app_path = QLabel('&Path to Ebook Console App:')
-        self.layout_row_1.addWidget(self.label_app_path)
-
-        self.edit_app_path = QLineEdit(self)
-        self.edit_app_path.setText(prefs['ebook_console_app_path'])
-        self.layout_row_1.addWidget(self.edit_app_path)
-        self.label_app_path.setBuddy(self.edit_app_path)
-
-        # Words Per Minute
-        self.label_words_per_minute = QLabel('&Words Read Per Minute:')
-        self.layout_row_2.addWidget(self.label_words_per_minute)
-
-        self.edit_words_per_minute = QLineEdit(self)
-        self.edit_words_per_minute.setText(prefs['words_per_minute'])
-        self.layout_row_2.addWidget(self.edit_words_per_minute)
-        self.label_words_per_minute.setBuddy(self.edit_words_per_minute)
-
-        # time_to_read_custom_field_name
-        self.label_time_to_read_custom_field = QLabel('Custom Field Name for "time to read":')
-        self.layout_row_3.addWidget(self.label_time_to_read_custom_field)
-
-        self.edit_time_to_read_custom_field = QLineEdit(self)
-        self.edit_time_to_read_custom_field.setText(prefs['time_to_read_custom_field_name'])
-        self.layout_row_3.addWidget(self.edit_time_to_read_custom_field)
-        self.label_time_to_read_custom_field.setBuddy(self.edit_time_to_read_custom_field)
-
-        # format_custom_field_name
-        self.label_format_custom_field = QLabel('Custom Field Name for "format":')
-        self.layout_row_4.addWidget(self.label_format_custom_field)
-
-        self.edit_format_custom_field = QLineEdit(self)
-        self.edit_format_custom_field.setText(prefs['format_custom_field_name'])
-        self.layout_row_4.addWidget(self.edit_format_custom_field)
-        self.label_format_custom_field.setBuddy(self.edit_format_custom_field)
-
-        # fanfiction_tags_custom_field_name
-        self.label_tags_custom_field = QLabel('Custom Field Name for "fandom tags":')
-        self.layout_row_5.addWidget(self.label_tags_custom_field)
-
-        self.edit_tags_custom_field = QLineEdit(self)
-        self.edit_tags_custom_field.setText(prefs['fanfiction_tags_custom_field_name'])
-        self.layout_row_5.addWidget(self.edit_tags_custom_field)
-        self.label_tags_custom_field.setBuddy(self.edit_tags_custom_field)
-
-        # tag_conversion_config_path
-        self.label_tag_config_path__field = QLabel('Tag Conversion Config Path:')
-        self.layout_row_6.addWidget(self.label_tag_config_path__field)
-
-        self.edit_tag_config_path_field = QLineEdit(self)
-        self.edit_tag_config_path_field.setText(prefs['tag_conversion_config_path'])
-        self.layout_row_6.addWidget(self.edit_tag_config_path_field)
-        self.label_tag_config_path__field.setBuddy(self.edit_tag_config_path_field)
+        self.layout.addLayout(current_layout_row)
 
     def save_settings(self):
-        prefs['ebook_console_app_path'] = self.edit_app_path.text()
-        prefs['words_per_minute'] = self.edit_words_per_minute.text()
-        prefs['time_to_read_custom_field_name'] = self.edit_time_to_read_custom_field.text()
-        prefs['format_custom_field_name'] = self.edit_format_custom_field.text()
-        prefs['fanfiction_tags_custom_field_name'] = self.edit_tags_custom_field.text()
-        prefs['tag_conversion_config_path'] = self.edit_tag_config_path_field.text()
+        for setting in self.settings_rows:
+            prefs[setting.setting_key] = setting.edit_control.text()

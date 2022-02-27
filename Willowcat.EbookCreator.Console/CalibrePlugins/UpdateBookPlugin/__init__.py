@@ -7,7 +7,7 @@ from calibre.customize import InterfaceActionBase
 class TimeToReadBookInterfacePlugin(InterfaceActionBase):
 
     name = 'Compute Time To Read Book' # Name of the plugin
-    version = (1, 0, 1)
+    version = (1, 1, 2)
     author = 'Willowcat' # The author of this plugin
     supported_platforms = ['windows'] # Platforms this plugin will run on
     description = 'Sets how long it takes to read the selected book based on a file'

@@ -1,5 +1,6 @@
 from calibre.customize import FileTypePlugin
 from calibre_plugins.willowcat_add_book.config import prefs
+from calibre_plugins.willowcat_add_book.read import getTimeToRead, parseTimeToReadAsMinutes
 
 class TimeToReadAddedFile(FileTypePlugin):
 
@@ -7,7 +8,7 @@ class TimeToReadAddedFile(FileTypePlugin):
     description         = 'Sets how long it takes to read a book based on a file'
     supported_platforms = ['windows'] # Platforms this plugin will run on
     author              = 'Willowcat' # The author of this plugin
-    version             = (1, 3, 1)   # The version number of this plugin
+    version             = (1, 4, 2)   # The version number of this plugin
     file_types          = set(['epub']) # The file types that this plugin will be applied to
     on_postprocess      = True # Run this plugin after conversion is complete
     # on_import           = True # Run this plugin when books are added to the database
@@ -50,29 +51,17 @@ class TimeToReadAddedFile(FileTypePlugin):
             
 
         self.log(fmt_map)
-        read_time_custom_field = prefs['time_to_read_custom_field_name']        
+        read_time_custom_field = prefs['time_to_read_custom_field_name']
         if "epub" in fmt_map and read_time_custom_field != "":
             path_to_ebook = fmt_map["epub"]
-            timeToRead = self.getTimeToRead(path_to_ebook)
+            
+            timeToRead = getTimeToRead(path_to_ebook)
             db.set_custom(book_id, timeToRead, label=read_time_custom_field)
 
-    def getTimeToRead(self, path_to_ebook):
-        import subprocess
-        self.log("computed time to read for " + path_to_ebook)
-
-        ebook_console_app_path = prefs['ebook_console_app_path']
-        words_per_minute = prefs['words_per_minute']
-        self.log("console path " + ebook_console_app_path)
-        self.log("words per minute " + words_per_minute)
-
-        text = ""
-        if (words_per_minute != "") and (ebook_console_app_path != ""):
-            command = [ebook_console_app_path, 'readtime', "-f", path_to_ebook, "-w", words_per_minute]
-            p = subprocess.Popen(command, stdout=subprocess.PIPE)
-            text = p.stdout.read().decode("utf-8").strip()
-            self.log("result: " + text)
-            
-        return text
+            read_minutes_custom_field = prefs['time_to_read_minutes_custom_field_name']
+            if read_minutes_custom_field != "":
+                time_to_read_minutes = parseTimeToReadAsMinutes(timeToRead)
+                db.set_custom(book_id, time_to_read_minutes, label=read_minutes_custom_field)
 
     def log(self, message):
         print("Willowcat ", self.version, ": ", message)

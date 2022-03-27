@@ -8,7 +8,7 @@ class TimeToReadAddedFile(FileTypePlugin):
     description         = 'Sets how long it takes to read a book based on a file'
     supported_platforms = ['windows'] # Platforms this plugin will run on
     author              = 'Willowcat' # The author of this plugin
-    version             = (1, 4, 2)   # The version number of this plugin
+    version             = (1, 5, 0)   # The version number of this plugin
     file_types          = set(['epub']) # The file types that this plugin will be applied to
     on_postprocess      = True # Run this plugin after conversion is complete
     # on_import           = True # Run this plugin when books are added to the database

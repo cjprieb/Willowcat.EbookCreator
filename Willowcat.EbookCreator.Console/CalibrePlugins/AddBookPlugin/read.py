@@ -5,8 +5,14 @@ import configparser
 from os.path import exists
 from calibre_plugins.willowcat_add_book.config import prefs
 
-def getTimeToRead(path_to_ebook):
+def run_command(command):
     import subprocess
+    p = subprocess.Popen(command, stdout=subprocess.PIPE, creationflags=subprocess.CREATE_NO_WINDOW)
+    text = p.stdout.read().decode("utf-8").strip()
+    read_log("result: " + text)        
+    return text
+
+def getTimeToRead(path_to_ebook):
     read_log("computed time to read for " + path_to_ebook)
 
     ebook_console_app_path = prefs['ebook_console_app_path']
@@ -17,9 +23,7 @@ def getTimeToRead(path_to_ebook):
     text = ""
     if (words_per_minute != "") and (ebook_console_app_path != ""):
         command = [ebook_console_app_path, 'readtime', "-f", path_to_ebook, "-w", words_per_minute]
-        p = subprocess.Popen(command, stdout=subprocess.PIPE, creationflags=subprocess.CREATE_NO_WINDOW)
-        text = p.stdout.read().decode("utf-8").strip()
-        read_log("result: " + text)
+        text = run_command(command)
         
     return text
 

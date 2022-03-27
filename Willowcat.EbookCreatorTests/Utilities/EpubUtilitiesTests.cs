@@ -55,7 +55,7 @@ namespace Willowcat.EbookCreator.Utilities.Tests
         private void RunWordCountTest(TestBook testBook)
         {
             string path = Path.Combine(_CalibreDirectory, testBook.relativePath);
-            Assert.AreEqual(testBook.expectedWordCount, EpubUtilities.GetWordCount(path));
+            Assert.AreEqual(testBook.expectedWordCount, EPubWordCountCalculator.GetWordCount(path));
         }
 
         private void RunCalculateTimeTest(TestBook testBook)
@@ -79,7 +79,7 @@ namespace Willowcat.EbookCreator.Utilities.Tests
             {
                 string path = Path.Combine(_CalibreDirectory, kvp.Value.relativePath);
                 int totalMinutes = (int)kvp.Value.expectedTimeToRead.TotalMinutes;
-                int wordsPerMinute = EpubUtilities.GetWordCount(path) / totalMinutes;
+                int wordsPerMinute = EPubWordCountCalculator.GetWordCount(path) / totalMinutes;
                 compuatedValues.Add(wordsPerMinute);
                 Console.WriteLine($"Estimated words per minute: {wordsPerMinute} ({kvp.Key})");
             }

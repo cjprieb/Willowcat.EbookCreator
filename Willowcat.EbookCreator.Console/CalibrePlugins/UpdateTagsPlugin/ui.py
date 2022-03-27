@@ -3,6 +3,7 @@
 
 from calibre.gui2.actions import InterfaceAction
 from calibre_plugins.willowcat_add_book.config import prefs
+from calibre_plugins.willowcat_add_book.read import run_command
 
 
 class InterfacePlugin(InterfaceAction):
@@ -14,7 +15,7 @@ class InterfacePlugin(InterfaceAction):
     # The keyboard shortcut can be None if you dont want to use a keyboard
     # shortcut. Remember that currently calibre has no central management for
     # keyboard shortcuts, so try to use an unusual/unused shortcut.
-    action_spec = ('Set Tags On Book', None, 'Set Tags On Book from Description', 'Ctrl+Shift+T')
+    action_spec = ('Update identifiers on book', None, 'Set Identifiers On Book', 'Ctrl+Shift+T')
     
     action_add_menu  = True # add a menu to self.qaction
     
@@ -50,7 +51,7 @@ class InterfacePlugin(InterfaceAction):
 
     def on_click_set_tags(self):
         '''
-        Compute the time to read for the selected book
+        Update metadata
         '''
         from calibre.ebooks.metadata.meta import set_metadata
         from calibre.gui2 import error_dialog, info_dialog
@@ -58,42 +59,31 @@ class InterfacePlugin(InterfaceAction):
         # Get currently selected books
         rows = self.gui.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
-            return error_dialog(self.gui, 'Cannot set tags', 'No books selected', show=True)
+            return error_dialog(self.gui, 'Cannot update books', 'No books selected', show=True)
     
         fanfiction_tags_custom_field = prefs['fanfiction_tags_custom_field_name']
 
         # Map the rows to book ids
         ids = list(map(self.gui.library_view.model().id, rows))
-        db = self.gui.current_db
+        db = self.gui.current_db.new_api
         for book_id in ids:
         # Get the current metadata for this book from the db
-            tags = db.get_field(book_id, "tags", index_is_id=True)
-            
-            description = db.get_field(book_id, "comments", index_is_id=True)
-            # self.log("description: {0}".format(description))
-            parsed_fanfiction_tags = []
-            if description != None:
-                parsed_fanfiction_tags = self.parse_description(description)
-                self.log("parsed tags: {0}".format(parsed_fanfiction_tags))
+            # self.update_tags_for_book(db, book_id, fanfiction_tags_custom_field)
+            fmts = db.formats(book_id)
+            if not fmts: continue
 
-            current_fanfiction_tags = db.new_api.field_for("#" + fanfiction_tags_custom_field, book_id)
-            self.log("current tags: {0}".format(current_fanfiction_tags))
+            for fmt in fmts:
+                fmt = fmt.lower()
+                if fmt != "epub": continue
 
-            from calibre_plugins.willowcat_add_book.tags import TagHelper
-            tags = TagHelper().process_tags(parsed_fanfiction_tags, tags)
-            self.log("new tags: {0}".format(tags))
-
-            # self.log("fanfiction tags: {0}".format(parsed_fanfiction_tags))
-            if current_fanfiction_tags != None:
-                for tag in current_fanfiction_tags: tags.append(tag)
-
-            db.set_tags(book_id, tags)
-
-            if fanfiction_tags_custom_field != None and fanfiction_tags_custom_field != "":
-                db.set_custom(book_id, [], label=fanfiction_tags_custom_field)
+                # Get a python file object for the format. This will be either
+                # an in memory file or a temporary on disk file
+                path_to_ebook = db.format(book_id, fmt, as_path=True)
+                self.log("ebook path: {0}".format(path_to_ebook))
+                self.update_metadata(book_id, path_to_ebook)
 
         info_dialog(self.gui, 'Updated files',
-                'Updated the tags to read for %d book(s)'%len(ids),
+                'Updated metadata for %d book(s)'%len(ids),
                 show=True)
 
     def parse_description(self, description):
@@ -112,6 +102,40 @@ class InterfacePlugin(InterfaceAction):
             # self.log("found: {0}".format(match.group(1)))
             for tag in match.group(1).split(','): tags.append(tag.strip())
         return tags
+    
+    def update_metadata(self, book_id, path_to_ebook):
+        ebook_console_app_path = prefs['ebook_console_app_path']
+        
+        command = [ebook_console_app_path, 'identifier', "-f", path_to_ebook]
+        text = run_command(command)
+        
+        if (text != None) and (text != ""):
+            self.gui.current_db.new_api.set_field("identifiers", {book_id: text})
+
+    def update_tags_for_book(self, db, book_id, fanfiction_tags_custom_field):
+        tags = db.get_field(book_id, "tags", index_is_id=True)
+        
+        description = db.get_field(book_id, "comments", index_is_id=True)
+        parsed_fanfiction_tags = []
+        if description != None:
+            parsed_fanfiction_tags = self.parse_description(description)
+            self.log("parsed tags: {0}".format(parsed_fanfiction_tags))
+
+        current_fanfiction_tags = db.new_api.field_for("#" + fanfiction_tags_custom_field, book_id)
+        self.log("current tags: {0}".format(current_fanfiction_tags))
+
+        from calibre_plugins.willowcat_add_book.tags import TagHelper
+        tags = TagHelper().process_tags(parsed_fanfiction_tags, tags)
+        self.log("new tags: {0}".format(tags))
+
+        if current_fanfiction_tags != None:
+            for tag in current_fanfiction_tags: tags.append(tag)
+
+        db.set_tags(book_id, tags)
+
+        if fanfiction_tags_custom_field != None and fanfiction_tags_custom_field != "":
+            db.set_custom(book_id, [], label=fanfiction_tags_custom_field)
+
 
     def log(self, message):
         print("Willowcat: ", message)

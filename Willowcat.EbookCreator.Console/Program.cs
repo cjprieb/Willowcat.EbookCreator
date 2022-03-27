@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using Willowcat.EbookCreator.Utilities;
 
 namespace Willowcat.EbookCreator.Console
@@ -12,38 +11,57 @@ namespace Willowcat.EbookCreator.Console
         static void Main(string[] args)
         {
             var options = ParseArguments(args);
-            if (options == null || options.ShowHelp)
+            string output = null;
+            if (options == null || options.ShowHelp || options.EbookCommand == EbookCommandType.Help)
             {
-                System.Console.WriteLine(Properties.Resources.help);
+                output = Properties.Resources.help;
             }
-            else if (options.ReadTimeOptions != null)
+            else
             {
-                if (File.Exists(options.EBookPath))
+                try
                 {
-                    var timeToReadBook = EpubUtilities.CalculateTimeToReadBook(options.EBookPath, options.ReadTimeOptions.WordsPerMinute);
-                    if (timeToReadBook.TotalMinutes > 0)
-                    {
-                        System.Console.WriteLine(Format(timeToReadBook, options.ReadTimeOptions));
-                    }
-                    else
-                    {
-                        System.Console.WriteLine("");
-                    }
+                    output = RunCommand(options, output);
+                }
+                catch (FileNotFoundException ex)
+                {
+                    System.Console.Error.WriteLine($"file not found: {ex.FileName}");
+                }
+                catch (Exception ex)
+                {
+                    System.Console.Error.WriteLine(ex.Message);
+                    System.Console.Error.WriteLine(ex.StackTrace);
                 }
             }
-            else if (options.DoCleanup)
-            {
-                //    string[] calibrePath = new string[]
-                //    {
-                //        //@"D:\Users\Crystal\Sync\eBooks\Calibre\LanternWisp\Nests and Cages (705)\Nests and Cages - LanternWisp.epub",
-                //        //@"D:\Users\Crystal\Sync\eBooks\Calibre\hoye\he's a killer queen, sunflower, gui (688)\he's a killer queen, sunflower, - hoye.epub",
-                //        @"D:\Users\Crystal\Sync\eBooks\Calibre\mysterycyclone\Dark Matter (666)\Dark Matter - mysterycyclone.epub",
-                //    };
-                string calibrePath = @"D:\Users\Crystal\Sync\eBooks\Calibre\";
-                EpubUtilities.Cleanup(calibrePath);
-            }
+            System.Console.WriteLine(output ?? string.Empty);
         }
-        
+
+        private static string RunCommand(CommandLineOptions options, string output)
+        {
+            switch (options.EbookCommand)
+            {
+                case EbookCommandType.ReadTime:
+                    var timeToReadBook = EpubUtilities.CalculateTimeToReadBook(options.EBookPath, options.ReadTimeOptions.WordsPerMinute);
+                    output = Format(timeToReadBook, options.ReadTimeOptions);
+                    break;
+
+                case EbookCommandType.Identifier:
+                    Dictionary<string, string> identifiers = EpubUtilities.GetIdentifiers(options.EBookPath);
+                    if (identifiers != null && identifiers.Count > 0)
+                    {
+                        output = string.Join(",", identifiers.Select(x => $"{x.Key}:{x.Value}"));
+                    }
+                    break;
+
+                case EbookCommandType.Cleanup:
+                    string calibrePath = @"D:\Users\Crystal\Sync\eBooks\Calibre\";
+                    EpubUtilities.Cleanup(calibrePath);
+                    output = "Clean Up Finished";
+                    break;
+            }
+
+            return output;
+        }
+
         private static CommandLineOptions ParseArguments(string[] args)
         {
             Dictionary<string, string> argumentDictionary = new Dictionary<string, string>();
@@ -82,57 +100,69 @@ namespace Willowcat.EbookCreator.Console
             }
         }
 
-        public static string Format(TimeSpan timeToReadBook, ReadTimeOptions options)
+        public static string Format(TimeSpan? timeToReadBook, ReadTimeOptions options)
         {
-            string timeString = timeToReadBook.ToString(options.TimeFormat);
-
-            if (options.ShowLengthIndicator)
+            string timeString = string.Empty;
+            if (timeToReadBook.HasValue && timeToReadBook.Value.TotalMinutes > 0)
             {
-                int totalIndicators = 0;
+                TimeSpan timeSpan = timeToReadBook.Value;
+                timeString = timeSpan.ToString(options.TimeFormat);
 
-                if (timeToReadBook.Hours >= 1)
+                if (options.ShowLengthIndicator)
                 {
-                    totalIndicators = timeToReadBook.Hours * (60 / options.MinutesPerIndicator);
-                }
+                    int totalIndicators = 0;
 
-                if (timeToReadBook.Minutes >= 1)
-                {
-                    totalIndicators += (int)Math.Round((decimal)timeToReadBook.Minutes / options.MinutesPerIndicator, 0);
-                }
+                    if (timeSpan.Hours >= 1)
+                    {
+                        totalIndicators = timeSpan.Hours * (60 / options.MinutesPerIndicator);
+                    }
+
+                    if (timeSpan.Minutes >= 1)
+                    {
+                        totalIndicators += (int)Math.Round((decimal)timeSpan.Minutes / options.MinutesPerIndicator, 0);
+                    }
 
 
-                if (timeString.Length > 0)
-                {
-                    string indicatorString = new string(options.IndicatorCharactor, totalIndicators == 0 ? 1 : totalIndicators);
-                    return $"{indicatorString} ({timeString})";
-                }
-                else
-                {
-                    return string.Empty;
+                    if (timeString.Length > 0)
+                    {
+                        string indicatorString = new string(options.IndicatorCharactor, totalIndicators == 0 ? 1 : totalIndicators);
+                        timeString = $"{indicatorString} ({timeString})";
+                    }
                 }
             }
-            else
-            {
-                return timeString;
-            }
+            return timeString;
         }
     }
 
     public class CommandLineOptions
     {
+        public EbookCommandType EbookCommand { get; set; }
+        public string EBookPath { get; set; }
+        public ReadTimeOptions ReadTimeOptions { get; set; }
+        public bool ShowHelp { get; set; }
+
         public CommandLineOptions(string command, Dictionary<string, string> argumentDictionary)
         {
             if (command.ToLower() == "readtime")
             {
+                EbookCommand = EbookCommandType.ReadTime;
                 ReadTimeOptions = new ReadTimeOptions(argumentDictionary);
+            }
+            else if (command.ToLower() == "identifier")
+            {
+                EbookCommand = EbookCommandType.Identifier;
             }
             else if (command.ToLower() == "cleanup")
             {
-                DoCleanup = true;
+                EbookCommand = EbookCommandType.Cleanup;
             }
 
             if (argumentDictionary.ContainsKey("-h") || argumentDictionary.ContainsKey("--help"))
             {
+                if (EbookCommand == EbookCommandType.None)
+                {
+                    EbookCommand = EbookCommandType.Help;
+                }
                 ShowHelp = true;
             }
 
@@ -141,11 +171,15 @@ namespace Willowcat.EbookCreator.Console
                 EBookPath = argumentDictionary["-f"];
             }
         }
+    }
 
-        public bool DoCleanup { get; set; }
-        public string EBookPath { get; set; }
-        public ReadTimeOptions ReadTimeOptions { get; set; }
-        public bool ShowHelp { get; set; }
+    public enum EbookCommandType
+    {
+        None,
+        ReadTime,
+        Identifier,
+        Cleanup,
+        Help
     }
 
     public class ReadTimeOptions

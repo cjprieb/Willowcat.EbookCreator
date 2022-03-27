@@ -6,11 +6,11 @@ from calibre.customize import InterfaceActionBase
 
 class SetTagsOnBookInterfacePlugin(InterfaceActionBase):
 
-    name = 'Set custom tags from description' # Name of the plugin
-    version = (1, 0, 0)
+    name = 'Set fan fiction work identifiers' # Name of the plugin
+    version = (1, 1, 1)
     author = 'Willowcat' # The author of this plugin
     supported_platforms = ['windows'] # Platforms this plugin will run on
-    description = 'Parses tags from description and sets them as custom tags'
+    description = 'Parses ebooks to find the fan fiction work id to set as an identifier'
     minimum_calibre_version = (5, 30, 0)
     
     actual_plugin       = 'calibre_plugins.willowcat_update_tags.ui:InterfacePlugin'

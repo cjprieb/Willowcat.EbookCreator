@@ -111,23 +111,6 @@ namespace Willowcat.EbookCreator.Epub
 
         #region Methods...
 
-        #region CalculateTimeToRead
-        private TimeSpan CalculateTimeToRead(string sourceLocation, int wordsPerMinute)
-        {
-            var allHtmlFiles = _TableOfContents.ChapterFiles
-                .Union(_TableOfContents.OtherFiles)
-                .Where(file => file.MediaType == MediaType.HtmlXml && file.RelativeFilePath.EndsWith("html"));
-            var wordCount = 0;
-            foreach (var file in allHtmlFiles)
-            {
-                var filePath = Path.Combine(sourceLocation, file.RelativeFilePath);
-                wordCount += EpubUtilities.CountWordsInHtml(File.ReadAllText(filePath));
-            }
-            var minutes = wordCount / wordsPerMinute;
-            return new TimeSpan(minutes / 60, minutes % 60, 0);
-        }
-        #endregion CalculateTimeToRead
-
         #region Create
         public void Create(BookModel bookModel, string sourceLocation, string outputFilePath)
         {
@@ -150,13 +133,6 @@ namespace Willowcat.EbookCreator.Epub
 
             CalibreCustomFieldModel syncBookField = CalibreCustomFields.CreateSyncBookField(true);
             _Bibliography.AddCustomField(syncBookField.PropertyName, syncBookField);
-
-            if (bookModel.WordsReadPerMinute.HasValue && bookModel.WordsReadPerMinute.Value > 0)
-            {
-                var timeToRead = CalculateTimeToRead(sourceLocation, bookModel.WordsReadPerMinute.Value);
-                CalibreCustomFieldModel timeToReadField = CalibreCustomFields.CreateTimeToReadField(timeToRead);
-                _Bibliography.AddCustomField(timeToReadField.PropertyName, timeToReadField);
-            }
 
             //Create package.opf file
             contentsFileModel.ContentsFile = ContentsFileGenerator.CreateContentsFile(_Bibliography, contentsFileModel);

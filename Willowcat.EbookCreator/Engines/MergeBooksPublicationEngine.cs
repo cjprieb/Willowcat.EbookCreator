@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Willowcat.EbookCreator.Epub;
@@ -20,9 +19,10 @@ namespace Willowcat.EbookCreator.Engines
     {
         #region Member Variables...
         protected readonly ILogger<MergeBooksPublicationEngine> _Logger;
-
+        
         private readonly EpubBuilder _EpubBuilder;
         private readonly EpubOptions _Options;
+        private readonly BibliographyModelFactory _BibliographyModelFactory;
         #endregion Member Variables...
 
         #region Properties...
@@ -36,16 +36,10 @@ namespace Willowcat.EbookCreator.Engines
         #region Constructors...
 
         #region MergeBooksPublicationEngine
-        public MergeBooksPublicationEngine(EpubBuilder epubBuilder, EpubOptions options)
-            : this(null, epubBuilder, options)
-        {
-        }
-        #endregion MergeBooksPublicationEngine
-
-        #region MergeBooksPublicationEngine
-        public MergeBooksPublicationEngine(ILogger<MergeBooksPublicationEngine> logger, EpubBuilder epubBuilder, EpubOptions options)
+        public MergeBooksPublicationEngine(ILogger<MergeBooksPublicationEngine> logger, EpubBuilder epubBuilder, EpubOptions options, BibliographyModelFactory factory)
         {
             _Logger = logger ?? new NullLogger<MergeBooksPublicationEngine>();
+            _BibliographyModelFactory = factory ?? throw new ArgumentNullException(nameof(factory));
             _EpubBuilder = epubBuilder;
             _Options = options ?? new EpubOptions()
             {
@@ -130,31 +124,35 @@ namespace Willowcat.EbookCreator.Engines
         #endregion BuildEntryFromBookFiles
 
         #region CreateBibliography
-        private BibliographyModel CreateBibliography(List<ExtractedEpubFilesModel> combinedEbooks)
+        private MergedBibliographyModel CreateBibliography(List<ExtractedEpubFilesModel> combinedEbooks)
         {
-            BibliographyModel masterBibliography = null;
-            List<BibliographyModel> childBibliographies = new List<BibliographyModel>();
+            IBibliographyModel masterBibliography = null;
+            List<IBibliographyModel> childBibliographies = new List<IBibliographyModel>();
             foreach (var ebook in combinedEbooks)
             {
                 CalibreContentParser parser = new CalibreContentParser(ebook.ContentFilePath);
-                var bibliography = parser.ParseForBibliography();
+                IBibliographyModel bibliography = parser.ParseForBibliography();
+                bibliography = _BibliographyModelFactory.ExtractAdditionalMetadata(ebook, bibliography);
                 if (masterBibliography == null)
                 {
                     masterBibliography = bibliography;
                 }
-                childBibliographies.Add(bibliography);
-            }
-            MergeBibliographies(masterBibliography, childBibliographies);
-            if (masterBibliography != null)
-            {
-                masterBibliography.Series = Series.SeriesName;
-                masterBibliography.SeriesIndex = Series.SeriesIndex;
-                if (!string.IsNullOrEmpty(Series.OverrideBookTitle))
+                else
                 {
-                    masterBibliography.Title = Series.OverrideBookTitle;
+                    childBibliographies.Add(bibliography);
                 }
             }
-            return masterBibliography;
+            MergedBibliographyModel mergedBibliography = MergeBibliographies(masterBibliography, childBibliographies);
+            if (mergedBibliography != null)
+            {
+                mergedBibliography.Series = Series.SeriesName;
+                mergedBibliography.SeriesIndex = Series.SeriesIndex;
+                if (!string.IsNullOrEmpty(Series.OverrideBookTitle))
+                {
+                    mergedBibliography.Title = Series.OverrideBookTitle;
+                }
+            }
+            return mergedBibliography;
         }
         #endregion CreateBibliography
 
@@ -242,7 +240,7 @@ namespace Willowcat.EbookCreator.Engines
                 Directory.Delete(outputDirectory, true);
             }
             List<ExtractedEpubFilesModel> listOfBookFiles = new List<ExtractedEpubFilesModel>();
-            IEnumerable<string> files = Directory.GetFiles(sourceDirectory, "*.epub").OrderBy(x => x);
+            IEnumerable<string> files = Directory.GetFiles(sourceDirectory, "*.epub").OrderBy(x => x).ToList();
             if (files.Any())
             {
                 var unzipper = new CalibreEpubUnzipper();
@@ -282,35 +280,14 @@ namespace Willowcat.EbookCreator.Engines
         #endregion GetBookTitle
 
         #region MergeBibliographies
-        private void MergeBibliographies(BibliographyModel masterBibliography, List<BibliographyModel> childBibliographies)
+        private MergedBibliographyModel MergeBibliographies(IBibliographyModel masterBibliography, IEnumerable<IBibliographyModel> childBibliographies)
         {
-            List<string> creators = new List<string>();
-            List<string> tags = new List<string>();
-            StringBuilder descriptionBuilder = new StringBuilder();
-            descriptionBuilder.Append(masterBibliography.Description);
-            descriptionBuilder.AppendLine("<p><strong>Also Includes:</strong></p><ol>");
-            foreach (var bibliography in childBibliographies)
+            MergedBibliographyModel MergedModel = _BibliographyModelFactory.CreateMergedBibliographyModel(masterBibliography);
+            foreach (var child in childBibliographies)
             {
-                if (!creators.Contains(bibliography.Creator))
-                {
-                    creators.Add(bibliography.Creator);
-                }
-                foreach (var tag in bibliography.Tags)
-                {
-                    if (!tags.Contains(tag))
-                    {
-                        tags.Add(tag);
-                    }
-                }
-                descriptionBuilder.AppendLine($"<li>{bibliography.Title}</li>");
+                MergedModel.MergeBibliography(child);
             }
-            descriptionBuilder.AppendLine("</ol>");
-
-            masterBibliography.Description = descriptionBuilder.ToString();
-            masterBibliography.Tags.Clear();
-            masterBibliography.Tags.AddRange(tags);
-            masterBibliography.Creator = string.Join(", ", creators);
-            masterBibliography.CreatorSort = masterBibliography.Creator.ToLower();
+            return MergedModel;
         }
         #endregion MergeBibliographies
 
@@ -400,10 +377,17 @@ namespace Willowcat.EbookCreator.Engines
             Series = series;
             if (Series == null) throw new NullReferenceException(nameof(Series));
 
-            await DownloadOriginalEbooks(filePaths.SourceDirectory);
-            var bookItemData = CreateBookItemData(filePaths.SourceDirectory, filePaths.StagingDirectory);
-            bookItemData.WordsReadPerMinute = _Options.WordsReadPerMinute;
-            _EpubBuilder.Create(bookItemData, filePaths.StagingDirectory, filePaths.EpubFilePath);
+            try
+            {
+                await DownloadOriginalEbooks(filePaths.SourceDirectory);
+                var bookItemData = CreateBookItemData(filePaths.SourceDirectory, filePaths.StagingDirectory);
+                bookItemData.WordsReadPerMinute = _Options.WordsReadPerMinute;
+                _EpubBuilder.Create(bookItemData, filePaths.StagingDirectory, filePaths.EpubFilePath);
+            }
+            catch (Exception ex)
+            {
+                _Logger.Log(LogLevel.Error, $"Error! {ex.Message}");
+            }
         }
         #endregion PublishAsync
 

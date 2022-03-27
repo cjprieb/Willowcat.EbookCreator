@@ -31,6 +31,7 @@ namespace Willowcat.EbookDesktopUI.ViewModels
 
         private readonly EbookFileService _EbookFileService;
 
+        private bool _DoFullTextSearch = false;
         private FilterModel _FilterModel;
         private string _Author = null;
         private string _Keyword = null;
@@ -70,6 +71,18 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         #region ClearKeywordCommand
         public ICommand ClearKeywordCommand { get; private set; }
         #endregion ClearKeywordCommand
+
+        #region DoFullTextSearch
+        public bool DoFullTextSearch
+        {
+            get => _DoFullTextSearch;
+            set
+            {
+                _DoFullTextSearch = value;
+                OnPropertyChanged();
+            }
+        }
+        #endregion DoFullTextSearch
 
         #region ExcludedTagsViewModel
         public TagFilterListViewModel ExcludedTagsViewModel { get; private set; } = new TagFilterListViewModel("Exclude:");
@@ -209,6 +222,7 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         private void ExecuteApplyFilter()
         {
             var filterModel = new FilterModel();
+            filterModel.DoFullTextSearch = DoFullTextSearch;
             filterModel.Author = Author;
             filterModel.Keyword = Keyword;
             filterModel.ExcludedTags.AddAll(ExcludedTagsViewModel.SelectedTags.Select(tag => tag.Name));
@@ -255,7 +269,7 @@ namespace Willowcat.EbookDesktopUI.ViewModels
 
             foreach (var pub in books)
             {
-                if (pub.FandomTags != null)
+                if (pub != null && pub.FandomTags != null)
                 {
                     fandomTags.AddAll(pub.FandomTags);
                 }

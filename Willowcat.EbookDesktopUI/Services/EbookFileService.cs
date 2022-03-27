@@ -90,12 +90,12 @@ namespace Willowcat.EbookDesktopUI.Services
                         builder.SetDescription(titlePage.GetDescription(), chapter1.GetFirstChapter(MaxWordsToReturn));
                     }
 
+                    builder.SetLocalFilePath(filePath);
                     result = builder.Build();
-                    result.LocalFilePath = filePath;
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    throw new ApplicationException($"Error extracting files from {filePath}", ex);
+                    //throw new ApplicationException($"Error extracting files from {filePath}", ex);
                 }
 
                 LoadingProgress?.Report(new LoadProgressModel()

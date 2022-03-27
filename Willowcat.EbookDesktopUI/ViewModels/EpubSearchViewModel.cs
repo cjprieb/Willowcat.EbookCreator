@@ -231,7 +231,7 @@ namespace Willowcat.EbookDesktopUI.ViewModels
                 FilterViewModel.InitializeFandoms(books);
                 foreach (var bookItem in books)
                 {
-                    if (bookItem.FandomTags.Any())
+                    if (bookItem != null && bookItem.FandomTags.Any())
                     {
                         var bookViewModel = new EpubItemViewModel(_EbookFileService, FilterViewModel, bookItem, _Settings);
                         bookViewModel.SeriesMergeRequested += BookViewModel_SeriesMergeRequested;

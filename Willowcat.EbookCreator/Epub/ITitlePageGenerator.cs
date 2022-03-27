@@ -4,6 +4,6 @@ namespace Willowcat.EbookCreator.Epub
 {
     public interface ITitlePageGenerator
     {
-        FileItemModel CreateTitlePageFile(BibliographyModel bibliography);
+        FileItemModel CreateTitlePageFile(IBibliographyModel bibliography);
     }
 }

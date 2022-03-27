@@ -130,5 +130,89 @@ namespace Willowcat.EbookDesktopUI.Properties {
                 this["BaseCatalogDirectory"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string MergeBooksSeriesUrl {
+            get {
+                return ((string)(this["MergeBooksSeriesUrl"]));
+            }
+            set {
+                this["MergeBooksSeriesUrl"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string MergeBooksFolderName {
+            get {
+                return ((string)(this["MergeBooksFolderName"]));
+            }
+            set {
+                this["MergeBooksFolderName"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string MergeBooksBookTitle {
+            get {
+                return ((string)(this["MergeBooksBookTitle"]));
+            }
+            set {
+                this["MergeBooksBookTitle"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string MergeBooksSeriesName {
+            get {
+                return ((string)(this["MergeBooksSeriesName"]));
+            }
+            set {
+                this["MergeBooksSeriesName"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string MergeBooksWorkUrls {
+            get {
+                return ((string)(this["MergeBooksWorkUrls"]));
+            }
+            set {
+                this["MergeBooksWorkUrls"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string MergeBooksSeriesIndex {
+            get {
+                return ((string)(this["MergeBooksSeriesIndex"]));
+            }
+            set {
+                this["MergeBooksSeriesIndex"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string MergeBooksIncludeIndexes {
+            get {
+                return ((string)(this["MergeBooksIncludeIndexes"]));
+            }
+            set {
+                this["MergeBooksIncludeIndexes"] = value;
+            }
+        }
     }
 }

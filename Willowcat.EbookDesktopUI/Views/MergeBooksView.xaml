@@ -147,14 +147,11 @@
 
         </Grid>
 
-        <ListView 
+        <ScrollViewer
             Grid.Row="0"
             Grid.Column="2"
-            Grid.RowSpan="8" 
-            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-            VerticalAlignment="Top"
-            ItemsSource="{Binding Logs}"
-            SelectionMode="Single">
+            Grid.RowSpan="8" >
+        <ItemsControl ItemsSource="{Binding Logs}">
             <!--<ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem" BasedOn="{StaticResource WorkListViewItemStyle}">
                     <Style.Triggers>
@@ -167,19 +164,16 @@
                     </Style.Triggers>
                 </Style>
             </ListView.ItemContainerStyle>-->
-            <ListView.ItemTemplate>
+            <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <StackPanel Orientation="Horizontal">
-                        <!--<TextBlock Text="{Binding LogLevel}" />
-                        <TextBlock Text=" - " />-->
-                        <TextBox 
-                            TextWrapping="Wrap"
-                            IsReadOnly="True"
-                            Text="{Binding Message,Mode=OneWay}" />
-                    </StackPanel>
+                    <TextBox 
+                        TextWrapping="Wrap"
+                        IsReadOnly="True"
+                        Text="{Binding Message,Mode=OneWay}" />
                 </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+            </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
 
 
         <Grid

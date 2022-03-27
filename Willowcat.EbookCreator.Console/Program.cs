@@ -21,7 +21,14 @@ namespace Willowcat.EbookCreator.Console
                 if (File.Exists(options.EBookPath))
                 {
                     var timeToReadBook = EpubUtilities.CalculateTimeToReadBook(options.EBookPath, options.ReadTimeOptions.WordsPerMinute);
-                    System.Console.WriteLine(Format(timeToReadBook, options.ReadTimeOptions));
+                    if (timeToReadBook.TotalMinutes > 0)
+                    {
+                        System.Console.WriteLine(Format(timeToReadBook, options.ReadTimeOptions));
+                    }
+                    else
+                    {
+                        System.Console.WriteLine("");
+                    }
                 }
             }
             else if (options.DoCleanup)

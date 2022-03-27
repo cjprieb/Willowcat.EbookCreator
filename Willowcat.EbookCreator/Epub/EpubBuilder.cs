@@ -18,7 +18,7 @@ namespace Willowcat.EbookCreator.Epub
         private const string _METADATA = "META-INF/container.xml";
         private readonly ILogger<EpubBuilder> _Logger = null;
 
-        private BibliographyModel _Bibliography;
+        private IBibliographyModel _Bibliography;
         private ContentsFileGenerator _ContentsFileGenerator;
         private ICoverGenerator _CoverGenerator;
         private ITableOfContentsGenerator _TableOfContentsGenerator;

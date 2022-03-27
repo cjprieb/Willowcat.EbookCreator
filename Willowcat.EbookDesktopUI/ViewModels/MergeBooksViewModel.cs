@@ -18,17 +18,14 @@ namespace Willowcat.EbookDesktopUI.ViewModels
     public class MergeBooksViewModel : ViewModelBase, IProgress<LogItem>
     {
         #region Member Variables...
+
         private readonly SettingsModel _Settings = null;
+        private readonly Ao3BibliographyModelFactory _BibliographyModelFactory = new Ao3BibliographyModelFactory();
+        private readonly MergeBooksModel _Model = new MergeBooksModel();
 
         private bool _OverwriteOriginalFiles = false;
-        private string _BookTitle = string.Empty;
-        private string _FolderName = string.Empty;
-        private string _IncludeIndexes = string.Empty;
         private string _OutputDirectory = string.Empty;
-        private string _SeriesIndex = string.Empty;
-        private string _SeriesName = string.Empty;
-        private string _SeriesUrl = string.Empty;
-        private string _WorkUrls = string.Empty;
+
         #endregion Member Variables...
 
         #region Properties...
@@ -36,20 +33,10 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         #region BookTitle
         public string BookTitle
         {
-            get
-            {
-                if (string.IsNullOrEmpty(_BookTitle))
-                {
-                    return _SeriesName;
-                }
-                else
-                {
-                    return _BookTitle;
-                }
-            }
+            get => string.IsNullOrEmpty(_Model.BookTitle) ? _Model.SeriesName : _Model.BookTitle;
             set
             {
-                _BookTitle = value;
+                _Model.BookTitle = value;
                 OnPropertyChanged();
             }
         }
@@ -69,10 +56,10 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         #region FolderName
         public string FolderName
         {
-            get => _FolderName;
+            get => _Model.FolderName;
             set
             {
-                _FolderName = value;
+                _Model.FolderName = value;
                 OnPropertyChanged();
                 SetOutputDirectory();
             }
@@ -86,10 +73,10 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         #region IncludeIndexes
         public string IncludeIndexes
         {
-            get => _IncludeIndexes;
+            get => _Model.IncludeIndexes;
             set
             {
-                _IncludeIndexes = value;
+                _Model.IncludeIndexes = value;
                 OnPropertyChanged();
             }
         }
@@ -130,10 +117,10 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         #region SeriesIndex
         public string SeriesIndex
         {
-            get => _SeriesIndex;
+            get => _Model.SeriesIndex;
             set
             {
-                _SeriesIndex = value;
+                _Model.SeriesIndex = value;
                 OnPropertyChanged();
             }
         }
@@ -142,10 +129,10 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         #region SeriesName
         public string SeriesName
         {
-            get => _SeriesName;
+            get => _Model.SeriesName;
             set
             {
-                _SeriesName = value;
+                _Model.SeriesName = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(BookTitle));
             }
@@ -155,10 +142,10 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         #region SeriesUrl
         public string SeriesUrl
         {
-            get => _SeriesUrl;
+            get => _Model.SeriesUrl;
             set
             {
-                _SeriesUrl = value;
+                _Model.SeriesUrl = value;
                 OnPropertyChanged();
             }
         }
@@ -167,10 +154,10 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         #region WorkUrls
         public string WorkUrls
         {
-            get => _WorkUrls;
+            get => _Model.WorkUrls;
             set
             {
-                _WorkUrls = value;
+                _Model.WorkUrls = value;
                 OnPropertyChanged();
             }
         }
@@ -208,7 +195,6 @@ namespace Willowcat.EbookDesktopUI.ViewModels
             BookTitle = string.Empty;
             FolderName = string.Empty;
             IncludeIndexes = string.Empty;
-            OutputDirectory = string.Empty;
             SeriesIndex = string.Empty;
             SeriesName = string.Empty;
             SeriesUrl = string.Empty;
@@ -244,8 +230,6 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         #region GenerateBookAsync
         private async Task GenerateBookAsync()
         {
-            SaveToProperties();
-
             int? seriesIndex = ParseSeriesIndex();
             var series = new SeriesModel()
             {
@@ -266,7 +250,7 @@ namespace Willowcat.EbookDesktopUI.ViewModels
                     OverwriteOriginalFiles = OverwriteOriginalFiles,
                     WordsReadPerMinute = _Settings.WordsReadPerMinute
                 };
-                var publicationEngine = new MergeBooksPublicationEngine(new MergeLoggingService<MergeBooksPublicationEngine>(this), epubBuilder, epubOptions);
+                var publicationEngine = new MergeBooksPublicationEngine(new MergeLoggingService<MergeBooksPublicationEngine>(this), epubBuilder, epubOptions, _BibliographyModelFactory);
                 await publicationEngine.PublishAsync(series, paths.ToFilePaths());
                 OnPropertyChanged(nameof(DoesDirectoryExist));
             }
@@ -308,14 +292,8 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         #region LoadAsync
         public Task LoadAsync()
         {
-            return Task.Run(() =>
-            {
-                BookTitle = Properties.Settings.Default.LastBookTitle;
-                FolderName = Properties.Settings.Default.LastFolderName;
-                SeriesUrl = Properties.Settings.Default.LastSeriesUrl;
-                SeriesName = Properties.Settings.Default.LastSeriesName;
-                OverwriteOriginalFiles = Properties.Settings.Default.OverwriteOriginalFiles;
-            });
+            OverwriteOriginalFiles = Properties.Settings.Default.OverwriteOriginalFiles;
+            return Task.CompletedTask;
         }
         #endregion LoadAsync
 
@@ -341,18 +319,6 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         }
         #endregion Report
 
-        #region SaveToProperties
-        private void SaveToProperties()
-        {
-            Properties.Settings.Default.LastBookTitle = BookTitle;
-            Properties.Settings.Default.LastFolderName = FolderName;
-            Properties.Settings.Default.LastSeriesUrl = SeriesUrl;
-            Properties.Settings.Default.LastSeriesName = SeriesName;
-            Properties.Settings.Default.OverwriteOriginalFiles = OverwriteOriginalFiles;
-            Properties.Settings.Default.Save();
-        }
-        #endregion SaveToProperties
-
         #region SetOutputDirectory
         private EbookPathsModel SetOutputDirectory()
         {
@@ -362,6 +328,10 @@ namespace Willowcat.EbookDesktopUI.ViewModels
                 string folderName = !string.IsNullOrEmpty(FolderName) ? FolderName : null;
                 paths = new EbookPathsModel(_Settings.BaseMergeDirectory, string.IsNullOrEmpty(folderName) ? SeriesName : folderName);
                 OutputDirectory = Path.GetDirectoryName(paths.EpubFilePath);
+            }
+            else
+            {
+                OutputDirectory = string.Empty;
             }
             return paths;
         }

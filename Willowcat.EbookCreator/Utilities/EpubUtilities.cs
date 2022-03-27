@@ -30,27 +30,31 @@ namespace Willowcat.EbookCreator.Utilities
         #region AddSubjectToContentFile
         public static bool AddSubjectToContentFile(string epubFilePath, string subject)
         {
-            EpubZippedFile zipFile = new EpubZippedFile(epubFilePath);
-            return zipFile.UpdateContentFile((editor) => editor.AddSubject(subject));
+            using (EpubZippedFile zipFile = new EpubZippedFile(epubFilePath))
+            {
+                return zipFile.UpdateContentFile((editor) => editor.AddSubject(subject));
+            }
         }
         #endregion AddSubjectToContentFile
 
         #region AddTimeToReadToEpub
         public static bool AddTimeToReadToEpub(string epubFilePath, TimeSpan timeToRead)
         {
-            EpubZippedFile zipFile = new EpubZippedFile(epubFilePath);
-            return zipFile.UpdateContentFile((editor) =>
+            using (EpubZippedFile zipFile = new EpubZippedFile(epubFilePath))
             {
-                var timeToReadField = CalibreCustomFields.CreateTimeToReadField(timeToRead);
-                var changesMade = false;
-                if (editor.Version == "3.0" || editor.Version == "2.0")
+                return zipFile.UpdateContentFile((editor) =>
                 {
-                    editor.RemoveCustomFieldValue("#readtime");
-                    editor.SetCustomFieldValue(timeToReadField);
-                    changesMade = true;
-                }
-                return changesMade;
-            });
+                    var timeToReadField = CalibreCustomFields.CreateTimeToReadField(timeToRead);
+                    var changesMade = false;
+                    if (editor.Version == "3.0" || editor.Version == "2.0")
+                    {
+                        editor.RemoveCustomFieldValue("#readtime");
+                        editor.SetCustomFieldValue(timeToReadField);
+                        changesMade = true;
+                    }
+                    return changesMade;
+                });
+            }
         }
         #endregion AddTimeToReadToEpub
 
@@ -171,7 +175,7 @@ namespace Willowcat.EbookCreator.Utilities
 
             using (ZipFile zip = ZipFile.Read(epubFilePath))
             {
-                foreach (ZipEntry e in zip.Where(entry => entry.FileName.EndsWith("html")))
+                foreach (ZipEntry e in zip.Where(entry => entry.FileName.EndsWith("html") || entry.FileName.EndsWith("htm")))
                 {
                     using (var stream = new MemoryStream())
                     {
@@ -241,10 +245,42 @@ namespace Willowcat.EbookCreator.Utilities
         #region RemoveSubjectFromContentFile
         public static bool RemoveSubjectFromContentFile(string epubFilePath, string subject)
         {
-            EpubZippedFile zipFile = new EpubZippedFile(epubFilePath);
-            return zipFile.UpdateContentFile((editor) => editor.RemoveSubject(subject));
+            using (EpubZippedFile zipFile = new EpubZippedFile(epubFilePath))
+            {
+                return zipFile.UpdateContentFile((editor) => editor.RemoveSubject(subject));
+            }
         }
         #endregion RemoveSubjectFromContentFile
+
+        #region SearchHtmlContent
+        public static bool SearchHtmlContentFiles(string epubFilePath, string keyword)
+        {
+            bool found = false;
+            using (EpubZippedFile zipFile = new EpubZippedFile(epubFilePath))
+            {
+                zipFile.ProcessChapterFiles((stream) =>
+                {
+                    if (!found)
+                    {
+                        string html = Encoding.UTF8.GetString(stream.ToArray());
+                        found = SearchHtmlFile(html, keyword);
+                    }
+                });
+            }
+            return found;
+        }
+        #endregion SearchHtmlContent
+
+        #region SearchHtmlContent
+        public static bool SearchHtmlFile(string html, string keyword)
+        {
+            bool found = false;
+            //CQ dom = html;
+            //string text = dom["body"].Text();
+            found = html.Contains(keyword, StringComparison.OrdinalIgnoreCase);
+            return found;
+        }
+        #endregion SearchHtmlContent
 
         #endregion Methods...
     }

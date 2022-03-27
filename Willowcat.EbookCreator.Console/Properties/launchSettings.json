@@ -2,7 +2,7 @@
   "profiles": {
     "Willowcat.EbookCreator.Console": {
       "commandName": "Project",
-      "commandLineArgs": "cleanup"
+      "commandLineArgs": "readtime -f \"D:\\Users\\Crystal\\Sync\\eBooks\\Calibre\\drakefeathers\\timcat (840)\\timcat - drakefeathers.epub\" -w 471"
     }
   }
 }

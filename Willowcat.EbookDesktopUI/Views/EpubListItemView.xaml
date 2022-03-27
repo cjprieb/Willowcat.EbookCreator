@@ -155,6 +155,11 @@
                 <Label Content="Chapters: " Style="{StaticResource EpubLabelStyle}"/>
                 <TextBlock Text="{Binding DisplayModel.Statistics.ChapterDisplay, Mode=OneWay}"
                     Style="{StaticResource EpubSearchStatStyle}"/>
+                
+                <Label Content="Downloaded: " Style="{StaticResource EpubLabelStyle}"/>
+                <TextBlock 
+                    Text="{Binding DisplayModel.Statistics.DateFileCreated, StringFormat=\{0:MMM dd\, yyyy\}, Mode=OneWay}"
+                    Style="{StaticResource EpubSearchStatStyle}"/>
             </StackPanel>
         </Border>
 

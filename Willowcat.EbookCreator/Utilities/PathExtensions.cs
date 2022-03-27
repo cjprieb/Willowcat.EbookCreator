@@ -22,7 +22,10 @@ namespace Willowcat.EbookCreator.Utilities
             string escapedTitle = workTitle
                 .Replace(":", "")
                 .Replace("?", "")
-                .Replace(",", "");
+                .Replace(",", "")
+                .Replace(".", "")
+                .Replace("'", "")
+                .Replace("\"", "");
 
             return $"{workIndex:D2}-{escapedTitle.Trim()}.epub";
         }

@@ -48,7 +48,7 @@ namespace Willowcat.EbookCreator.Epub
         #endregion CreateNavPointElement
 
         #region CreateTableOfContents
-        public FileItemModel CreateTableOfContents(BibliographyModel bibliography, TableOfContentsModel tableOfContents)
+        public FileItemModel CreateTableOfContents(IBibliographyModel bibliography, TableOfContentsModel tableOfContents)
         {
             var doc = new XElement(ncxNamespace + "ncx",
                 new XAttribute("xmlns", ncxNamespaceUrl),

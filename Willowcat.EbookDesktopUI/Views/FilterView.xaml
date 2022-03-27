@@ -55,7 +55,11 @@
                         LabelText="Keyword: "
                         SearchText="{Binding Keyword,Mode=TwoWay}"
                         ClearCommand="{Binding ClearKeywordCommand}"/>
-                    
+
+                    <CheckBox
+                        Content="Do Full Text Search"
+                        IsChecked="{Binding DoFullTextSearch,Mode=TwoWay}" />
+
                     <custom:FilterTextItem
                         LabelText="Author: "
                         SearchText="{Binding Author,Mode=TwoWay}"

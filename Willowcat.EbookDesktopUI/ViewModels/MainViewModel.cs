@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Willowcat.Common.UI.ViewModel;
 using Willowcat.EbookDesktopUI.Models;
 using Willowcat.EbookDesktopUI.Services;
@@ -76,19 +77,23 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         #region Methods...
 
         #region LoadAsync
-        public async Task LoadAsync()
+        public Task LoadAsync()
         {
             Settings.LoadFromProperties();
 
+            List<Task> tasks = new List<Task>();
+
             if (EpubSearchViewModel != null)
             {
-                await EpubSearchViewModel.LoadAsync();
+                tasks.Add(EpubSearchViewModel.LoadAsync());
             }
 
             if (MergeBooksViewModel != null)
             {
-                await MergeBooksViewModel.LoadAsync();
+                tasks.Add(MergeBooksViewModel.LoadAsync());
             }
+
+            return Task.WhenAll(tasks.ToArray());
         }
         #endregion LoadAsync
 

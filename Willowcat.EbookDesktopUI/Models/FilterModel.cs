@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Willowcat.Common.Utilities;
+using Willowcat.EbookCreator.Utilities;
 
 namespace Willowcat.EbookDesktopUI.Models
 {
     public class FilterModel
     {
+        public bool DoFullTextSearch { get; set; }
         public string Author { get; set; }
         public string Keyword { get; set; }
         public HashSet<string> ExcludedTags { get; set; } = new HashSet<string>();
@@ -53,6 +55,10 @@ namespace Willowcat.EbookDesktopUI.Models
                 if (Contains(pub.Title, Keyword)) return true;
                 if (allPubTags.Any(tag => Contains(tag, Keyword))) return true;
                 if (Contains(pub.Description, Keyword)) return true;
+                if (DoFullTextSearch)
+                {
+                    return EpubUtilities.SearchHtmlContentFiles(pub.LocalFilePath, Keyword);
+                }
 
                 return false;
             }

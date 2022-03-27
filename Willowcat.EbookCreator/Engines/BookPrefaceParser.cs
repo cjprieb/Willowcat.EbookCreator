@@ -31,7 +31,7 @@ namespace Willowcat.EbookCreator.Engines
                 foreach (var ahrefElement in linkElements)
                 {
                     string linkUrl = ahrefElement.GetAttribute("href");
-                    if (linkUrl.Contains("works"))
+                    if (linkUrl != null && linkUrl.Contains("works"))
                     {
                         url = linkUrl;
                         break;

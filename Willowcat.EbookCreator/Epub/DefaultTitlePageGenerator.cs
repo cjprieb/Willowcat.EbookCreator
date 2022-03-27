@@ -21,11 +21,11 @@ namespace Willowcat.EbookCreator.Epub
         #region Methods...
 
         #region CreateTitlePageFile
-        public FileItemModel CreateTitlePageFile(BibliographyModel bibliography)
+        public FileItemModel CreateTitlePageFile(IBibliographyModel bibliography)
         {
             CQ template = Properties.Resources.TitlePageTemplate;
             template["#title"].SetInnerTextOfFirst(bibliography.Title);
-            template["#creator"].SetInnerTextOfFirst(bibliography.Creator);
+            template["#creator"].SetInnerTextOfFirst(BibliographyModel.FormatCreatorList(bibliography.Creators));
             template["#publisher"].SetInnerTextOfFirst(bibliography.Publisher);
             template["#publishedDate"].SetInnerTextOfFirst(bibliography.PublishedDate.ToString("yyyy"));
 

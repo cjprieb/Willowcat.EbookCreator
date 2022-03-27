@@ -77,6 +77,7 @@ namespace Willowcat.EbookDesktopUI.Models
         public DateTime? DateCompleted { get; set; }
         public DateTime DatePublished { get; set; }
         public DateTime? DateUpdated { get; set; }
+        public DateTime DateFileCreated { get; set; }
         public int ChaptersReleased { get; set; }
         public int? TotalChapters { get; set; }
         public int Words { get; set; }

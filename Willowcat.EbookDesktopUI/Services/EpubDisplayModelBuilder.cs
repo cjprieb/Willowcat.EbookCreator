@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security;
 using System.Text.RegularExpressions;
@@ -16,10 +17,11 @@ namespace Willowcat.EbookDesktopUI.Services
         /// </summary>
         private static Regex _DatePattern = new Regex(@"(\d{4})-(\d{2})-(\d{2})");
 
-        private BibliographyModel _Bibliography = null;
+        private IBibliographyModel _Bibliography = null;
         private Dictionary<string, List<string>> _MetadataDictionaries = null;
         private string _Description = null;
         private string _FirstChapterText = null;
+        private string _LocalFilePath = null;
         private string _WorkUrl = null;
 
         #endregion Member Variables...
@@ -56,6 +58,7 @@ namespace Willowcat.EbookDesktopUI.Services
 
             model.Description = _Description;
             model.FirstChapterText = _FirstChapterText;
+            model.LocalFilePath = _LocalFilePath;
             model.WorkUrl = _WorkUrl;
             model.WorkId = ParseWorkId(_WorkUrl);
 
@@ -86,7 +89,7 @@ namespace Willowcat.EbookDesktopUI.Services
         #region InitializeBibliography
         private void InitializeBibliography(EpubDisplayModel model)
         {
-            model.Author = _Bibliography.Creator;
+            model.Author = BibliographyModel.FormatCreatorList(_Bibliography.Creators);
             model.Title = _Bibliography.Title;
             if (!string.IsNullOrEmpty(_Bibliography.Series))
             {
@@ -127,6 +130,11 @@ namespace Willowcat.EbookDesktopUI.Services
             (int count, int? total) = ParseChapters("Chapters");
             model.Statistics.ChaptersReleased = count;
             model.Statistics.TotalChapters = total;
+
+            if (!string.IsNullOrEmpty(_LocalFilePath) && File.Exists(_LocalFilePath))
+            {
+                model.Statistics.DateFileCreated = File.GetCreationTime(_LocalFilePath);
+            }
         }
         #endregion InitializeStatistics
 
@@ -307,10 +315,13 @@ namespace Willowcat.EbookDesktopUI.Services
         {
             //http://archiveofourown.org/works/24359968
             string id = null;
-            Match match = Regex.Match(workUrl, @"http://archiveofourown.org/works/(\d+)");
-            if (match.Success)
+            if (workUrl != null)
             {
-                id = match.Groups[1].Value;
+                Match match = Regex.Match(workUrl, @"http://archiveofourown.org/works/(\d+)");
+                if (match.Success)
+                {
+                    id = match.Groups[1].Value;
+                }
             }
             return id;
         }
@@ -331,6 +342,13 @@ namespace Willowcat.EbookDesktopUI.Services
             _FirstChapterText = !string.IsNullOrEmpty(firstChapterText) ? firstChapterText + "<p>...</p>" : string.Empty;
         }
         #endregion SetDescription
+
+        #region SetLocalFilePath
+        public void SetLocalFilePath(string filePath)
+        {
+            _LocalFilePath = filePath;
+        }
+        #endregion SetLocalFilePath
 
         #region SetMetadata
         public EpubDisplayModelBuilder SetMetadata(Dictionary<string, List<string>> dictionaries)

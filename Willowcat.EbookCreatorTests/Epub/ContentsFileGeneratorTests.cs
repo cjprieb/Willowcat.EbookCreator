@@ -63,11 +63,11 @@ namespace Willowcat.EbookCreatorTests.Epub
                 Title = "the title",
                 Description = "<p>a description of the book with <b>formatting</b>.</p>",
                 PublishedDate = new DateTime(2015, 3, 5),
-                Creator = "name of creator",
                 CreatorSort = "creator name",
                 Guid = new Guid("1ed2e6a5-acde-4492-9bee-62d0df446cc1"),
                 Publisher = "a publishing co"       
             };
+            bibliography.SetCreators("name of creator");
             ContentsFileModel bookFiles = GetSampleBookFiles();
             var fileItem = _ContentsFileGenerator.CreateContentsFile(bibliography, bookFiles);
             Assert.AreEqual("content", fileItem.Id, nameof(FileItemModel.Id));
@@ -84,7 +84,6 @@ namespace Willowcat.EbookCreatorTests.Epub
                 Title = "the title",
                 Description = "<p>a description of the book with <b>formatting</b>.</p>",
                 PublishedDate = new DateTime(2015, 3, 5),
-                Creator = "name of creator",
                 CreatorSort = "creator name",
                 Guid = new Guid("1ed2e6a5-acde-4492-9bee-62d0df446cc1"),
                 Publisher = "a publishing co",
@@ -97,7 +96,8 @@ namespace Willowcat.EbookCreatorTests.Epub
                     { "#read_time", CalibreCustomFields.CreateTimeToReadField(new TimeSpan(3, 45, 0)) },
                 }
             };
-            
+            bibliography.SetCreators("name of creator");
+
             ContentsFileModel bookFiles = GetSampleBookFiles();
             var fileItem = _ContentsFileGenerator.CreateContentsFile(bibliography, bookFiles);
             Assert.AreEqual("content", fileItem.Id, nameof(FileItemModel.Id));
@@ -114,13 +114,13 @@ namespace Willowcat.EbookCreatorTests.Epub
                 Title = "the title",
                 Description = "<p>a description of the book with <b>formatting</b>.</p>",
                 PublishedDate = new DateTime(2015, 3, 5),
-                Creator = "name of creator",
                 CreatorSort = "creator name",
                 Guid = new Guid("1ed2e6a5-acde-4492-9bee-62d0df446cc1"),
                 Publisher = "a publishing co",
                 Language = "deustch",
                 Translator = "the translator person"
             };
+            bibliography.SetCreators("name of creator");
             ContentsFileModel bookFiles = GetSampleBookFiles();
             var fileItem = _ContentsFileGenerator.CreateContentsFile(bibliography, bookFiles);
             Assert.AreEqual("content", fileItem.Id, nameof(FileItemModel.Id));
@@ -137,12 +137,12 @@ namespace Willowcat.EbookCreatorTests.Epub
                 Title = "the title",
                 Description = "<p>a description of the book with <b>formatting</b>.</p>",
                 PublishedDate = new DateTime(2015, 3, 5),
-                Creator = "name of creator",
                 CreatorSort = "creator name",
                 Guid = new Guid("1ed2e6a5-acde-4492-9bee-62d0df446cc1"),
                 Publisher = "a publishing co",
                 Proofreader = "proofing person"
             };
+            bibliography.SetCreators("name of creator");
             ContentsFileModel bookFiles = GetSampleBookFiles();
             var fileItem = _ContentsFileGenerator.CreateContentsFile(bibliography, bookFiles);
             Assert.AreEqual("content", fileItem.Id, nameof(FileItemModel.Id));
@@ -159,13 +159,13 @@ namespace Willowcat.EbookCreatorTests.Epub
                 Title = "the title",
                 Description = "<p>a description of the book with <b>formatting</b>.</p>",
                 PublishedDate = new DateTime(2015, 3, 5),
-                Creator = "name of creator",
                 CreatorSort = "creator name",
                 Guid = new Guid("1ed2e6a5-acde-4492-9bee-62d0df446cc1"),
                 Publisher = "a publishing co",
                 Series = "series name",
                 SeriesIndex = 3
             };
+            bibliography.SetCreators("name of creator");
             ContentsFileModel bookFiles = GetSampleBookFiles();
             var fileItem = _ContentsFileGenerator.CreateContentsFile(bibliography, bookFiles);
             Assert.AreEqual("content", fileItem.Id, nameof(FileItemModel.Id));
@@ -182,11 +182,11 @@ namespace Willowcat.EbookCreatorTests.Epub
                 Title = "the title",
                 Description = "<p>a description of the book with <b>formatting</b>.</p>",
                 PublishedDate = new DateTime(2015, 3, 5),
-                Creator = "name of creator",
                 CreatorSort = "creator name",
                 Guid = new Guid("1ed2e6a5-acde-4492-9bee-62d0df446cc1"),
                 Publisher = "a publishing co"
             };
+            bibliography.SetCreators("name of creator");
             bibliography.Tags.Add("action");
             bibliography.Tags.Add("fantasy");
             ContentsFileModel bookFiles = GetSampleBookFiles();

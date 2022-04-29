@@ -20,6 +20,7 @@ prefs.defaults['format_custom_field_name'] = 'format'
 prefs.defaults['fanfiction_tags_custom_field_name'] = 'fandom_tags'
 prefs.defaults['time_to_read_minutes_custom_field_name'] = 'read_time_minutes'
 prefs.defaults['tag_conversion_config_path'] = ''
+# prefs.defaults['sync_custom_field_name'] = 'sync_book'
 # prefs.defaults['fanfiction_tags_custom_field_name'] = 'fandom_tags'
 
 class SettingKey:
@@ -41,6 +42,7 @@ class ConfigWidget(QWidget):
         self.settings_rows.append(SettingKey('Custom Field Name for "format":', 'format_custom_field_name'))
         self.settings_rows.append(SettingKey('Custom Field Name for "fandom tags":', 'fanfiction_tags_custom_field_name'))
         self.settings_rows.append(SettingKey('Custom Field Name for "time to read (minutes)":', 'time_to_read_minutes_custom_field_name'))
+        self.settings_rows.append(SettingKey('Custom Field Name for "sync":', 'sync_custom_field_name'))
         self.settings_rows.append(SettingKey('Tag Conversion Config Path:', 'tag_conversion_config_path'))
 
         for setting in self.settings_rows:

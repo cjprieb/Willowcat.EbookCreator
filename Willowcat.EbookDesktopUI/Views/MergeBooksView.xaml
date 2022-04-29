@@ -100,8 +100,9 @@
         <TextBox 
             Grid.Row="6"
             Grid.Column="1"
+            AcceptsReturn="True"
             Style="{StaticResource DefaultTextboxStyle}"
-            Text="{Binding WorkUrls}"
+            Text="{Binding WorkUrls,Mode=TwoWay}"
             TextWrapping="Wrap" />
 
         <CheckBox

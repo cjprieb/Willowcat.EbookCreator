@@ -72,7 +72,7 @@ namespace Willowcat.EbookDesktopUI.Services
                 try
                 {
                     var ebook = unzipper.ExtractFilesFromBook(filePath, unzipToDirectory);
-                    var parser = new CalibreContentParser(ebook.ContentFilePath);
+                    var parser = new CalibreContentParser(ebook.ContentFilePath, true);
                     var bibliography = parser.ParseForBibliography();
                     builder.SetBibliography(bibliography);
 

@@ -1,6 +1,6 @@
 from calibre.customize import FileTypePlugin
 from calibre_plugins.willowcat_add_book.config import prefs
-from calibre_plugins.willowcat_add_book.read import getTimeToRead, parseTimeToReadAsMinutes
+from calibre_plugins.willowcat_add_book.read import getTimeToRead, parseTimeToReadAsMinutes, run_command
 
 class TimeToReadAddedFile(FileTypePlugin):
 
@@ -25,6 +25,25 @@ class TimeToReadAddedFile(FileTypePlugin):
         return path_to_ebook
 
     def postadd(self, book_id, fmt_map, db):
+
+        sync_custom_field = prefs['sync_custom_field_name']            
+
+        self.log(fmt_map)
+        if "epub" in fmt_map:
+            path_to_ebook = fmt_map["epub"]
+            self.set_time_to_read(db, book_id, path_to_ebook)
+            self.update_metadata(db, book_id, path_to_ebook)
+    
+    def update_metadata(self, db, book_id, path_to_ebook):
+        ebook_console_app_path = prefs['ebook_console_app_path']
+        
+        command = [ebook_console_app_path, 'identifier', "-f", path_to_ebook]
+        text = run_command(command)
+        
+        if (text != None) and (text != ""):
+            db.set_field("identifiers", {book_id: text})
+
+    def set_tags(self, db, book_id):
         description = db.get_field(book_id, "comments", index_is_id=True)
         publisher = db.get_field(book_id, "publisher", index_is_id=True)
         if description.find("<p><b>Tags: </b>") < 0:
@@ -37,7 +56,6 @@ class TimeToReadAddedFile(FileTypePlugin):
             
             new_tags = []
             format_custom_field = prefs['format_custom_field_name']
-            fanfiction_tags_custom_field = prefs['fanfiction_tags_custom_field_name']
             if publisher == "Archive of Our Own": 
                 if format_custom_field != None and format_custom_field != "":
                     db.set_custom(book_id, "Fan Fiction", label=format_custom_field)
@@ -45,23 +63,19 @@ class TimeToReadAddedFile(FileTypePlugin):
                 from calibre_plugins.willowcat_add_book.tags import TagHelper
                 new_tags = TagHelper().process_tags(fanfiction_tags, new_tags)
                 self.log("new tags: {0}".format(new_tags))
-                # self.log("fanfiction tags: {0}".format(fanfiction_tags))
-                # db.set_custom(book_id, fanfiction_tags, label=fanfiction_tags_custom_field)
             db.set_tags(book_id, new_tags)
-            
 
-        self.log(fmt_map)
+    def set_time_to_read(self, db, book_id, path_to_ebook):
+        timeToRead = getTimeToRead(path_to_ebook)
+
         read_time_custom_field = prefs['time_to_read_custom_field_name']
-        if "epub" in fmt_map and read_time_custom_field != "":
-            path_to_ebook = fmt_map["epub"]
-            
-            timeToRead = getTimeToRead(path_to_ebook)
+        if read_time_custom_field != "":
             db.set_custom(book_id, timeToRead, label=read_time_custom_field)
 
-            read_minutes_custom_field = prefs['time_to_read_minutes_custom_field_name']
-            if read_minutes_custom_field != "":
-                time_to_read_minutes = parseTimeToReadAsMinutes(timeToRead)
-                db.set_custom(book_id, time_to_read_minutes, label=read_minutes_custom_field)
+        read_minutes_custom_field = prefs['time_to_read_minutes_custom_field_name']
+        if read_minutes_custom_field != "":
+            time_to_read_minutes = parseTimeToReadAsMinutes(timeToRead)
+            db.set_custom(book_id, time_to_read_minutes, label=read_minutes_custom_field)
 
     def log(self, message):
         print("Willowcat ", self.version, ": ", message)

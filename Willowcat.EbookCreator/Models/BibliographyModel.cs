@@ -53,9 +53,9 @@ namespace Willowcat.EbookCreator.Models
             return FormatCreatorList(creators);
         }
 
-        public void SetCreators(string value)
+        public void SetCreators(string value, bool splitByComma = false)
         {
-            _Creators = value.Split('&').ToList();
+            _Creators = value.Split(splitByComma ? ',' : '&').ToList();
         }
     }
 }

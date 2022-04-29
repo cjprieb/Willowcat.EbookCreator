@@ -27,7 +27,7 @@ namespace Willowcat.EbookDesktopUI.Services
             Ao3BibliographModel Result = null;
             try
             {
-                var parser = new CalibreContentParser(ebook.ContentFilePath);
+                var parser = new CalibreContentParser(ebook.ContentFilePath, true);
                 Result = new Ao3BibliographModel(parser.ParseForBibliography());
 
                 if (ebook.ChaptersFilePaths.Count >= 1)

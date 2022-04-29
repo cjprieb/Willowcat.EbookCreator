@@ -15,6 +15,7 @@ namespace Willowcat.EbookCreator.Engines
 
         private const string opfNamespaceUrl = "http://www.idpf.org/2007/opf";
         private readonly XNamespace _OpfNamespace = opfNamespaceUrl;
+        private readonly bool _SplitByComma;
 
         #endregion Member Variables...
 
@@ -24,9 +25,10 @@ namespace Willowcat.EbookCreator.Engines
         /// Parses XML at filePath
         /// </summary>
         /// <param name="filePath"></param>
-        public CalibreContentParser(string filePath)
+        public CalibreContentParser(string filePath, bool splitCreatorsByComma = false)
         {
             _RootElement = XElement.Load(filePath);
+            _SplitByComma = splitCreatorsByComma;
         }
         #endregion Constructors...
 
@@ -66,7 +68,7 @@ namespace Willowcat.EbookCreator.Engines
                     break;
 
                 case "creator":
-                    bibliography.SetCreators(value);
+                    bibliography.SetCreators(value, _SplitByComma);
                     break;
 
                 case "date":

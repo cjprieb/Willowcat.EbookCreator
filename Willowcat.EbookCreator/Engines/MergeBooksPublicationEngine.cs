@@ -130,7 +130,7 @@ namespace Willowcat.EbookCreator.Engines
             List<IBibliographyModel> childBibliographies = new List<IBibliographyModel>();
             foreach (var ebook in combinedEbooks)
             {
-                CalibreContentParser parser = new CalibreContentParser(ebook.ContentFilePath);
+                CalibreContentParser parser = new CalibreContentParser(ebook.ContentFilePath, true);
                 IBibliographyModel bibliography = parser.ParseForBibliography();
                 bibliography = _BibliographyModelFactory.ExtractAdditionalMetadata(ebook, bibliography);
                 if (masterBibliography == null)
@@ -273,7 +273,7 @@ namespace Willowcat.EbookCreator.Engines
         #region GetBookTitle
         private string GetBookTitle(string contentFilePath)
         {
-            CalibreContentParser parser = new CalibreContentParser(contentFilePath);
+            CalibreContentParser parser = new CalibreContentParser(contentFilePath, true);
             var bibliography = parser.ParseForBibliography();
             return bibliography.Title;
         }

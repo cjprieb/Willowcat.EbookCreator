@@ -3,6 +3,7 @@ using System.Diagnostics;
 
 namespace Willowcat.EbookDesktopUI.Common
 {
+    // TODO: move to Willowcat.Common.UI - HyperlinkExtensions
     public class HyperlinkExtensions
     {
         #region Member Variables...

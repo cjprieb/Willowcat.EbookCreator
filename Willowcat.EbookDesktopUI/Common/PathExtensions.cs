@@ -3,6 +3,7 @@ using System.IO;
 
 namespace Willowcat.EbookDesktopUI.Common
 {
+    // TODO: move to Willowcat.Common.UI - PathExtensions
     public class PathExtensions
     {
         #region ExploreToDirectory

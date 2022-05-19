@@ -4,6 +4,7 @@ using System.Windows.Media;
 
 namespace Willowcat.EbookDesktopUI.Common
 {
+    // TODO: move to Willowcat.Common.UI - DependencyObjectExtensions
     public static class DependencyObjectExtensions
     {
         #region Methods...

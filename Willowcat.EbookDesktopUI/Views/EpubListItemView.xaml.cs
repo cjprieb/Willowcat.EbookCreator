@@ -14,10 +14,5 @@ namespace Willowcat.EbookDesktopUI.Views
         {
             InitializeComponent();
         }
-
-        private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
-        {
-            HyperlinkExtensions.Navigate(e.Uri);
-        }
     }
 }

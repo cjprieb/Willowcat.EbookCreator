@@ -15,21 +15,6 @@ namespace Willowcat.EbookDesktopUI.Views
             InitializeComponent();
         }
 
-        private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
-        {
-            HyperlinkExtensions.Navigate(e.Uri);
-        }
-
-        private void OpenFilePathButton_Click(object sender, System.Windows.RoutedEventArgs e)
-        {
-            if (DataContext == null) return;
-
-            if (DataContext is EpubItemViewModel viewModel)
-            {
-                PathExtensions.ExploreToFile(viewModel.DisplayModel.LocalFilePath);
-            }
-        }
-
         public void ResetVisibleControls()
         {
             BookDetailsTabControl.SelectedItem = SummaryTabItem;

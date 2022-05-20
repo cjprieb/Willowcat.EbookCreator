@@ -7,6 +7,8 @@
              xmlns:custom="clr-namespace:Willowcat.EbookDesktopUI.Views.UserControls"
              xmlns:converters="clr-namespace:Willowcat.EbookDesktopUI.ApplicationResources.Converters"
              xmlns:common="clr-namespace:Willowcat.Common.UI.Behavior;assembly=Willowcat.Common.UI"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:behaviors="clr-namespace:Willowcat.Common.UI.Behavior;assembly=Willowcat.Common.UI"
              xmlns:fa="http://schemas.fontawesome.io/icons/"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
@@ -34,9 +36,13 @@
             <Button 
                 Grid.Row="0"
                 Grid.Column="1"
-                Click="OpenFilePathButton_Click"
+                behaviors:ExploreToFileBehavior.FilePath="{Binding DisplayModel.LocalFilePath}"
+                behaviors:ExploreToFileBehavior.OpenAsDirectory="True"
                 ToolTip="{Binding DisplayModel.LocalFilePath}"
                 Style="{StaticResource EpubIconButtonStyle}">
+                <i:Interaction.Behaviors>
+                    <behaviors:ExploreToFileBehavior />
+                </i:Interaction.Behaviors>
                 <Button.Content>
                     <fa:FontAwesome Icon="FolderOpen" />
                 </Button.Content>

@@ -1,8 +1,6 @@
-﻿using System.Diagnostics;
-using System.IO;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using Willowcat.EbookDesktopUI.Common;
+using Willowcat.Common.UI.Behavior;
 using Willowcat.EbookDesktopUI.ViewModels;
 
 namespace Willowcat.EbookDesktopUI.Views

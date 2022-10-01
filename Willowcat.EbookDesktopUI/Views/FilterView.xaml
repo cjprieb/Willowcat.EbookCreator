@@ -48,6 +48,8 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <StackPanel Grid.Row="0" Orientation="Vertical">
@@ -82,7 +84,6 @@
                                 ItemsSource="{Binding ProcessTags}" 
                                 SelectedValue="{Binding SelectedProcessTag}" />
                         </Border>
-
                     </Grid>
 
                     <local:TagFilterListView 
@@ -93,6 +94,25 @@
 
                     <local:TagFilterListView 
                         DataContext="{Binding FandomsViewModel}" />
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Label 
+                            Grid.Column="0"
+                            Style="{StaticResource FilterTagListHeaderStyle}"
+                            Content="Completion Status: "/>
+
+                        <Border Grid.Column="1">
+                            <ComboBox 
+                                DisplayMemberPath="Value"
+                                SelectedValuePath="Key"
+                                ItemsSource="{Binding CompletionOptions}" 
+                                SelectedValue="{Binding CompletionStatus}"/>
+                        </Border>
+                    </Grid>
                 </StackPanel>
 
                 <Label 

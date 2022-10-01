@@ -5,6 +5,11 @@ using Willowcat.EbookCreator.Utilities;
 
 namespace Willowcat.EbookDesktopUI.Models
 {
+    public enum CompletionOption
+    {
+        All, Incomplete, Completed
+    }
+
     public class FilterModel
     {
         public bool DoFullTextSearch { get; set; }
@@ -15,6 +20,7 @@ namespace Willowcat.EbookDesktopUI.Models
         public HashSet<string> Fandoms { get; set; } = new HashSet<string>();
 
         public ProcessTagType SelectedProcessTag { get; set; } = ProcessTagType.All;
+        public CompletionOption CompletionStatus { get; internal set; }
 
         internal bool IsMatch(EpubDisplayModel pub)
         {
@@ -61,6 +67,13 @@ namespace Willowcat.EbookDesktopUI.Models
                 }
 
                 return false;
+            }
+
+            if (CompletionStatus != CompletionOption.All)
+            {
+                bool isPublicationComplete = pub.Statistics?.DateCompleted.HasValue ?? false;
+                return (CompletionStatus == CompletionOption.Completed && isPublicationComplete)
+                    || (CompletionStatus == CompletionOption.Incomplete && !isPublicationComplete);
             }
 
             return true;

@@ -17,7 +17,7 @@ namespace Willowcat.EbookDesktopUI.ViewModels
     public class FilterViewModel : ViewModelBase
     {
         #region Member Variables...
-        private static Dictionary<ProcessTagType, string> _ProcessTags = new Dictionary<ProcessTagType, string>() 
+        private static Dictionary<ProcessTagType, string> _ProcessTags = new Dictionary<ProcessTagType, string>()
         {
             { ProcessTagType.All, "" },
             { ProcessTagType.None, "Untagged" },
@@ -28,6 +28,12 @@ namespace Willowcat.EbookDesktopUI.ViewModels
             { ProcessTagType.Skip, "Skip" },
             { ProcessTagType.Maybe, "Maybe" }
         };
+        private static Dictionary<CompletionOption, string> _CompletionOptions = new Dictionary<CompletionOption, string>()
+        {
+            { CompletionOption.All, "All" },
+            { CompletionOption.Incomplete, "Incomplete" },
+            { CompletionOption.Completed, "Completed" }
+        };
 
         private readonly EbookFileService _EbookFileService;
 
@@ -37,6 +43,7 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         private string _Keyword = null;
         private TaskProgressType _SearchTaskStatus = TaskProgressType.None;
         private ProcessTagType _SelectedProcessTagType = ProcessTagType.None;
+        private CompletionOption _CompletionStatus;
         #endregion Member Variables...
 
         #region Properties...
@@ -71,8 +78,18 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         #region ClearKeywordCommand
         public ICommand ClearKeywordCommand { get; private set; }
         #endregion ClearKeywordCommand
+        public Dictionary<CompletionOption, string> CompletionOptions => _CompletionOptions;
 
-        #region DoFullTextSearch
+        public CompletionOption CompletionStatus
+        {
+            get => _CompletionStatus; 
+            set
+            {
+                _CompletionStatus = value;
+                OnPropertyChanged();
+            }
+        }
+
         public bool DoFullTextSearch
         {
             get => _DoFullTextSearch;
@@ -82,19 +99,13 @@ namespace Willowcat.EbookDesktopUI.ViewModels
                 OnPropertyChanged();
             }
         }
-        #endregion DoFullTextSearch
 
         #region ExcludedTagsViewModel
         public TagFilterListViewModel ExcludedTagsViewModel { get; private set; } = new TagFilterListViewModel("Exclude:");
         #endregion ExcludedTagsViewModel
 
-        #region IncludedTagsViewModel
         public TagFilterListViewModel IncludedTagsViewModel { get; private set; } = new TagFilterListViewModel("Include:");
-        #endregion IncludedTagsViewModel
-
-        #region FandomsViewModel
         public TagFilterListViewModel FandomsViewModel { get; private set; } = new TagFilterListViewModel("Fandoms:");
-        #endregion FandomsViewModel
 
         #region FilterModel
         public FilterModel FilterModel
@@ -145,12 +156,7 @@ namespace Willowcat.EbookDesktopUI.ViewModels
         }
         #endregion IsSearching
 
-        #region ProcessTags
-        public Dictionary<ProcessTagType, string> ProcessTags
-        {
-            get => _ProcessTags;
-        }
-        #endregion ProcessTags
+        public Dictionary<ProcessTagType, string> ProcessTags => _ProcessTags;
 
         #region SearchTaskStatus
         public TaskProgressType SearchTaskStatus
@@ -229,6 +235,7 @@ namespace Willowcat.EbookDesktopUI.ViewModels
             filterModel.IncludedTags.AddAll(IncludedTagsViewModel.SelectedTags.Select(tag => tag.Name));
             filterModel.Fandoms.AddAll(FandomsViewModel.SelectedTags.Select(tag => tag.Name));
             filterModel.SelectedProcessTag = SelectedProcessTag;
+            filterModel.CompletionStatus = CompletionStatus;
             FilterModel = filterModel;
             FilterUpdated?.Invoke(this, new FilterUpdatedEventArgs(filterModel));
         }

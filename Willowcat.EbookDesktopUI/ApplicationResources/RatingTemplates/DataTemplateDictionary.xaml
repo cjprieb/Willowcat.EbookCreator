@@ -1,0 +1,11 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:Willowcat.EbookDesktopUI.ApplicationResources.RatingTemplates">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/Willowcat.EbookDesktopUI;component/ApplicationResources/RatingTemplates/BlankTemplate.xaml" />
+        <ResourceDictionary Source="/Willowcat.EbookDesktopUI;component/ApplicationResources/RatingTemplates/NoRatingTemplate.xaml" />
+        <ResourceDictionary Source="/Willowcat.EbookDesktopUI;component/ApplicationResources/RatingTemplates/GeneralRatingTemplate.xaml" />
+        <ResourceDictionary Source="/Willowcat.EbookDesktopUI;component/ApplicationResources/RatingTemplates/TeenRatingTemplate.xaml" />
+        <ResourceDictionary Source="/Willowcat.EbookDesktopUI;component/ApplicationResources/RatingTemplates/MatureRatingTemplate.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+</ResourceDictionary>

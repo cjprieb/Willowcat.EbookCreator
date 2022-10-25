@@ -37,7 +37,7 @@ namespace Willowcat.EbookCreatorTests.Utilities
             string result = null;
             using (MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(contents)))
             {
-                result = EpubUtilities.AddOrSetMetadataElementInStream(stream, timeToRead);
+                //result = EpubUtilities.AddOrSetMetadataElementInStream(stream, timeToRead);
             }
             return result;
         }

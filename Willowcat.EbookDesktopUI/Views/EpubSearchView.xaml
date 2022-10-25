@@ -1,0 +1,106 @@
+﻿<UserControl x:Class="Willowcat.EbookDesktopUI.Views.EpubSearchView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Willowcat.EbookDesktopUI.Views"
+             xmlns:viewmodel="clr-namespace:Willowcat.EbookDesktopUI.ViewModels"
+             xmlns:custom="clr-namespace:Willowcat.EbookDesktopUI.Views.UserControls"
+             xmlns:fa="http://schemas.fontawesome.io/icons/"
+             xmlns:converters="clr-namespace:Willowcat.EbookDesktopUI.ApplicationResources.Converters"
+             d:DataContext="{d:DesignInstance Type={x:Type viewmodel:EpubSearchViewModel}, IsDesignTimeCreatable=False}"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="1000">
+    <UserControl.Resources>
+        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <Style TargetType="local:EpubListView" x:Key="EpubListViewStyle">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsRefreshingList}" Value="True">
+                    <Setter Property="Cursor" Value="Wait" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsRefreshingList}" Value="False">
+                    <Setter Property="Cursor" Value="None" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />            
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="3*" />
+            <ColumnDefinition Width="2*" />
+        </Grid.ColumnDefinitions>
+        <Grid 
+            Grid.Row="0"
+            Grid.ColumnSpan="3"
+            Visibility="{Binding ShowProgressBar, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <ProgressBar Minimum="0"
+                    Maximum="{Binding TotalWorks}"
+                    Value="{Binding WorksProcessedCount}"
+                    Name="ProgressStatusBar"/>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock 
+                    Margin="6 3"
+                    Text="{Binding PercentComplete, StringFormat={}{0:0}%, Mode=OneWay}"/>
+                <TextBlock 
+                    Margin="0 3"
+                    Text=" - "
+                    Visibility="{Binding ShowProgressBar, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+            </StackPanel>
+        </Grid>
+
+        <local:FilterView 
+            Grid.Row="1"
+            Grid.Column="0"
+            DataContext="{Binding FilterViewModel}" />
+
+        <GridSplitter 
+                Grid.Column="0"
+                Grid.Row="1"
+                Background="DarkSlateGray"
+                Width="2"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Stretch" />
+
+        <Grid 
+            Grid.Row="1"
+            Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <custom:PaginationControl 
+                Grid.Row="0"
+                Grid.Column="0" 
+                DataContext="{Binding Pagination}"/>
+
+            <local:EpubListView 
+                Grid.Row="1"
+                Grid.Column="0"
+                Style="{StaticResource EpubListViewStyle}"
+                OnSelectionChanged="EpubListView_OnSelectionChanged"
+                DataContext="{Binding EpubListViewModel}"/>
+        </Grid>
+
+        <GridSplitter 
+                Grid.Column="1"
+                Grid.Row="1"
+                Background="Black"
+                Width="2"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Stretch" />
+
+        <local:EpubDetailsView 
+            Grid.Row="1"
+            Grid.Column="2"
+            x:Name="EpubDetailsViewControl"
+            DataContext="{Binding EpubListViewModel.SelectedEpubItemViewModel}" />
+
+    </Grid>
+</UserControl>

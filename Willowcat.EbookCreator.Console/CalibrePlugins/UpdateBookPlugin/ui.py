@@ -3,7 +3,7 @@
 
 from calibre.gui2.actions import InterfaceAction
 from calibre_plugins.willowcat_add_book.config import prefs
-
+from calibre_plugins.willowcat_add_book.read import getTimeToRead, parseTimeToReadAsMinutes
 
 class InterfacePlugin(InterfaceAction):
 
@@ -60,12 +60,7 @@ class InterfacePlugin(InterfaceAction):
         if not rows or len(rows) == 0:
             return error_dialog(self.gui, 'Cannot compute time to read', 'No books selected', show=True)
     
-        ebook_console_app_path = prefs['ebook_console_app_path']
-        words_per_minute = prefs['words_per_minute']
         read_time_custom_field = prefs['time_to_read_custom_field_name']
-
-        self.log("words per minute: " + words_per_minute)
-        self.log("console path: " + ebook_console_app_path)
 
         # Map the rows to book ids
         ids = list(map(self.gui.library_view.model().id, rows))
@@ -85,26 +80,31 @@ class InterfacePlugin(InterfaceAction):
                 
                 self.log("ebook path: " + path_to_ebook)
 
-                time_to_read = self.getTimeToRead(path_to_ebook, ebook_console_app_path, words_per_minute)
                 if read_time_custom_field != "":
+                    time_to_read = getTimeToRead(path_to_ebook)
                     self.gui.current_db.set_custom(book_id, time_to_read, label=read_time_custom_field)
+
+                    read_minutes_custom_field = prefs['time_to_read_minutes_custom_field_name']
+                    if read_minutes_custom_field != "":
+                        time_to_read_minutes = parseTimeToReadAsMinutes(time_to_read)
+                        self.gui.current_db.set_custom(book_id, time_to_read_minutes, label=read_minutes_custom_field)
 
         info_dialog(self.gui, 'Updated files',
                 'Updated the time to read for %d book(s)'%len(ids),
                 show=True)
 
-    def getTimeToRead(self, path_to_ebook, ebook_console_app_path, words_per_minute):
-        import subprocess
-        self.log("computed time to read for " + path_to_ebook)
+    # def getTimeToRead(self, path_to_ebook, ebook_console_app_path, words_per_minute):
+    #     import subprocess
+    #     self.log("computed time to read for " + path_to_ebook)
 
-        text = ""
-        if (words_per_minute != "") and (ebook_console_app_path != ""):
-            command = [ebook_console_app_path, 'readtime', "-f", path_to_ebook, "-w", words_per_minute]
-            p = subprocess.Popen(command, stdout=subprocess.PIPE)
-            text = p.stdout.read().decode("utf-8").strip()
-            self.log("result: " + text)
+    #     text = ""
+    #     if (words_per_minute != "") and (ebook_console_app_path != ""):
+    #         command = [ebook_console_app_path, 'readtime', "-f", path_to_ebook, "-w", words_per_minute]
+    #         p = subprocess.Popen(command, stdout=subprocess.PIPE)
+    #         text = p.stdout.read().decode("utf-8").strip()
+    #         self.log("result: " + text)
             
-        return text
+    #     return text
 
     def log(self, message):
         print("Willowcat: ", message)

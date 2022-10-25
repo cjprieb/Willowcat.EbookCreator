@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Willowcat.EbookCreator.Models
 {
-    internal class ExtractedEpubFilesModel
+    public class ExtractedEpubFilesModel
     {
         public List<string> ChaptersFilePaths { get; set; }
         public string ContentFilePath { get; set; }
@@ -13,16 +13,16 @@ namespace Willowcat.EbookCreator.Models
         public Dictionary<string, string> Stylesheets { get; set; }
 
         #region GetChapterFiles
-        internal IEnumerable<FileItemModel> GetChapterFiles()
+        public IEnumerable<FileItemModel> GetChapterFiles()
         {
             return ChaptersFilePaths.Select(x => new FileItemModel(Path.GetFileName(x), MediaType.HtmlXml));
         }
         #endregion GetChapterFiles
 
         #region GetOtherFiles
-        internal IEnumerable<FileItemModel> GetOtherFiles()
+        public IEnumerable<string> GetOtherFiles()
         {
-            return Stylesheets.Select(x => new FileItemModel(Path.GetFileName(x.Value), MediaType.Unknown));
+            return Stylesheets.Select(kvp => Path.GetFileName(kvp.Value));
         }
         #endregion GetOtherFiles
     }

@@ -16,7 +16,7 @@ namespace Willowcat.EbookCreator.Epub
         /// <param name="bibliography"></param>
         /// <param name="coverImagePath"></param>
         /// <returns></returns>
-        public virtual CoverModel CreateCover(BibliographyModel bibliography, string coverImagePath)
+        public virtual CoverModel CreateCover(IBibliographyModel bibliography, string coverImagePath)
         {
             if (string.IsNullOrEmpty(coverImagePath)) return null;
 

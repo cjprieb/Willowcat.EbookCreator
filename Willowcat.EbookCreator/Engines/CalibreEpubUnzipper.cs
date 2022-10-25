@@ -1,52 +1,64 @@
 ﻿using Ionic.Zip;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Willowcat.EbookCreator.Models;
 
 namespace Willowcat.EbookCreator.Engines
 {
-    internal class CalibreEpubUnzipper
+    public class CalibreEpubUnzipper
     {
-        private readonly string _OutputDirectory;
+        public int? NumberOfChapterFilesToInclude { get; set; } = null;
 
-        public CalibreEpubUnzipper(string outputDirectory)
+        public CalibreEpubUnzipper()
         {
-            _OutputDirectory = outputDirectory;
         }
 
         #region ExtractFilesFromBook
-        internal ExtractedEpubFilesModel ExtractFilesFromBook(string epubPath, int seriesIndex)
+        public ExtractedEpubFilesModel ExtractFilesFromBook(string epubPath, string outputDirectory)
         {
-            List<string> chapters = new List<string>();
-            Dictionary<string, string> stylesheets = new Dictionary<string, string>();
+            List<string> chapterOutputPaths = new List<string>();
+            List<ZipEntry> chapterEntries = new List<ZipEntry>();
+            List<string> stylesheets = new List<string>();
             string contentFilePath = null;
-            string temporaryDirectory = GetTempoaryOutputDirectory(epubPath);
 
             using (ZipFile zip = ZipFile.Read(epubPath))
             {
                 foreach (ZipEntry e in zip)
                 {
-                    if (IsStyleSheet(e))
+                    if (IsStyleSheet(e) && !NumberOfChapterFilesToInclude.HasValue)
                     {
-                        string stylesheetPath = ExtractFile(e, _OutputDirectory);
-                        (string oldName, string newPath) = RenameStylesheet(stylesheetPath, seriesIndex);
-                        stylesheets[oldName] = newPath;
+                        string stylesheetPath = ExtractFile(e, outputDirectory);
+                        stylesheets.Add(stylesheetPath);
                     }
                     else if (IsChapterFile(e))
                     {
-                        chapters.Add(ExtractFile(e, _OutputDirectory));
+                        chapterEntries.Add(e);
                     }
                     else if (IsContentFile(e))
                     {
-                        contentFilePath = ExtractFile(e, temporaryDirectory);
+                        contentFilePath = ExtractFile(e, outputDirectory);
+                    }
+                }
+
+                chapterEntries = chapterEntries.OrderBy(x => x.FileName).ToList();
+                foreach (var e in chapterEntries)
+                {
+                    if (NumberOfChapterFilesToInclude.HasValue && chapterOutputPaths.Count >= NumberOfChapterFilesToInclude)
+                    {
+                        // skip;
+                    }
+                    else
+                    {
+                        chapterOutputPaths.Add(ExtractFile(e, outputDirectory));
                     }
                 }
             }
-            chapters.Sort();
+            chapterOutputPaths.Sort();
             return new ExtractedEpubFilesModel()
             {
-                ChaptersFilePaths = chapters,
-                Stylesheets = stylesheets,
+                ChaptersFilePaths = chapterOutputPaths,
+                Stylesheets = stylesheets.ToDictionary(x => Path.GetFileName(x), x => x),
                 OriginalEpubFileName = epubPath,
                 ContentFilePath = contentFilePath
             };
@@ -54,7 +66,7 @@ namespace Willowcat.EbookCreator.Engines
         #endregion ExtractFilesFromBook
 
         #region ExtractFile
-        private static string ExtractFile(ZipEntry e, string outputDirectory)
+        private string ExtractFile(ZipEntry e, string outputDirectory)
         {
             string outputFilePath = Path.Combine(outputDirectory, e.FileName.Replace("/", "\\").Trim());
             if (File.Exists(outputFilePath))
@@ -65,15 +77,6 @@ namespace Willowcat.EbookCreator.Engines
             return outputFilePath;
         }
         #endregion ExtractFile
-
-        #region GetTempoaryOutputDirectory
-        private static string GetTempoaryOutputDirectory(string epubPath)
-        {
-            string epubParentDirectory = Path.GetDirectoryName(epubPath);
-            string epubFileName = Path.GetFileNameWithoutExtension(epubPath).Trim();
-            return Path.Combine(epubParentDirectory, epubFileName);
-        }
-        #endregion GetTempoaryOutputDirectory
 
         #region IsBaseEPubFile
         private bool IsBaseEPubFile(ZipEntry e)
@@ -109,20 +112,5 @@ namespace Willowcat.EbookCreator.Engines
             return false;
         }
         #endregion IsStyleSheet
-
-        #region RenameStylesheet
-        private (string oldName, string newName) RenameStylesheet(string outputFilePath, int seriesIndex)
-        {
-            string oldName = Path.GetFileName(outputFilePath);
-            string newName = $"{Path.GetFileNameWithoutExtension(outputFilePath)}_{seriesIndex}.css";
-            string newFilePath = Path.Combine(Path.GetDirectoryName(outputFilePath), newName);
-            if (File.Exists(newFilePath))
-            {
-                File.Delete(newFilePath);
-            }
-            File.Move(outputFilePath, newFilePath);
-            return (oldName, newFilePath);
-        }
-        #endregion RenameStylesheet
     }
 }

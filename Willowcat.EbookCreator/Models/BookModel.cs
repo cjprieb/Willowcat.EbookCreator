@@ -9,7 +9,7 @@ namespace Willowcat.EbookCreator.Models
         #region Properties...
 
         #region Bibliography
-        public BibliographyModel Bibliography { get; set; }
+        public IBibliographyModel Bibliography { get; set; }
         #endregion Bibliography
 
         #region TableOfContents

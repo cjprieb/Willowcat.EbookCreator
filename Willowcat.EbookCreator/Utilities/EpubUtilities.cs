@@ -1,13 +1,7 @@
-﻿using CsQuery;
-using Ionic.Zip;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Net;
 using System.Text;
-using System.Text.Json;
-using System.Xml.Linq;
 using Willowcat.EbookCreator.Epub;
 using Willowcat.EbookCreator.Models;
 
@@ -29,145 +23,109 @@ namespace Willowcat.EbookCreator.Utilities
 
         #region Methods...
 
-        #region AddOrSetMetadataElementInStream
-        public static string AddOrSetMetadataElementInStream(MemoryStream stream, TimeSpan timeToRead)
+        #region AddSubjectToContentFile
+        public static bool AddSubjectToContentFile(string epubFilePath, string subject)
         {
-            var originalData = Encoding.UTF8.GetString(stream.ToArray());
-            return AddOrSetMetadataElementToXml(originalData, timeToRead);
-        }
-        #endregion AddOrSetMetadataElementInStream
-
-        #region AddOrSetMetadataElementInStream
-        public static string AddOrSetMetadataElementToXml(string xmlString, TimeSpan timeToRead)
-        {
-            var timeToReadField = CalibreCustomFields.CreateTimeToReadField(timeToRead);
-            var editor = new ContentFileCustomMetadataEditor(xmlString);
-            if (editor.Version == "3.0" || editor.Version == "2.0")
+            using (EpubZippedFile zipFile = new EpubZippedFile(epubFilePath))
             {
-                editor.RemoveCustomFieldValue("#readtime");
-                editor.SetCustomFieldValue(timeToReadField);
-                return editor.BuildXmlString();
-            }
-            else
-            {
-                return null;
+                return zipFile.UpdateContentFile((editor) => editor.AddSubject(subject));
             }
         }
-        #endregion AddOrSetMetadataElementInStream
-
-        #region AddTimeToReadToContentFile
-        public static bool AddTimeToReadToContentFile(string contentFilePath, TimeSpan timeToRead)
-        {
-            string oldOpfFileContents = File.ReadAllText(contentFilePath);
-            string newOpfFileContents = AddOrSetMetadataElementToXml(oldOpfFileContents, timeToRead);
-            if (!string.IsNullOrEmpty(newOpfFileContents))
-            {
-                File.WriteAllText(contentFilePath, newOpfFileContents);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        #endregion AddTimeToReadToContentFile
+        #endregion AddSubjectToContentFile
 
         #region AddTimeToReadToEpub
-        public static bool AddTimeToReadToEpub(string epubFilePath, TimeSpan timeToRead)
+        public static bool AddTimeToReadToEpub(string epubFilePath, TimeSpan? timeToRead)
         {
-            string newOpfFileContents = null;
-            string opfFilePath = null;
-            bool fileUpdated = false;
-
-            using (ZipFile zip = ZipFile.Read(epubFilePath))
+            if (timeToRead.HasValue)
             {
-                var contentFileEntry = zip.FirstOrDefault(entry => entry.FileName.EndsWith(".opf"));
-                if (contentFileEntry != null)
+                using (EpubZippedFile zipFile = new EpubZippedFile(epubFilePath))
                 {
-                    using (var stream = new MemoryStream())
+                    return zipFile.UpdateContentFile((editor) =>
                     {
-                        contentFileEntry.Extract(stream);
-                        newOpfFileContents = AddOrSetMetadataElementInStream(stream, timeToRead);
-                        if (newOpfFileContents != null)
+                        var timeToReadField = CalibreCustomFields.CreateTimeToReadField(timeToRead);
+                        var changesMade = false;
+                        if (editor.Version == "3.0" || editor.Version == "2.0")
                         {
-                            opfFilePath = contentFileEntry.FileName;
-                            zip.UpdateEntry(contentFileEntry.FileName, Encoding.UTF8.GetBytes(newOpfFileContents));
-                            zip.Save();
-                            fileUpdated = true;
+                            editor.RemoveCustomFieldValue("#readtime");
+                            editor.SetCustomFieldValue(timeToReadField);
+                            changesMade = true;
                         }
-                    }
+                        return changesMade;
+                    });
                 }
             }
-            return fileUpdated;
+            return false;
         }
         #endregion AddTimeToReadToEpub
 
         #region CalculateTimeToReadBook
-        public static TimeSpan CalculateTimeToReadBook(string epubFilePath, int wordsPerMinute)
+        public static TimeSpan? CalculateTimeToReadBook(string epubFilePath, int wordsPerMinute)
         {
+            if (!File.Exists(epubFilePath)) throw new FileNotFoundException($"File does not exist: {epubFilePath}");
+
             if (wordsPerMinute == 0) throw new DivideByZeroException($"{wordsPerMinute} cannot be 0");
-            int minutes = GetWordCount(epubFilePath) / wordsPerMinute;
-            int hours = minutes / 60;
-            minutes = minutes % 60;
-            return new TimeSpan(hours, minutes, 0);
+
+            int wordCount = EPubWordCountCalculator.GetWordCount(epubFilePath);
+            int totalMinutes = wordCount / wordsPerMinute;
+            return new TimeSpan(totalMinutes / 60, totalMinutes % 60, 0);
         }
         #endregion CalculateTimeToReadBook
 
-        #region CountWordsInHtml
-        public static int CountWordsInHtml(string html)
+        #region Cleanup
+        public static void Cleanup(string calibreLibraryPath)
         {
-            CQ dom = html;
-            // var body = dom["body"].ElementAt(0);
-            var bodyText = dom.Text();
-            var foundWord = false;
-            var wordCount = 0;
-            foreach (var c in bodyText)
+            EpubFanFictionMetadataService service = new EpubFanFictionMetadataService(calibreLibraryPath);
+            service.Cleanup();
+        }
+        #endregion Cleanup
+
+        #region GetIdentifiers
+        public static Dictionary<string, string> GetIdentifiers(string eBookPath)
+        {
+            EpubFanFictionMetadataService service = new EpubFanFictionMetadataService();
+            return service.GetIdentifiers(eBookPath);
+        }
+        #endregion GetIdentifiers
+
+        #region RemoveSubjectFromContentFile
+        public static bool RemoveSubjectFromContentFile(string epubFilePath, string subject)
+        {
+            using (EpubZippedFile zipFile = new EpubZippedFile(epubFilePath))
             {
-                if (char.IsLetterOrDigit(c))
-                {
-                    foundWord = true;
-                }
-                else if (c == '-' || c == '\'')
-                {
-                    // ignore
-                }
-                else if (foundWord)
-                {
-                    wordCount++;
-                    foundWord = false;
-                }
+                return zipFile.UpdateContentFile((editor) => editor.RemoveSubject(subject));
             }
-
-            return wordCount;
         }
-        #endregion CountWordsInHtml
+        #endregion RemoveSubjectFromContentFile
 
-        #region CountWordsInStream
-        private static int CountWordsInStream(MemoryStream stream)
+        #region SearchHtmlContent
+        public static bool SearchHtmlContentFiles(string epubFilePath, string keyword)
         {
-            return CountWordsInHtml(Encoding.UTF8.GetString(stream.ToArray()));
-        }
-        #endregion CountWordsInStream
-
-        #region GetWordCount
-        public static int GetWordCount(string epubFilePath)
-        {
-            int count = 0;
-
-            using (ZipFile zip = ZipFile.Read(epubFilePath))
+            bool found = false;
+            using (EpubZippedFile zipFile = new EpubZippedFile(epubFilePath))
             {
-                foreach (ZipEntry e in zip.Where(entry => entry.FileName.EndsWith("html")))
+                zipFile.ProcessChapterFiles((stream) =>
                 {
-                    using (var stream = new MemoryStream())
+                    if (!found)
                     {
-                        e.Extract(stream);
-                        count += CountWordsInStream(stream);
+                        string html = Encoding.UTF8.GetString(stream.ToArray());
+                        found = SearchHtmlFile(html, keyword);
                     }
-                }
+                });
             }
-            return count;
+            return found;
         }
-        #endregion GetWordCount
+        #endregion SearchHtmlContent
+
+        #region SearchHtmlContent
+        public static bool SearchHtmlFile(string html, string keyword)
+        {
+            bool found = false;
+            //CQ dom = html;
+            //string text = dom["body"].Text();
+            found = html.Contains(keyword, StringComparison.OrdinalIgnoreCase);
+            return found;
+        }
+        #endregion SearchHtmlContent
 
         #endregion Methods...
     }

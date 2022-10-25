@@ -4,6 +4,6 @@ namespace Willowcat.EbookCreator.Epub
 {
     public interface ITableOfContentsGenerator
     {
-        FileItemModel CreateTableOfContents(BibliographyModel bibliography, TableOfContentsModel tableOfContents);
+        FileItemModel CreateTableOfContents(IBibliographyModel bibliography, TableOfContentsModel tableOfContents);
     }
 }

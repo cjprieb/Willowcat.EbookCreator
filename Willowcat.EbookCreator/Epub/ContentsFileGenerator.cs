@@ -29,7 +29,7 @@ namespace Willowcat.EbookCreator.Epub
         private const string xsiNamespaceUrl = "http://www.w3.org/2001/XMLSchema-instance";
         private static XNamespace xsiNamespace = xsiNamespaceUrl;
 
-        private BibliographyModel _Bibliography;
+        private IBibliographyModel _Bibliography;
         private ContentsFileModel _ContentsModel;
 
         #endregion Member Variables...
@@ -48,7 +48,7 @@ namespace Willowcat.EbookCreator.Epub
         #region Methods...
 
         #region CreateContentsFile
-        public virtual FileItemModel CreateContentsFile(BibliographyModel bibliography, ContentsFileModel contentsModel)
+        public virtual FileItemModel CreateContentsFile(IBibliographyModel bibliography, ContentsFileModel contentsModel)
         {
             _Bibliography = bibliography;
             _ContentsModel = contentsModel;
@@ -129,7 +129,7 @@ namespace Willowcat.EbookCreator.Epub
                 yield return new XElement(dcNamespace + "creator",
                     new XAttribute(opfNamespace + "role", "aut"),
                     new XAttribute(opfNamespace + "file-as", _Bibliography.CreatorSort),
-                    new XText(_Bibliography.Creator)
+                    new XText(BibliographyModel.FormatCreatorList(_Bibliography.Creators))
                 );
 
                 yield return new XElement(dcNamespace + "publisher", new XText(_Bibliography.Publisher));
